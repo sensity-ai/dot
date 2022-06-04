@@ -276,6 +276,14 @@ If you are working on improving the speed of dot, please read first our guide on
     pytest --cov=dot --cov-report=term --cov-fail-under=10
     ```
 
+### List of maintainers
+
+- [@ghassen1302](https://github.com/ghassen1302)
+- [@vassilispapadop](https://github.com/vassilispapadop)
+- [@giorgiop](https://github.com/giorgiop)
+- [@AjinkyaIndulkar](https://github.com/AjinkyaIndulkar)
+- [@kjod](https://github.com/kjod)
+
 ## Research
 
 - [Run dot on image and video files instead of camera feed](docs/run_without_camera.md)
