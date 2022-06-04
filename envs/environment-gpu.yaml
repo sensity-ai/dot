@@ -1,0 +1,13 @@
+---
+name: dot
+channels:
+    - conda-forge
+    - defaults
+dependencies:
+    - python=3.7.10
+    - pip=21.3
+    - pip:
+          - llvmlite==0.36.0
+          - onnxruntime-gpu==1.9.0
+          - gdown==4.4.0
+          - -r ../requirements.txt

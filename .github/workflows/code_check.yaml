@@ -1,0 +1,35 @@
+---
+name: code-check
+on:
+    push:
+        branches:
+            - main
+        paths:
+            - .github/workflows/code_check.yaml
+            - dot/**
+            - '!**.md'
+    pull_request:
+        types: [opened, synchronize, reopened, ready_for_review]
+        paths:
+            - .github/workflows/code_check.yaml
+            - dot/**
+            - '!**.md'
+
+jobs:
+    code-check:
+        if: github.event.pull_request.draft == false
+        runs-on: ubuntu-18.04
+        steps:
+            - name: Code Checkout
+              uses: actions/checkout@v2
+
+            - name: Set up Python
+              uses: actions/setup-python@v1
+              with:
+                  python-version: 3.7
+
+            - name: Install pre-commit
+              run: pip install -c requirements-dev.txt pre-commit
+
+            - name: Run pre-commit hooks
+              run: pre-commit run --all --show-diff-on-failure

@@ -1,0 +1,22 @@
+---
+analysis:
+    simswap:
+        parsing_model_path: ./saved_models/simswap/parsing_model/checkpoint/79999_iter.pth
+        checkpoints_dir: ./saved_models/simswap/checkpoints
+        arcface_model_path: ./saved_models/simswap/arcface_model/arcface_checkpoint.tar
+        detection_threshold: 0.6
+        det_size: [640, 640]
+        use_gpu: true
+        show_fps: true
+        opt_verbose: false
+        opt_crop_size: 512
+        opt_gpu_ids: 0
+        opt_fp16: false
+        opt_use_mask: true
+        opt_name: people
+        opt_resize_or_crop: scale_width
+        opt_load_pretrain: ''
+        opt_which_epoch: '550000'
+        opt_continue_train: store_true
+        gpen: gpen_256
+        gpen_path: ./saved_models/gpen
