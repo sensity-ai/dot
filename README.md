@@ -22,14 +22,14 @@ In a nutshell, *dot* works like this
     ------------------      -----------------------------      --------------------------
 ```
 
-All deepfakes supported by dot do not require additional training. They can be used
+All deepfakes supported by *dot* do not require additional training. They can be used
 in real-time on the fly on a photo that becomes the target of face impersonation.
 Supported methods:
 
 - face swap (via [SimSwap](https://github.com/neuralchen/SimSwap)), at resolutions `224` and `512`
   - with the option of face superresolution (via [GPen](https://github.com/yangxy/GPEN)) at resolutions `256` and `512`
 - lower quality face swap (via OpenCV)
-- [first order motion model](https://github.com/AliaksandrSiarohin/first-order-model)
+- [FOMM](https://github.com/AliaksandrSiarohin/first-order-model) for image animation
 
 ## Installation
 
@@ -127,7 +127,7 @@ Run `dot --help` to get a full list of available options.
 
     Additionally, to enable face superresolution, use the flag `--gpen_type gpen_256` or `--gpen_type gpen_512`.
 
-3. Avatarify
+3. FOMM
 
     ```bash
     dot \
@@ -177,7 +177,7 @@ Instructions vary depending on your operating system.
 
 ### Windows
 
-- Install [OBS Studio](https://obsproject.com/) for capturing Avatarify output.
+- Install [OBS Studio](https://obsproject.com/).
 
 - Install [VirtualCam plugin](https://obsproject.com/forum/resources/obs-virtualcam.539/).
 
