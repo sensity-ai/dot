@@ -21,7 +21,7 @@ class TestDotOptions(unittest.TestCase):
 
         self.faceswap_cv2_option = self._dot.faceswap_cv2(False, False, None)
 
-        self.avatarify_option = self._dot.avatarify(False, False, None)
+        self.fomm_option = self._dot.fomm(False, False, None)
 
         self.simswap_option = self._dot.simswap(False, False, None)
 
@@ -39,7 +39,7 @@ class TestDotOptions(unittest.TestCase):
         assert len(rejected) == 1
 
         success, rejected = self._dot.generate(
-            self.avatarify_option,
+            self.fomm_option,
             "./tests",
             "./tests",
             show_fps=False,

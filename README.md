@@ -2,11 +2,11 @@
 
 [![build-dot](https://github.com/sensity-ai/dot/actions/workflows/build_dot.yaml/badge.svg)](https://github.com/sensity-ai/dot/actions/workflows/build_dot.yaml) [![code-check](https://github.com/sensity-ai/dot/actions/workflows/code_check.yaml/badge.svg)](https://github.com/sensity-ai/dot/actions/workflows/code_check.yaml)
 
-dot (aka Deepfake Offensive Toolkit) makes real-time, controllable deepfakes ready for virtual cameras injection. dot is created for performing penetration testing against e.g. identity verification and video conferencing systems, for the use by security analysts, Red Team members, and biometrics researchers.
+*dot* (aka Deepfake Offensive Toolkit) makes real-time, controllable deepfakes ready for virtual cameras injection. *dot* is created for performing penetration testing against e.g. identity verification and video conferencing systems, for the use by security analysts, Red Team members, and biometrics researchers.
 
-If you want to learn more about dot is used for penetration tests with deepfakes in the industry, read [this article by The Verge](https://www.theverge.com/2022/5/18/23092964/deepfake-attack-facial-recognition-liveness-test-banks-sensity-report)
+If you want to learn more about *dot* is used for penetration tests with deepfakes in the industry, read [this article by The Verge](https://www.theverge.com/2022/5/18/23092964/deepfake-attack-facial-recognition-liveness-test-banks-sensity-report)
 
-*dot is developed for research and demonstration purposes. As an end user, you have the responsibility to obey all applicable laws when using this program. Authors and contributing developers assume no liability and are not responsible for any misuse or damage caused by the use of this program.*
+dot *is developed for research and demonstration purposes. As an end user, you have the responsibility to obey all applicable laws when using this program. Authors and contributing developers assume no liability and are not responsible for any misuse or damage caused by the use of this program.*
 
 <p align="center">
 <img src="./assets/dot_intro.gif" width="500"/>
@@ -14,7 +14,7 @@ If you want to learn more about dot is used for penetration tests with deepfakes
 
 ## How it works
 
-In a nutshell, dot works like this
+In a nutshell, *dot* works like this
 
 ```text
     __________________      _____________________________      __________________________
@@ -22,14 +22,14 @@ In a nutshell, dot works like this
     ------------------      -----------------------------      --------------------------
 ```
 
-All deepfakes supported by dot do not require additional training. They can be used
+All deepfakes supported by *dot* do not require additional training. They can be used
 in real-time on the fly on a photo that becomes the target of face impersonation.
 Supported methods:
 
 - face swap (via [SimSwap](https://github.com/neuralchen/SimSwap)), at resolutions `224` and `512`
   - with the option of face superresolution (via [GPen](https://github.com/yangxy/GPEN)) at resolutions `256` and `512`
 - lower quality face swap (via OpenCV)
-- [first order motion model](https://github.com/AliaksandrSiarohin/first-order-model)
+- [FOMM](https://github.com/AliaksandrSiarohin/first-order-model), First Order Motion Model for image animation
 
 ## Installation
 
@@ -92,7 +92,7 @@ There are 2 options for downloading the model weights:
 
 ## Usage
 
-### Running `dot`:
+### Running dot
 
 Run `dot --help` to get a full list of available options.
 
@@ -127,14 +127,14 @@ Run `dot --help` to get a full list of available options.
 
     Additionally, to enable face superresolution, use the flag `--gpen_type gpen_256` or `--gpen_type gpen_512`.
 
-3. Avatarify
+3. FOMM
 
     ```bash
     dot \
-    --swap_type avatarify \
+    --swap_type fomm \
     --target 0 \
     --source "./data" \
-    --model_path ./saved_models/avatarify/vox-adv-cpk.pth.tar \
+    --model_path ./saved_models/fomm/vox-adv-cpk.pth.tar \
     --show_fps \
     --use_gpu
     ```
@@ -151,19 +151,19 @@ Run `dot --help` to get a full list of available options.
     --use_gpu
     ```
 
-**Note**: To use dot on CPU (not recommended), do not pass the `--use_gpu` flag.
+**Note**: To use *dot* on CPU (not recommended), do not pass the `--use_gpu` flag.
 
-### Controlling dot:
+### Controlling dot
 
 > **Disclaimer**: We use the `SimSwap` technique for the following demonstration
 
-Running `dot` via any of the above methods generates real-time Deepfake on the input video feed using source images from the `./data` folder.
+Running *dot* via any of the above methods generates real-time Deepfake on the input video feed using source images from the `./data` folder.
 
 <p align="center">
 <img src="./assets/dot_run.gif" width="500"/>
 </p>
 
-When running `dot` a list of available control options appear on the terminal window as shown above. You can toggle through and select different source images by pressing the associated control key.
+When running *dot* a list of available control options appear on the terminal window as shown above. You can toggle through and select different source images by pressing the associated control key.
 
 Watch the following demo video for better understanding of the control options:
 
@@ -177,7 +177,7 @@ Instructions vary depending on your operating system.
 
 ### Windows
 
-- Install [OBS Studio](https://obsproject.com/) for capturing Avatarify output.
+- Install [OBS Studio](https://obsproject.com/).
 
 - Install [VirtualCam plugin](https://obsproject.com/forum/resources/obs-virtualcam.539/).
 
@@ -188,7 +188,7 @@ Choose `Install and register only 1 virtual camera`.
 - In the Sources section, press on Add button ("+" sign),
 
   select Windows Capture and press OK. In the appeared window,
-  choose "[python.exe]: avatarify" in Window drop-down menu and press OK.
+  choose "[python.exe]: fomm" in Window drop-down menu and press OK.
   Then select Edit -> Transform -> Fit to screen.
 
 - In OBS Studio, go to Tools -> VirtualCam. Check AutoStart,
@@ -230,7 +230,7 @@ Use the virtual camera with `OBS Studio`:
 
 - Download and install OBS Studio for MacOS from [here](https://obsproject.com/)
 - Open OBS and follow the first-time setup (you might be required to enable certain permissions in *System Preferences*)
-- Run dot with `--use_cam` flag to enable camera feed
+- Run *dot* with `--use_cam` flag to enable camera feed
 - Click the "+" button in the sources section → select "Windows Capture", create a new source and enter "OK" → select window with "python" included in the name and enter OK
 - Click "Start Virtual Camera" button in the controls section
 - Select "OBS Cam" as default camera in the video settings of the application target of the injection
@@ -240,7 +240,7 @@ Use the virtual camera with `OBS Studio`:
 *This is not a commercial Sensity product, and it is distributed freely with no warranties*
 
 The software is distributed under [BSD 3-Clause](LICENSE).
-dot utilizes several open source libraries. If you use dot, make sure you agree with their
+*dot* utilizes several open source libraries. If you use *dot*, make sure you agree with their
 licenses too. In particular, this codebase is built on top of the following research projects:
 
 - <https://github.com/AliaksandrSiarohin/first-order-model>
@@ -252,9 +252,9 @@ licenses too. In particular, this codebase is built on top of the following rese
 
 This repository follows the [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html) for code formatting.
 
-If you have ideas for improving dot, feel free to open relevant Issues and PRs. Please read [CONTRIBUTING.md](./CONTRIBUTING.md) before contributing to the repository.
+If you have ideas for improving *dot*, feel free to open relevant Issues and PRs. Please read [CONTRIBUTING.md](./CONTRIBUTING.md) before contributing to the repository.
 
-If you are working on improving the speed of dot, please read first our guide on [code profiling](docs/profiling.md).
+If you are working on improving the speed of *dot*, please read first our guide on [code profiling](docs/profiling.md).
 
 ### Setup Dev-Tools
 
@@ -286,4 +286,4 @@ If you are working on improving the speed of dot, please read first our guide on
 
 ## Research
 
-- [Run dot on image and video files instead of camera feed](docs/run_without_camera.md)
+- [Run *dot* on image and video files instead of camera feed](docs/run_without_camera.md)

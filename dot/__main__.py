@@ -15,7 +15,7 @@ from .dot import DOT
 @click.option(
     "--swap_type",
     "swap_type",
-    type=click.Choice(["avatarify", "faceswap_cv2", "simswap"], case_sensitive=False),
+    type=click.Choice(["fomm", "faceswap_cv2", "simswap"], case_sensitive=False),
     required=True,
 )
 @click.option(

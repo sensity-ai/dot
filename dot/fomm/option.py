@@ -35,7 +35,7 @@ def determine_path():
         sys.exit()
 
 
-class AvatarifyOption(ModelOption):
+class FOMMOption(ModelOption):
     def __init__(
         self,
         use_gpu=True,
@@ -44,7 +44,7 @@ class AvatarifyOption(ModelOption):
         gpen_type=None,
         gpen_path=None,
     ):
-        super(AvatarifyOption, self).__init__(
+        super(FOMMOption, self).__init__(
             gpen_type=gpen_type,
             use_gpu=use_gpu,
             crop_size=crop_size,
@@ -134,8 +134,8 @@ class AvatarifyOption(ModelOption):
             self.predictor.reset_frames()
 
             if not self.is_calibrated:
-                cv2.namedWindow("FOM", cv2.WINDOW_GUI_NORMAL)
-                cv2.moveWindow("FOM", 600, 250)
+                cv2.namedWindow("FOMM", cv2.WINDOW_GUI_NORMAL)
+                cv2.moveWindow("FOMM", 600, 250)
 
             self.is_calibrated = True
             self.show_landmarks = False
@@ -239,7 +239,7 @@ class AvatarifyOption(ModelOption):
         if not self.opt_hide_rect:
             draw_rect(preview_frame)
 
-        cv2.imshow("FOM", preview_frame[..., ::-1])
+        cv2.imshow("FOMM", preview_frame[..., ::-1])
 
         if out is not None:
             if not self.opt_no_pad:
