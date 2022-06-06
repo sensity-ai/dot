@@ -29,7 +29,7 @@ Supported methods:
 - face swap (via [SimSwap](https://github.com/neuralchen/SimSwap)), at resolutions `224` and `512`
   - with the option of face superresolution (via [GPen](https://github.com/yangxy/GPEN)) at resolutions `256` and `512`
 - lower quality face swap (via OpenCV)
-- [FOMM](https://github.com/AliaksandrSiarohin/first-order-model) for image animation
+- [FOMM](https://github.com/AliaksandrSiarohin/first-order-model), First Order Motion Model for image animation
 
 ## Installation
 
@@ -131,7 +131,7 @@ Run `dot --help` to get a full list of available options.
 
     ```bash
     dot \
-    --swap_type avatarify \
+    --swap_type fomm \
     --target 0 \
     --source "./data" \
     --model_path ./saved_models/avatarify/vox-adv-cpk.pth.tar \

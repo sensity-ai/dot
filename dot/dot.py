@@ -7,12 +7,12 @@ licensed under the BSD 3-Clause "New" or "Revised" License.
 from pathlib import Path
 from typing import List, Optional, Union
 
-from .avatarify import AvatarifyOption
+from .fomm import FOMMOption
 from .commons import ModelOption
 from .faceswap_cv2 import FaceswapCVOption
 from .simswap import SimswapOption
 
-AVAILABLE_SWAP_TYPES = ["simswap", "avatarify", "faceswap_cv2"]
+AVAILABLE_SWAP_TYPES = ["simswap", "fomm", "faceswap_cv2"]
 
 
 class DOT:
@@ -20,7 +20,7 @@ class DOT:
 
     Supported Engines:
         - `simswap`
-        - `avatarify`
+        - `fomm`
         - `faceswap_cv2`
 
     Attributes:
@@ -90,8 +90,8 @@ class DOT:
                 gpen_path=gpen_path,
                 crop_size=crop_size,
             )
-        elif swap_type == "avatarify":
-            option = self.avatarify(
+        elif swap_type == "fomm":
+            option = self.fomm(
                 use_gpu=use_gpu, gpen_type=gpen_type, gpen_path=gpen_path
             )
         elif swap_type == "faceswap_cv2":
@@ -197,10 +197,10 @@ class DOT:
             crop_size=crop_size,
         )
 
-    def avatarify(
+    def fomm(
         self, use_gpu: bool, gpen_type: str, gpen_path: str, crop_size: int = 256
-    ) -> AvatarifyOption:
-        """Build Avatarify Option.
+    ) -> FOMMOption:
+        """Build FOMM Option.
 
         Args:
             use_gpu (bool): If True, use GPU.
@@ -209,9 +209,9 @@ class DOT:
             crop_size (int, optional): crop size. Defaults to 256.
 
         Returns:
-            AvatarifyOption: Avatarify Option.
+            FOMMOption: FOMM Option.
         """
-        return AvatarifyOption(
+        return FOMMOption(
             use_gpu=use_gpu,
             gpen_type=gpen_type,
             gpen_path=gpen_path,

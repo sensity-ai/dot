@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
 
-from .option import AvatarifyOption
+from .option import FOMMOption
 
-__all__ = ["AvatarifyOption"]
+__all__ = ["FOMMOption"]

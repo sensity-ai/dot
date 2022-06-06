@@ -35,7 +35,7 @@ def determine_path():
         sys.exit()
 
 
-class AvatarifyOption(ModelOption):
+class FOMMOption(ModelOption):
     def __init__(
         self,
         use_gpu=True,
@@ -44,7 +44,7 @@ class AvatarifyOption(ModelOption):
         gpen_type=None,
         gpen_path=None,
     ):
-        super(AvatarifyOption, self).__init__(
+        super(FOMMOption, self).__init__(
             gpen_type=gpen_type,
             use_gpu=use_gpu,
             crop_size=crop_size,
