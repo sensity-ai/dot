@@ -92,7 +92,7 @@ There are 2 options for downloading the model weights:
 
 ## Usage
 
-### Running `dot`:
+### Running `dot`
 
 Run `dot --help` to get a full list of available options.
 
@@ -153,7 +153,7 @@ Run `dot --help` to get a full list of available options.
 
 **Note**: To use dot on CPU (not recommended), do not pass the `--use_gpu` flag.
 
-### Controlling dot:
+### Controlling dot
 
 > **Disclaimer**: We use the `SimSwap` technique for the following demonstration
 
