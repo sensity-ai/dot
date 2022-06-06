@@ -134,8 +134,8 @@ class FOMMOption(ModelOption):
             self.predictor.reset_frames()
 
             if not self.is_calibrated:
-                cv2.namedWindow("FOM", cv2.WINDOW_GUI_NORMAL)
-                cv2.moveWindow("FOM", 600, 250)
+                cv2.namedWindow("FOMM", cv2.WINDOW_GUI_NORMAL)
+                cv2.moveWindow("FOMM", 600, 250)
 
             self.is_calibrated = True
             self.show_landmarks = False
@@ -239,7 +239,7 @@ class FOMMOption(ModelOption):
         if not self.opt_hide_rect:
             draw_rect(preview_frame)
 
-        cv2.imshow("FOM", preview_frame[..., ::-1])
+        cv2.imshow("FOMM", preview_frame[..., ::-1])
 
         if out is not None:
             if not self.opt_no_pad:

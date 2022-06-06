@@ -134,7 +134,7 @@ Run `dot --help` to get a full list of available options.
     --swap_type fomm \
     --target 0 \
     --source "./data" \
-    --model_path ./saved_models/avatarify/vox-adv-cpk.pth.tar \
+    --model_path ./saved_models/fomm/vox-adv-cpk.pth.tar \
     --show_fps \
     --use_gpu
     ```
@@ -188,7 +188,7 @@ Choose `Install and register only 1 virtual camera`.
 - In the Sources section, press on Add button ("+" sign),
 
   select Windows Capture and press OK. In the appeared window,
-  choose "[python.exe]: avatarify" in Window drop-down menu and press OK.
+  choose "[python.exe]: fomm" in Window drop-down menu and press OK.
   Then select Edit -> Transform -> Fit to screen.
 
 - In OBS Studio, go to Tools -> VirtualCam. Check AutoStart,
