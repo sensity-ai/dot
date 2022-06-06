@@ -7,9 +7,9 @@ licensed under the BSD 3-Clause "New" or "Revised" License.
 from pathlib import Path
 from typing import List, Optional, Union
 
-from .fomm import FOMMOption
 from .commons import ModelOption
 from .faceswap_cv2 import FaceswapCVOption
+from .fomm import FOMMOption
 from .simswap import SimswapOption
 
 AVAILABLE_SWAP_TYPES = ["simswap", "fomm", "faceswap_cv2"]
