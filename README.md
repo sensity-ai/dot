@@ -99,13 +99,9 @@ Run `dot --help` to get a full list of available options.
 1. Simswap
 
     ```bash
-    dot \
-    --swap_type simswap \
+    dot -c ./configs/simswap.yaml \
     --target 0 \
     --source "./data" \
-    --parsing_model_path ./saved_models/simswap/parsing_model/checkpoint/79999_iter.pth \
-    --arcface_model_path ./saved_models/simswap/arcface_model/arcface_checkpoint.tar \
-    --checkpoints_dir ./saved_models/simswap/checkpoints \
     --show_fps \
     --use_gpu
     ```
@@ -114,27 +110,22 @@ Run `dot --help` to get a full list of available options.
 
     ```bash
     dot \
-    --swap_type simswap \
+    -c ./configs/simswap_hq.yaml \
     --target 0 \
     --source "./data" \
-    --parsing_model_path ./saved_models/simswap/parsing_model/checkpoint/79999_iter.pth \
-    --arcface_model_path ./saved_models/simswap/arcface_model/arcface_checkpoint.tar \
-    --checkpoints_dir ./saved_models/simswap/checkpoints \
-    --crop_size 512 \
     --show_fps \
     --use_gpu
     ```
 
-    Additionally, to enable face superresolution, use the flag `--gpen_type gpen_256` or `--gpen_type gpen_512`.
+    Additionally, to enable face superresolution, change the configuration file to `configs/simswaphq_gpen_256.yaml` or `configs/simswaphq_gpen_512.yaml`.
 
 3. FOMM
 
     ```bash
     dot \
-    --swap_type fomm \
+    -c ./configs/fomm.yaml \
     --target 0 \
     --source "./data" \
-    --model_path ./saved_models/fomm/vox-adv-cpk.pth.tar \
     --show_fps \
     --use_gpu
     ```
@@ -142,11 +133,9 @@ Run `dot --help` to get a full list of available options.
 4. FaceSwap
 
     ```bash
-    dot \
-    --swap_type faceswap_cv2 \
+    dot -c ./configs/faceswap.yaml \
     --target 0 \
     --source "./data" \
-    --model_path ./saved_models/faceswap_cv/shape_predictor_68_face_landmarks.dat \
     --show_fps \
     --use_gpu
     ```
@@ -157,7 +146,7 @@ Run `dot --help` to get a full list of available options.
 
 > **Disclaimer**: We use the `SimSwap` technique for the following demonstration
 
-Running *dot* via any of the above methods generates real-time Deepfake on the input video feed using source images from the `./data` folder.
+Running *dot* via any of the above methods generates real-time Deepfake on the input video feed using source images from the `data/` folder.
 
 <p align="center">
 <img src="./assets/dot_run.gif" width="500"/>
