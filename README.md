@@ -1,6 +1,15 @@
-# Deepfake Offensive Toolkit
+<div align="center">
 
-[![build-dot](https://github.com/sensity-ai/dot/actions/workflows/build_dot.yaml/badge.svg)](https://github.com/sensity-ai/dot/actions/workflows/build_dot.yaml) [![code-check](https://github.com/sensity-ai/dot/actions/workflows/code_check.yaml/badge.svg)](https://github.com/sensity-ai/dot/actions/workflows/code_check.yaml)
+**Deepfake Offensive Toolkit**
+
+______________________________________________________________________
+
+[![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/downloads/release/python-3712/)
+[![license](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://github.com/sensity-ai/dot/blob/main/LICENSE)
+[![build-dot](https://github.com/sensity-ai/dot/actions/workflows/build_dot.yaml/badge.svg)](https://github.com/sensity-ai/dot/actions/workflows/build_dot.yaml)
+[![code-check](https://github.com/sensity-ai/dot/actions/workflows/code_check.yaml/badge.svg)](https://github.com/sensity-ai/dot/actions/workflows/code_check.yaml)
+
+</div>
 
 *dot* (aka Deepfake Offensive Toolkit) makes real-time, controllable deepfakes ready for virtual cameras injection. *dot* is created for performing penetration testing against e.g. identity verification and video conferencing systems, for the use by security analysts, Red Team members, and biometrics researchers.
 
@@ -255,6 +264,10 @@ This repository follows the [Google Python Style Guide](https://google.github.io
 If you have ideas for improving *dot*, feel free to open relevant Issues and PRs. Please read [CONTRIBUTING.md](./CONTRIBUTING.md) before contributing to the repository.
 
 If you are working on improving the speed of *dot*, please read first our guide on [code profiling](docs/profiling.md).
+
+### Changelog
+
+Visit [CHANGELOG.md](./CHANGELOG.md) to track changes in the repository.
 
 ### Setup Dev-Tools
 
