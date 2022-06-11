@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-## :sparkles: Feature Request:
+## :sparkles: Feature Request
 
 <!-- Note: Remove sections from the template that are not relevant to the issue. -->
 
