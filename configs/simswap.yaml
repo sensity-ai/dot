@@ -1,3 +1,4 @@
+---
 swap_type: simswap
 parsing_model_path: ./saved_models/simswap/parsing_model/checkpoint/79999_iter.pth
 arcface_model_path: ./saved_models/simswap/arcface_model/arcface_checkpoint.tar
