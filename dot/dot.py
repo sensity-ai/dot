@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import List, Optional, Union
 
 from .commons import ModelOption
+from .commons.video.videocaptureasync import VideoCaptureAsync
 from .faceswap_cv2 import FaceswapCVOption
 from .fomm import FOMMOption
 from .simswap import SimswapOption
@@ -35,6 +36,7 @@ class DOT:
         use_video: bool = False,
         use_image: bool = False,
         save_folder: str = None,
+        target: Union[int, str] = None,
         *args,
         **kwargs,
     ):
@@ -45,6 +47,7 @@ class DOT:
             use_image (bool, optional): if True, use image-swap pipeline. Defaults to False.
             save_folder (str, optional): Output folder to store face-swaps and metadata file when `use_cam` is False.
                 Defaults to None.
+            target (Union[int, str], optional): Either `int` which indicates camera descriptor or target image file.
         """
         # init
         self.use_video = use_video
@@ -54,9 +57,32 @@ class DOT:
         # additional attributes
         self.use_cam = (not use_video) and (not use_image)
 
+        # verify if camera exists, if _dot.use_cam is True
+        if self.use_cam:
+            if isinstance(target, int):
+                if not self.cam_exists(target):
+                    raise ValueError(f"Camera {target} does not exist.")
+            else:
+                raise ValueError("target must be an integer when using camera.")
+
         # create output folder
         if self.save_folder and not Path(self.save_folder).exists():
             Path(self.save_folder).mkdir(parents=True, exist_ok=True)
+
+    def cam_exists(self, target: int) -> bool:
+        """Checks if camera ID exists.
+
+        Args:
+            target (int): Camera ID.
+
+        Returns:
+            bool: True if camera exists.
+        """
+        try:
+            _ = VideoCaptureAsync(target)
+            return True
+        except RuntimeError:
+            return False
 
     def build_option(
         self,
