@@ -17,7 +17,7 @@ def fake_generate(self, option, source, target, show_fps=False, **kwargs):
 @mock.patch.object(DOT, "generate", fake_generate)
 class TestDotOptions(unittest.TestCase):
     def setUp(self):
-        self._dot = DOT(use_cam=False, save_folder="./tests")
+        self._dot = DOT(use_image=True, save_folder="./tests")
 
         self.faceswap_cv2_option = self._dot.faceswap_cv2(False, False, None)
 
