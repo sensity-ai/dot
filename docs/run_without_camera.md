@@ -6,9 +6,9 @@
 ```bash
 dot \
 --swap_type simswap \
---target ./data \
+--target data/ \
 --use_gpu \
---source "./data" \
+--source "data/" \
 --parsing_model_path ./saved_models/simswap/parsing_model/checkpoint/79999_iter.pth \
 --arcface_model_path ./saved_models/simswap/arcface_model/arcface_checkpoint.tar \
 --checkpoints_dir ./saved_models/simswap/checkpoints \
@@ -19,9 +19,9 @@ dot \
 ```bash
 dot \
 --swap_type faceswap_cv2 \
---target ./data \
+--target data/ \
 --use_gpu \
---source "./data" \
+--source "data/" \
 --model_path ./saved_models/faceswap_cv/shape_predictor_68_face_landmarks.dat \
 --save_folder test_local/
 --use_image
