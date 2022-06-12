@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 import torch
 import torch.nn as nn
+from kornia.geometry import transform as ko_transform
 from torch.nn import functional as F
 
 
@@ -92,6 +93,7 @@ def postprocess(swapped_face, target, target_mask, smooth_mask, use_gpu=True):
     return result
 
 
+# TODO: use device instead of use_gpu
 def reverse2wholeimage(
     b_align_crop_tenor_list,
     swaped_imgs,
@@ -149,13 +151,55 @@ def reverse2wholeimage(
                     use_gpu=use_gpu,
                 )
 
-                target_image = cv2.warpAffine(target_image_parsing, mat_rev, orisize)
+                if use_gpu:
+                    target_image = ko_transform.warp_affine(
+                        torch.tensor(target_image_parsing).cuda(),
+                        torch.tensor(mat_rev).cuda(),
+                        orisize,
+                    )
+                else:
+                    target_image = ko_transform.warp_affine(
+                        torch.tensor(target_image_parsing).cpu(),
+                        torch.tensor(mat_rev).cpu(),
+                        orisize,
+                    )
+                target_image = target_image.cpu().detach().numpy()
             else:
-                target_image = cv2.warpAffine(swaped_img, mat_rev, orisize)[..., ::-1]
+                if use_gpu:
+                    target_image = ko_transform.warp_affine(
+                        torch.tensor(swaped_img).cuda(),
+                        torch.tensor(mat_rev).cuda(),
+                        orisize,
+                    )[..., ::-1]
+                else:
+                    target_image = ko_transform.warp_affine(
+                        torch.tensor(swaped_img).cpu(),
+                        torch.tensor(mat_rev).cpu(),
+                        orisize,
+                    )[..., ::-1]
+                target_image = target_image.cpu().detach().numpy()
         else:
-            target_image = cv2.warpAffine(swaped_img, mat_rev, orisize)
+            if use_gpu:
+                target_image = ko_transform.warp_affine(
+                    torch.tensor(swaped_img).cuda(),
+                    torch.tensor(mat_rev).cuda(),
+                    orisize,
+                )
+            else:
+                target_image = ko_transform.warp_affine(
+                    torch.tensor(swaped_img).cpu(), torch.tensor(mat_rev).cpu(), orisize
+                )
+            target_image = target_image.cpu().detach().numpy()
 
-        img_white = cv2.warpAffine(img_white, mat_rev, orisize)
+        if use_gpu:
+            img_white = ko_transform.warp_affine(
+                torch.tensor(img_white).cuda(), torch.tensor(mat_rev).cuda(), orisize
+            )
+        else:
+            img_white = ko_transform.warp_affine(
+                torch.tensor(img_white).cpu(), torch.tensor(mat_rev).cpu(), orisize
+            )
+        img_white = img_white.cpu().detach().numpy()
 
         img_white[img_white > 20] = 255
 
