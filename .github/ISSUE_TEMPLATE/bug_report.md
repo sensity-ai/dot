@@ -13,7 +13,7 @@ labels: bug
 
 #### Actual Behavior:
 
-<!-- A clear and concise description of what the bug is. -->
+<!-- A clear and concise description of what the bug is, including steps for reproducing it. -->
 
 #### Expected Behavior:
 
