@@ -80,14 +80,25 @@ pip install -e .
 
 ### Download Models
 
-There are 2 options for downloading the model weights:
-
-- GDrive: Download folder from [here](https://drive.google.com/drive/folders/1FX1QoXragN4aKJZFo2DLiDE8fqKHeXEB?usp=sharing), unzip and place the folder in the root directory of the repository.
-
-- `gdown`: Run the following command:
+-   Download GitHub Release binaries from [here](https://github.com/sensity-ai/dot/releases/tag/1.0.0) or use the following `wget` commands:
 
     ```bash
-    gdown https://drive.google.com/drive/folders/1FX1QoXragN4aKJZFo2DLiDE8fqKHeXEB -O ./saved_models --folder
+    wget https://github.com/sensity-ai/dot/releases/download/1.0.0/dot_model_checkpoints.z01 \
+    && wget https://github.com/sensity-ai/dot/releases/download/1.0.0/dot_model_checkpoints.z02 \
+    && wget https://github.com/sensity-ai/dot/releases/download/1.0.0/dot_model_checkpoints.zip
+    ```
+
+-   Unzip the binaries and place them in the root directory of the repository:
+
+    ```bash
+    zip -s 0 dot_model_checkpoints.zip --out saved_models.zip \
+    && unzip saved_models.zip
+    ```
+
+-   Clean up the downloaded binaries:
+
+    ```bash
+    rm -rf *.z*
     ```
 
 ## Usage
