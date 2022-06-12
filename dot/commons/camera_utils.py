@@ -13,6 +13,7 @@ from .cam.cam import draw_fps
 from .utils import TicToc, find_images_from_path
 from .video.videocaptureasync import VideoCaptureAsync
 
+
 def fetch_camera(target: int) -> VideoCaptureAsync:
     """Fetches a VideoCaptureAsync object.
 
@@ -27,8 +28,9 @@ def fetch_camera(target: int) -> VideoCaptureAsync:
     """
     try:
         return VideoCaptureAsync(target)
-    except:
+    except RuntimeError:
         raise ValueError(f"Camera {target} does not exist.")
+
 
 def camera_pipeline(
     cap: VideoCaptureAsync,
@@ -39,7 +41,7 @@ def camera_pipeline(
     post_process_image: Callable[[np.ndarray], np.ndarray],
     crop_size: int = 224,
     show_fps: bool = False,
-    **kwargs: Dict
+    **kwargs: Dict,
 ) -> None:
     """Open a webcam stream `target` and performs face-swap based on `source` image by frame.
 

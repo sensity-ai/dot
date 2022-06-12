@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import List, Optional, Union
 
 from .commons import ModelOption
-from .commons.video.videocaptureasync import VideoCaptureAsync
 from .faceswap_cv2 import FaceswapCVOption
 from .fomm import FOMMOption
 from .simswap import SimswapOption
