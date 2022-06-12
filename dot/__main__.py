@@ -212,7 +212,7 @@ def main(
         gpen_type=config.get("gpen_type", gpen_type),
         gpen_path=config.get("gpen_path", gpen_path),
         crop_size=config.get("crop_size", crop_size),
-        save_folder=config.get("save_folder", save_folder),
+        save_folder=save_folder,
         show_fps=show_fps,
         use_gpu=use_gpu,
         use_video=use_video,
