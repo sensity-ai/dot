@@ -295,6 +295,14 @@ If you are working on improving the speed of *dot*, please read first our guide 
 - [@AjinkyaIndulkar](https://github.com/AjinkyaIndulkar)
 - [@kjod](https://github.com/kjod)
 
+### List of contributors
+
+[![](https://img.shields.io/github/contributors-anon/sensity-ai/dot)](https://github.com/sensity-ai/dot/graphs/contributors)
+
+<a href="https://github.com/sensity-ai/dot/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=sensity-ai/dot" />
+</a>
+
 ## Research
 
 - [Run *dot* on image and video files instead of camera feed](docs/run_without_camera.md)
