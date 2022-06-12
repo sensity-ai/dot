@@ -14,7 +14,26 @@ from .utils import TicToc, find_images_from_path
 from .video.videocaptureasync import VideoCaptureAsync
 
 
+def fetch_camera(target: int) -> VideoCaptureAsync:
+    """Fetches a VideoCaptureAsync object.
+
+    Args:
+        target (int): Camera ID descriptor.
+
+    Raises:
+        ValueError: If camera ID descriptor is not valid.
+
+    Returns:
+        VideoCaptureAsync: VideoCaptureAsync object.
+    """
+    try:
+        return VideoCaptureAsync(target)
+    except RuntimeError:
+        raise ValueError(f"Camera {target} does not exist.")
+
+
 def camera_pipeline(
+    cap: VideoCaptureAsync,
     source: str,
     target: int,
     change_option: Callable[[np.ndarray], None],
@@ -22,11 +41,12 @@ def camera_pipeline(
     post_process_image: Callable[[np.ndarray], np.ndarray],
     crop_size: int = 224,
     show_fps: bool = False,
-    **kwargs: Dict
+    **kwargs: Dict,
 ) -> None:
     """Open a webcam stream `target` and performs face-swap based on `source` image by frame.
 
     Args:
+        cap (VideoCaptureAsync): VideoCaptureAsync object.
         source (str): Path to source image folder.
         target (int): Camera ID descriptor.
         change_option (Callable[[np.ndarray], None]): Set `source` arg as faceswap source image.
@@ -51,7 +71,6 @@ def camera_pipeline(
     img_a_align_crop = process_image(img_a_whole)
     img_a_align_crop = post_process_image(img_a_align_crop)
 
-    cap = VideoCaptureAsync(target)
     cap.start()
     ret, frame = cap.read()
     cv2.namedWindow("cam", cv2.WINDOW_GUI_NORMAL)

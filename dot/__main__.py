@@ -121,7 +121,9 @@ def main(
 ):
     """CLI entrypoint for dot."""
     # initialize dot
-    _dot = DOT(use_video=use_video, use_image=use_image, save_folder=save_folder)
+    _dot = DOT(
+        use_video=use_video, use_image=use_image, save_folder=save_folder, target=target
+    )
 
     # build dot
     option = _dot.build_option(

@@ -12,7 +12,7 @@ import cv2
 import torch
 
 from ..gpen.face_enhancement import FaceEnhancement
-from .camera_utils import camera_pipeline
+from .camera_utils import camera_pipeline, fetch_camera
 from .utils import find_images_from_path, generate_random_file_idx, rand_idx_tuple
 from .video.video_utils import video_pipeline
 
@@ -180,8 +180,10 @@ class ModelOption(ABC):
             show_fps (bool, optional): Show FPS. Defaults to False.
         """
         with torch.no_grad():
+            cap = fetch_camera(target)
             self.create_model(opt_crop_size=opt_crop_size, **kwargs)
             camera_pipeline(
+                cap,
                 source,
                 target,
                 self.change_option,
