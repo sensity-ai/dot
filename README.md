@@ -110,7 +110,8 @@ Run `dot --help` to get a full list of available options.
 1. Simswap
 
     ```bash
-    dot -c ./configs/simswap.yaml \
+    dot \
+    -c ./configs/simswap.yaml \
     --target 0 \
     --source "./data" \
     --show_fps \
@@ -144,7 +145,8 @@ Run `dot --help` to get a full list of available options.
 4. FaceSwap
 
     ```bash
-    dot -c ./configs/faceswap.yaml \
+    dot \
+    -c ./configs/faceswap.yaml \
     --target 0 \
     --source "./data" \
     --show_fps \
