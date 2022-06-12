@@ -287,7 +287,7 @@ If you are working on improving the speed of *dot*, please read first our guide 
     pytest --cov=dot --cov-report=term --cov-fail-under=10
     ```
 
-### List of maintainers
+### List of Maintainers
 
 - [@ghassen1302](https://github.com/ghassen1302)
 - [@vassilispapadop](https://github.com/vassilispapadop)
@@ -295,7 +295,7 @@ If you are working on improving the speed of *dot*, please read first our guide 
 - [@AjinkyaIndulkar](https://github.com/AjinkyaIndulkar)
 - [@kjod](https://github.com/kjod)
 
-### List of contributors
+### List of Contributors
 
 [![](https://img.shields.io/github/contributors-anon/sensity-ai/dot)](https://github.com/sensity-ai/dot/graphs/contributors)
 
