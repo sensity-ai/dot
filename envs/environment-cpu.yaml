@@ -9,6 +9,5 @@ dependencies:
     - pip:
           - torch==1.9.0
           - torchvision==0.10.0
-          - gdown==4.4.0
           - onnxruntime==1.9.0
           - -r ../requirements.txt
