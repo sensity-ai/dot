@@ -1,9 +1,7 @@
 ---
 name: Feature Request
 about: Submit a feature request for dot
-title: ''
 labels: feature
-assignees: ''
 
 ---
 

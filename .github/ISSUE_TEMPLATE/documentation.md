@@ -1,9 +1,7 @@
 ---
 name: Documentation
 about: Report an issue related to dot documentation
-title: ''
 labels: documentation
-assignees: ''
 
 ---
 

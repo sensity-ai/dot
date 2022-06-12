@@ -1,9 +1,7 @@
 ---
 name: Ask a Question
 about: Ask a question about using dot
-title: ''
 labels: question
-assignees: ''
 
 ---
 

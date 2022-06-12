@@ -1,9 +1,7 @@
 ---
 name: Bug Report
 about: Report bugs to improve dot
-title: ''
 labels: bug
-assignees: ''
 
 ---
 
