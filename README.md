@@ -137,8 +137,6 @@ Run `dot --help` to get a full list of available options.
     --use_gpu
     ```
 
-    Additionally, to enable face superresolution, change the configuration file to `configs/simswaphq_gpen_256.yaml` or `configs/simswaphq_gpen_512.yaml`.
-
 3. FOMM
 
     ```bash
@@ -161,7 +159,7 @@ Run `dot --help` to get a full list of available options.
     --use_gpu
     ```
 
-**Note**: To use *dot* on CPU (not recommended), do not pass the `--use_gpu` flag.
+**Note**: To enable face superresolution, use the flag `--gpen_type gpen_256` or `--gpen_type gpen_512`. To use *dot* on CPU (not recommended), do not pass the `--use_gpu` flag.
 
 ### Controlling dot
 
