@@ -1,7 +1,0 @@
----
-swap_type: simswap
-parsing_model_path: ./saved_models/simswap/parsing_model/checkpoint/79999_iter.pth
-arcface_model_path: ./saved_models/simswap/arcface_model/arcface_checkpoint.tar
-checkpoints_dir: ./saved_models/simswap/checkpoints
-crop_size: 512
-gpen_type: gpen_512
