@@ -1,0 +1,3 @@
+---
+swap_type: faceswap_cv2
+model_path: ./saved_models/faceswap_cv/shape_predictor_68_face_landmarks.dat

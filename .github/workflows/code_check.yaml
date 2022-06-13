@@ -1,5 +1,6 @@
 ---
 name: code-check
+
 on:
     push:
         branches:
