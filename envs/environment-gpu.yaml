@@ -4,7 +4,7 @@ channels:
     - conda-forge
     - defaults
 dependencies:
-    - python=3.7.10
+    - python=3.8
     - pip=21.3
     - pip:
           - llvmlite==0.36.0
