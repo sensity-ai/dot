@@ -1,5 +1,5 @@
 ---
-name: dot_v2
+name: dot
 channels:
     - conda-forge
     - defaults
