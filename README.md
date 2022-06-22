@@ -130,7 +130,7 @@ Run `dot --help` to get a full list of available options.
 
     ```bash
     dot \
-    -c ./configs/simswap_hq.yaml \
+    -c ./configs/simswaphq.yaml \
     --target 0 \
     --source "./data" \
     --show_fps \
