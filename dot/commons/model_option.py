@@ -132,10 +132,11 @@ class ModelOption(ABC):
                     # flush image to disk
                     file_idx = generate_random_file_idx(6)
                     file_name = save_folder + f"{file_idx:0>6}.jpg"
+                    file_name = os.path.join(save_folder, f"{file_idx:0>6}.jpg")
                     while os.path.exists(file_name):
-                        print("file_idx exists")
+                        print(f"Swap id: {file_idx} already exists, generating again.")
                         file_idx = generate_random_file_idx(6)
-                        file_name = save_folder + f"{file_idx:0>6}.jpg"
+                        file_name = os.path.join(save_folder, f"{file_idx:0>6}.jpg")
 
                     cv2.imwrite(file_name, frame)
 
