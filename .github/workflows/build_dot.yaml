@@ -4,7 +4,7 @@ name: build-dot
 on:
     push:
         branches:
-            - cicd/fix-caching
+            - main
         paths:
             - .github/workflows/build_dot.yaml
             - dot/**
@@ -31,29 +31,24 @@ jobs:
               with:
                   python-version: 3.8
 
-            # - name: Set up Cache
-            #   uses: actions/cache@v2
-            #   with:
-            #       path: |
-            #           ~/.cache/pip
-            #           /opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages
-            #       key: ${{ runner.os }}-pip-v2-${{ hashFiles('requirements.txt') }}
-            #       restore-keys: |
-            #           ${{ runner.os }}-pip-v2-
+            - name: Set up Cache
+              uses: actions/cache@v2
+              with:
+                  path: |
+                      ~/.cache/pip
+                      /opt/hostedtoolcache/Python/3.8.12/x64/lib/python3.8/site-packages
+                  key: ${{ runner.os }}-pip-v3-${{ hashFiles('requirements.txt') }}
+                  restore-keys: |
+                      ${{ runner.os }}-pip-v3-
 
-            - name: Check pip location
+            - name: Install dependencies
               run: |
-                  pip install click
-                  pip show click
+                  sudo apt-get update && sudo apt-get install -y ffmpeg libsndfile1-dev
+                  pip install -r requirements.txt
+                  pip install torch==1.9.0 torchvision==0.10.0 onnxruntime==1.9.0
+                  pip install -e .
 
-            # - name: Install dependencies
-            #   run: |
-            #       sudo apt-get update && sudo apt-get install -y ffmpeg libsndfile1-dev
-            #       pip install -r requirements.txt
-            #       pip install torch==1.9.0 torchvision==0.10.0 onnxruntime==1.9.0
-            #       pip install -e .
-
-            # - name: Unit Tests
-            #   run: |
-            #       pip install -c requirements-dev.txt --force-reinstall pytest pytest-cov
-            #       pytest --cov=dot --cov-report=term --cov-fail-under=10
+            - name: Unit Tests
+              run: |
+                  pip install -c requirements-dev.txt --force-reinstall pytest pytest-cov
+                  pytest --cov=dot --cov-report=term --cov-fail-under=10
