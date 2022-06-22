@@ -8,12 +8,14 @@ on:
         paths:
             - .github/workflows/build_dot.yaml
             - dot/**
+            - requirements*.txt
             - '!**.md'
     pull_request:
         types: [opened, synchronize, reopened, ready_for_review]
         paths:
             - .github/workflows/build_dot.yaml
             - dot/**
+            - requirements*.txt
             - '!**.md'
 
 jobs:
