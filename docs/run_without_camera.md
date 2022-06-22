@@ -15,7 +15,7 @@ dot \
 
 ```bash
 dot \
--c ./configs/faceswap.yaml \
+-c ./configs/faceswap_cv2.yaml \
 --target data/ \
 --source "data/" \
 --save_folder test_local/
