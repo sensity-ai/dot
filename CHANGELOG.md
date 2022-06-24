@@ -27,7 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Fixed
 
-- ...
+- Fix python3.8 pip cache location in CI by @AjinkyaIndulkar in https://github.com/sensity-ai/dot/pull/29
+- Fix `--save_folder` CLI Option by @vassilispapadop in https://github.com/sensity-ai/dot/pull/26
 
 #### Removed
 
