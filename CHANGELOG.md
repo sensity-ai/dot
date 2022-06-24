@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add more press on README.md by @giorgiop in https://github.com/sensity-ai/dot/pull/7
 - Add Feature to Use Config Files by @AjinkyaIndulkar in https://github.com/sensity-ai/dot/pull/17
 - Add Github Templates by @AjinkyaIndulkar in https://github.com/sensity-ai/dot/pull/16
+- Add contributors list by @AjinkyaIndulkar in https://github.com/sensity-ai/dot/pull/31
 
 #### Updated
 
