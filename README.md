@@ -288,13 +288,21 @@ Visit [CHANGELOG.md](./CHANGELOG.md) to track changes in the repository.
     pytest --cov=dot --cov-report=term --cov-fail-under=10
     ```
 
-### List of maintainers
+### Maintainers
 
 - [@ghassen1302](https://github.com/ghassen1302)
 - [@vassilispapadop](https://github.com/vassilispapadop)
 - [@giorgiop](https://github.com/giorgiop)
 - [@AjinkyaIndulkar](https://github.com/AjinkyaIndulkar)
 - [@kjod](https://github.com/kjod)
+
+### Contributors
+
+[![](https://img.shields.io/github/contributors-anon/sensity-ai/dot)](https://github.com/sensity-ai/dot/graphs/contributors)
+
+<a href="https://github.com/sensity-ai/dot/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=sensity-ai/dot" />
+</a>
 
 ## Research
 
