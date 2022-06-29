@@ -23,12 +23,12 @@ dot \
 --use_gpu
 ```
 
-## Faceswap images from directory(Simswap)
+## Faceswap images from directory (Simswap)
 
 You can pass a `--source` folder with images and some `--target` images. Faceswapped images will be generated at `--save_folder` including a metadata json file.
 
 ```bash
-python image_swap.py \
+python scripts/image_swap.py \
 --config <path_to_config/config.yaml> \
 --source <path_to_source_images_folder> \
 --target <path_to_target_images_folder> \
@@ -36,10 +36,10 @@ python image_swap.py \
 --limit 100
 ```
 
-## Faceswap images from metadata
+## Faceswap images from metadata (SimSwap)
 
 ```bash
-python metadata_swap.py \
+python scripts/metadata_swap.py \
 --config <path_to_config/config.yaml> \
 --local_root_path <path_to_root_directory> \
 --metadata <path_to_metadata_file> \
@@ -48,11 +48,11 @@ python metadata_swap.py \
 --limit 100
 ```
 
-## Faceswap on video files
+## Faceswap on video files (SimSwap)
 
 ```bash
-python video_swap.py \
--c <path_to_config/config.yaml> \
+python scripts/video_swap.py \
+-c <path_to_simpswap_config/config.yaml> \
 -s <path_to_source_images> \
 -t <path_to_target_videos> \
 -o <path_to_output_folder> \
