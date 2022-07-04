@@ -8,12 +8,14 @@ on:
         paths:
             - .github/workflows/build_dot.yaml
             - dot/**
+            - requirements*.txt
             - '!**.md'
     pull_request:
         types: [opened, synchronize, reopened, ready_for_review]
         paths:
             - .github/workflows/build_dot.yaml
             - dot/**
+            - requirements*.txt
             - '!**.md'
 
 jobs:
@@ -27,17 +29,17 @@ jobs:
             - name: Set up Python
               uses: actions/setup-python@v1
               with:
-                  python-version: 3.7
+                  python-version: 3.8
 
             - name: Set up Cache
               uses: actions/cache@v2
               with:
                   path: |
                       ~/.cache/pip
-                      /opt/hostedtoolcache/Python/3.7.13/x64/lib/python3.7/site-packages
-                  key: ${{ runner.os }}-pip-v2-${{ hashFiles('requirements.txt') }}
+                      /opt/hostedtoolcache/Python/3.8.12/x64/lib/python3.8/site-packages
+                  key: ${{ runner.os }}-pip-v3-${{ hashFiles('requirements.txt') }}
                   restore-keys: |
-                      ${{ runner.os }}-pip-v2-
+                      ${{ runner.os }}-pip-v3-
 
             - name: Install dependencies
               run: |

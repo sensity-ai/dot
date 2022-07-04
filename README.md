@@ -4,9 +4,13 @@
 
 [![stars](https://img.shields.io/github/stars/sensity-ai/dot)](https://github.com/sensity-ai/dot/stargazers)
 [![license](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://github.com/sensity-ai/dot/blob/main/LICENSE)
-[![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/downloads/release/python-3712/)
+[![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)](https://www.python.org/downloads/release/python-3812/)
 [![build-dot](https://github.com/sensity-ai/dot/actions/workflows/build_dot.yaml/badge.svg)](https://github.com/sensity-ai/dot/actions/workflows/build_dot.yaml)
 [![code-check](https://github.com/sensity-ai/dot/actions/workflows/code_check.yaml/badge.svg)](https://github.com/sensity-ai/dot/actions/workflows/code_check.yaml)
+
+<br>
+
+<a href="https://colab.research.google.com/github/sensity-ai/dot/blob/main/notebooks/colab_demo.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" height=20></a>
 
 </div>
 
@@ -130,7 +134,7 @@ Run `dot --help` to get a full list of available options.
 
     ```bash
     dot \
-    -c ./configs/simswap_hq.yaml \
+    -c ./configs/simswaphq.yaml \
     --target 0 \
     --source "./data" \
     --show_fps \
@@ -288,13 +292,21 @@ Visit [CHANGELOG.md](./CHANGELOG.md) to track changes in the repository.
     pytest --cov=dot --cov-report=term --cov-fail-under=10
     ```
 
-### List of maintainers
+### Maintainers
 
 - [@ghassen1302](https://github.com/ghassen1302)
 - [@vassilispapadop](https://github.com/vassilispapadop)
 - [@giorgiop](https://github.com/giorgiop)
 - [@AjinkyaIndulkar](https://github.com/AjinkyaIndulkar)
 - [@kjod](https://github.com/kjod)
+
+### Contributors
+
+[![](https://img.shields.io/github/contributors-anon/sensity-ai/dot)](https://github.com/sensity-ai/dot/graphs/contributors)
+
+<a href="https://github.com/sensity-ai/dot/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=sensity-ai/dot" />
+</a>
 
 ## Research
 
