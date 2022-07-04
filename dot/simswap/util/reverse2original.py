@@ -106,7 +106,6 @@ def reverse2wholeimage(
     use_mask=False,
     use_gpu=True,
 ):
-
     target_image_list = []
     img_mask_list = []
     if use_mask:
@@ -191,6 +190,9 @@ def reverse2wholeimage(
                         orisize,
                     )[..., ::-1]
         else:
+            swaped_img[swaped_img < 0] = 0
+            swaped_img = K.utils.image_to_tensor(swaped_img.copy())
+            swaped_img = swaped_img[None, ...].float()
             if use_gpu:
                 target_image = ko_transform.warp_affine(
                     swaped_img.cuda(),
