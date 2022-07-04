@@ -65,21 +65,14 @@ class SoftErosion(nn.Module):
         return x, mask
 
 
-def postprocess(swapped_face, target, target_mask, smooth_mask, use_gpu=True):
-    if use_gpu:
-        mask_tensor = (
-            torch.from_numpy(target_mask.copy().transpose((2, 0, 1)))
-            .float()
-            .mul_(1 / 255.0)
-            .cuda()
-        )
-    else:
-        mask_tensor = (
-            torch.from_numpy(target_mask.copy().transpose((2, 0, 1)))
-            .float()
-            .mul_(1 / 255.0)
-            .cpu()
-        )
+def postprocess(swapped_face, target, target_mask, smooth_mask, device):
+
+    mask_tensor = (
+        torch.from_numpy(target_mask.copy().transpose((2, 0, 1)))
+        .float()
+        .mul_(1 / 255.0)
+        .to(device)
+    )
 
     face_mask_tensor = mask_tensor[0] + mask_tensor[1]
 
@@ -108,13 +101,11 @@ def reverse2wholeimage(
 ):
     target_image_list = []
     img_mask_list = []
+    device = torch.device("cuda" if use_gpu else "cpu")
     if use_mask:
-        if use_gpu:
-            smooth_mask = SoftErosion(
-                kernel_size=17, threshold=0.9, iterations=7
-            ).cuda()
-        else:
-            smooth_mask = SoftErosion(kernel_size=17, threshold=0.9, iterations=7).cpu()
+        smooth_mask = SoftErosion(kernel_size=17, threshold=0.9, iterations=7).to(
+            device
+        )
     else:
         pass
 
@@ -152,7 +143,7 @@ def reverse2wholeimage(
                     source_img[0].cpu().detach().numpy().transpose((1, 2, 0)),
                     target_mask,
                     smooth_mask,
-                    use_gpu=use_gpu,
+                    device=device,
                 )
                 target_image_parsing[target_image_parsing < 0] = 0
                 swaped_img[swaped_img < 0] = 0
@@ -164,54 +155,31 @@ def reverse2wholeimage(
                 target_image_parsing = target_image_parsing[None, ...].float()
                 swaped_img = swaped_img[None, ...].float()
 
-                if use_gpu:
-                    target_image = ko_transform.warp_affine(
-                        target_image_parsing.cuda(),
-                        mat_rev.cuda(),
-                        orisize,
-                    )
-                else:
-                    target_image = ko_transform.warp_affine(
-                        target_image_parsing.cpu(),
-                        mat_rev.cpu(),
-                        orisize,
-                    )
-            else:
-                if use_gpu:
-                    target_image = ko_transform.warp_affine(
-                        swaped_img.cuda(),
-                        mat_rev.cuda(),
-                        orisize,
-                    )[..., ::-1]
-                else:
-                    target_image = ko_transform.warp_affine(
-                        swaped_img.cpu(),
-                        mat_rev.cpu(),
-                        orisize,
-                    )[..., ::-1]
-        else:
-            swaped_img[swaped_img < 0] = 0
-            swaped_img = K.utils.image_to_tensor(swaped_img.copy())
-            swaped_img = swaped_img[None, ...].float()
-            if use_gpu:
                 target_image = ko_transform.warp_affine(
-                    swaped_img.cuda(),
-                    mat_rev.cuda(),
+                    target_image_parsing.to(device),
+                    mat_rev.to(device),
                     orisize,
                 )
             else:
                 target_image = ko_transform.warp_affine(
-                    swaped_img.cpu(), mat_rev.cpu(), orisize
-                )
-
-        if use_gpu:
-            img_white = ko_transform.warp_affine(
-                img_white.cuda(), mat_rev.cuda(), orisize
-            )
+                    swaped_img.to(device),
+                    mat_rev.to(device),
+                    orisize,
+                )[..., ::-1]
         else:
-            img_white = ko_transform.warp_affine(
-                img_white.cpu(), mat_rev.cpu(), orisize
+            swaped_img[swaped_img < 0] = 0
+            swaped_img = K.utils.image_to_tensor(swaped_img.copy())
+            swaped_img = swaped_img[None, ...].float()
+
+            target_image = ko_transform.warp_affine(
+                swaped_img.to(device),
+                mat_rev.to(device),
+                orisize,
             )
+
+        img_white = ko_transform.warp_affine(
+            img_white.to(device), mat_rev.to(device), orisize
+        )
 
         img_white = K.utils.tensor_to_image(img_white)
         img_white = (img_white[:, :, 0] * 255).astype(np.uint8)
