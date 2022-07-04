@@ -84,6 +84,8 @@ class SoftErosion(nn.Module):
 
 def postprocess(swapped_face, target, target_mask, smooth_mask, device):
 
+    target_mask = target_mask.float().mul_(1 / 255.0)
+
     face_mask_tensor = target_mask[0] + target_mask[1]
 
     soft_face_mask_tensor, _ = smooth_mask(face_mask_tensor.unsqueeze_(0).unsqueeze_(0))
