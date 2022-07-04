@@ -87,7 +87,6 @@ def postprocess(swapped_face, target, target_mask, smooth_mask, device):
     return result
 
 
-# TODO: use device instead of use_gpu
 def reverse2wholeimage(
     b_align_crop_tenor_list,
     swaped_imgs,
