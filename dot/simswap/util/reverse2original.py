@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import cv2
+import kornia as K
 import numpy as np
 import torch
 import torch.nn as nn
@@ -120,7 +121,9 @@ def reverse2wholeimage(
 
     for swaped_img, mat, source_img in zip(swaped_imgs, mats, b_align_crop_tenor_list):
         swaped_img = swaped_img.cpu().detach().numpy().transpose((1, 2, 0))
-        img_white = np.full((crop_size, crop_size), 255, dtype=float)
+        img_white = np.full((crop_size, crop_size, 3), 255, dtype=np.uint8)
+        img_white = K.utils.image_to_tensor(img_white)
+        img_white = img_white[None, ...].float() / 255.0
 
         # inverse the Affine transformation matrix
         mat_rev = np.zeros([2, 3])
@@ -133,7 +136,9 @@ def reverse2wholeimage(
         mat_rev[1][1] = -mat[0][0] / div2
         mat_rev[1][2] = -(mat[0][2] * mat[1][0] - mat[0][0] * mat[1][2]) / div2
 
-        orisize = (oriimg.shape[1], oriimg.shape[0])
+        mat_rev = torch.tensor(mat_rev)[None, ...].float()
+
+        orisize = (oriimg.shape[0], oriimg.shape[1])
         if use_mask:
             source_img_norm = norm(source_img, use_gpu=use_gpu)
             source_img_512 = F.interpolate(source_img_norm, size=(512, 512))
@@ -150,56 +155,65 @@ def reverse2wholeimage(
                     smooth_mask,
                     use_gpu=use_gpu,
                 )
+                target_image_parsing[target_image_parsing < 0] = 0
+                swaped_img[swaped_img < 0] = 0
+
+                target_image_parsing = K.utils.image_to_tensor(
+                    target_image_parsing.copy()
+                )
+                swaped_img = K.utils.image_to_tensor(swaped_img.copy())
+                target_image_parsing = target_image_parsing[None, ...].float()
+                swaped_img = swaped_img[None, ...].float()
 
                 if use_gpu:
                     target_image = ko_transform.warp_affine(
-                        torch.tensor(target_image_parsing).cuda(),
-                        torch.tensor(mat_rev).cuda(),
+                        target_image_parsing.cuda(),
+                        mat_rev.cuda(),
                         orisize,
                     )
                 else:
                     target_image = ko_transform.warp_affine(
-                        torch.tensor(target_image_parsing).cpu(),
-                        torch.tensor(mat_rev).cpu(),
+                        target_image_parsing.cpu(),
+                        mat_rev.cpu(),
                         orisize,
                     )
-                target_image = target_image.cpu().detach().numpy()
             else:
                 if use_gpu:
                     target_image = ko_transform.warp_affine(
-                        torch.tensor(swaped_img).cuda(),
-                        torch.tensor(mat_rev).cuda(),
+                        swaped_img.cuda(),
+                        mat_rev.cuda(),
                         orisize,
                     )[..., ::-1]
                 else:
                     target_image = ko_transform.warp_affine(
-                        torch.tensor(swaped_img).cpu(),
-                        torch.tensor(mat_rev).cpu(),
+                        swaped_img.cpu(),
+                        mat_rev.cpu(),
                         orisize,
                     )[..., ::-1]
-                target_image = target_image.cpu().detach().numpy()
         else:
             if use_gpu:
                 target_image = ko_transform.warp_affine(
-                    torch.tensor(swaped_img).cuda(),
-                    torch.tensor(mat_rev).cuda(),
+                    swaped_img.cuda(),
+                    mat_rev.cuda(),
                     orisize,
                 )
             else:
                 target_image = ko_transform.warp_affine(
-                    torch.tensor(swaped_img).cpu(), torch.tensor(mat_rev).cpu(), orisize
+                    swaped_img.cpu(), mat_rev.cpu(), orisize
                 )
-            target_image = target_image.cpu().detach().numpy()
 
         if use_gpu:
             img_white = ko_transform.warp_affine(
-                torch.tensor(img_white).cuda(), torch.tensor(mat_rev).cuda(), orisize
+                img_white.cuda(), mat_rev.cuda(), orisize
             )
         else:
             img_white = ko_transform.warp_affine(
-                torch.tensor(img_white).cpu(), torch.tensor(mat_rev).cpu(), orisize
+                img_white.cpu(), mat_rev.cpu(), orisize
             )
-        img_white = img_white.cpu().detach().numpy()
+
+        img_white = K.utils.tensor_to_image(img_white)
+        img_white = (img_white[:, :, 0] * 255).astype(np.uint8)
+        target_image = K.utils.tensor_to_image(target_image)
 
         img_white[img_white > 20] = 255
 
@@ -209,7 +223,7 @@ def reverse2wholeimage(
         img_mask = cv2.erode(img_mask, kernel, iterations=1)
         kernel_size = (20, 20)
         blur_size = tuple(2 * i + 1 for i in kernel_size)
-        img_mask = cv2.GaussianBlur(img_mask, blur_size, 0)
+        img_mask = cv2.GaussianBlur(img_mask, blur_size, 0).astype("float")
 
         img_mask /= 255
 
