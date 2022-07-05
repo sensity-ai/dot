@@ -84,7 +84,7 @@ class SoftErosion(nn.Module):
 
 def postprocess(swapped_face, target, target_mask, smooth_mask, device):
 
-    target_mask = target_mask.float().mul_(1 / 255.0)
+    target_mask /= 255.0
 
     face_mask_tensor = target_mask[0] + target_mask[1]
 
@@ -121,7 +121,9 @@ def reverse2wholeimage(
 
     img = K.utils.image_to_tensor(oriimg).float().to(device)
     img /= 255.0
-
+    kernel_use_cam = torch.ones(5, 5).to(device)
+    kernel_use_image = np.ones((40, 40), np.uint8)
+    orisize = (oriimg.shape[0], oriimg.shape[1])
     for swaped_img, mat, source_img in zip(swaped_imgs, mats, b_align_crop_tenor_list):
 
         img_white = torch.full((1, 3, crop_size, crop_size), 1.0, dtype=torch.float).to(
@@ -131,14 +133,13 @@ def reverse2wholeimage(
         # invert the Affine transformation matrix
         mat_rev = torch.ones([3, 3]).to(device)
         mat_rev[0:2, :] = torch.tensor(mat).to(device)
-        mat_rev[2, :] = torch.tensor([0, 0, 1]).float().to(device)
+        mat_rev[2, :] = torch.tensor([0.0, 0.0, 1.0]).to(device)
 
         mat_rev = torch.linalg.inv(mat_rev)
         mat_rev = mat_rev[:2, :]
 
         mat_rev = mat_rev[None, ...]
 
-        orisize = (oriimg.shape[0], oriimg.shape[1])
         if use_mask:
             source_img_norm = norm(source_img, use_gpu=use_gpu)
             source_img_512 = F.interpolate(source_img_norm, size=(512, 512))
@@ -186,16 +187,12 @@ def reverse2wholeimage(
         img_white[img_white > 0.0784] = 1.0
 
         if use_cam:
-            kernel = torch.ones(5, 5).to(device)
-            img_white = K.morphology.erosion(img_white, kernel)
+            img_white = K.morphology.erosion(img_white, kernel_use_cam)
         else:
             img_white = K.utils.tensor_to_image(img_white) * 255
-            kernel = np.ones((40, 40), np.uint8)
-            img_white = cv2.erode(img_white, kernel, iterations=1)
-            kernel_size = (20, 20)
-            blur_size = tuple(2 * i + 1 for i in kernel_size)
-            img_white = cv2.GaussianBlur(img_white, blur_size, 0)
-            img_white = K.utils.image_to_tensor(img_white).float().to(device)
+            img_white = cv2.erode(img_white, kernel_use_image, iterations=1)
+            img_white = cv2.GaussianBlur(img_white, (41, 41), 0)
+            img_white = K.utils.image_to_tensor(img_white).to(device)
             img_white /= 255.0
 
         target_image = K.color.rgb_to_bgr(target_image)
