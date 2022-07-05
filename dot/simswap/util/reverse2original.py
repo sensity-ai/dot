@@ -91,7 +91,7 @@ def postprocess(swapped_face, target, target_mask, smooth_mask, device):
     soft_face_mask_tensor, _ = smooth_mask(face_mask_tensor.unsqueeze_(0).unsqueeze_(0))
     soft_face_mask_tensor.squeeze_()
 
-    soft_face_mask_tensor = soft_face_mask_tensor[np.newaxis, :, :]
+    soft_face_mask_tensor = soft_face_mask_tensor[None, :, :]
 
     result = swapped_face * soft_face_mask_tensor + target * (1 - soft_face_mask_tensor)
 
@@ -106,12 +106,11 @@ def reverse2wholeimage(
     oriimg,
     pasring_model=None,
     norm=None,
-    use_mask=False,
+    use_mask=True,
     use_gpu=True,
+    use_cam=True,
 ):
 
-    target_image_list = []
-    img_mask_list = []
     device = torch.device("cuda" if use_gpu else "cpu")
     if use_mask:
         smooth_mask = SoftErosion(kernel_size=17, threshold=0.9, iterations=7).to(
@@ -120,24 +119,24 @@ def reverse2wholeimage(
     else:
         pass
 
+    img = K.utils.image_to_tensor(oriimg).float().to(device)
+    img /= 255.0
+
     for swaped_img, mat, source_img in zip(swaped_imgs, mats, b_align_crop_tenor_list):
 
-        img_white = np.full((crop_size, crop_size, 3), 255, dtype=np.uint8)
-        img_white = K.utils.image_to_tensor(img_white)
-        img_white = (img_white[None, ...] / 255.0).to(device)
+        img_white = torch.full((1, 3, crop_size, crop_size), 1.0, dtype=torch.float).to(
+            device
+        )
 
         # invert the Affine transformation matrix
-        mat_rev = np.zeros([2, 3])
-        div1 = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0]
-        mat_rev[0][0] = mat[1][1] / div1
-        mat_rev[0][1] = -mat[0][1] / div1
-        mat_rev[0][2] = -(mat[0][2] * mat[1][1] - mat[0][1] * mat[1][2]) / div1
-        div2 = mat[0][1] * mat[1][0] - mat[0][0] * mat[1][1]
-        mat_rev[1][0] = mat[1][0] / div2
-        mat_rev[1][1] = -mat[0][0] / div2
-        mat_rev[1][2] = -(mat[0][2] * mat[1][0] - mat[0][0] * mat[1][2]) / div2
+        mat_rev = torch.ones([3, 3]).to(device)
+        mat_rev[0:2, :] = torch.tensor(mat).to(device)
+        mat_rev[2, :] = torch.tensor([0, 0, 1]).float().to(device)
 
-        mat_rev = torch.tensor(mat_rev)[None, ...].float().to(device)
+        mat_rev = torch.linalg.inv(mat_rev)
+        mat_rev = mat_rev[:2, :]
+
+        mat_rev = mat_rev[None, ...]
 
         orisize = (oriimg.shape[0], oriimg.shape[1])
         if use_mask:
@@ -148,6 +147,7 @@ def reverse2wholeimage(
 
             tgt_mask = encode_segmentation_rgb(parsing, device)
 
+            # If the mask is large
             if tgt_mask.sum() >= 5000:
 
                 target_mask = ko_transform.resize(tgt_mask, (crop_size, crop_size))
@@ -164,9 +164,7 @@ def reverse2wholeimage(
                 swaped_img = swaped_img[None, ...]
 
                 target_image = ko_transform.warp_affine(
-                    target_image_parsing,
-                    mat_rev,
-                    orisize,
+                    target_image_parsing, mat_rev, orisize
                 )
             else:
                 swaped_img = swaped_img[None, ...]
@@ -185,39 +183,26 @@ def reverse2wholeimage(
 
         img_white = ko_transform.warp_affine(img_white, mat_rev, orisize)
 
-        img_white = K.utils.tensor_to_image(img_white)
-        img_white = (img_white[:, :, 0] * 255).astype(np.uint8)
-        target_image = K.utils.tensor_to_image(target_image)
+        img_white[img_white > 0.0784] = 1.0
 
-        if use_mask:
-            target_image = target_image[..., ::-1]
-
-        img_white[img_white > 20] = 255
-
-        img_mask = img_white.copy()
-
-        kernel = np.ones((40, 40), np.uint8)
-        img_mask = cv2.erode(img_mask, kernel, iterations=1)
-        kernel_size = (20, 20)
-        blur_size = tuple(2 * i + 1 for i in kernel_size)
-        img_mask = cv2.GaussianBlur(img_mask, blur_size, 0).astype("float")
-
-        img_mask /= 255
-
-        img_mask = np.reshape(img_mask, [img_mask.shape[0], img_mask.shape[1], 1])
-
-        if use_mask:
-            target_image = np.array(target_image, dtype=np.float) * 255
+        if use_cam:
+            kernel = torch.ones(5, 5).to(device)
+            img_white = K.morphology.erosion(img_white, kernel)
         else:
-            target_image = np.array(target_image, dtype=np.float)[..., ::-1] * 255
+            img_white = K.utils.tensor_to_image(img_white) * 255
+            kernel = np.ones((40, 40), np.uint8)
+            img_white = cv2.erode(img_white, kernel, iterations=1)
+            kernel_size = (20, 20)
+            blur_size = tuple(2 * i + 1 for i in kernel_size)
+            img_white = cv2.GaussianBlur(img_white, blur_size, 0)
+            img_white = K.utils.image_to_tensor(img_white).float().to(device)
+            img_white /= 255.0
 
-        img_mask_list.append(img_mask)
-        target_image_list.append(target_image)
+        target_image = K.color.rgb_to_bgr(target_image)
 
-    img = np.array(oriimg, dtype=np.float)
-    for img_mask, target_image in zip(img_mask_list, target_image_list):
-        img = img_mask * target_image + (1 - img_mask) * img
+        img = img_white * target_image + (1 - img_white) * img
 
-    final_img = img.astype(np.uint8)
+    final_img = K.utils.tensor_to_image(img)
+    final_img = (final_img * 255).astype(np.uint8)
 
     return final_img

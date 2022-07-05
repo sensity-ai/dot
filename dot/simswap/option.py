@@ -156,7 +156,6 @@ class SimswapOption(ModelOption):
         """
 
         detect_results = self.detect_model.get(image, self.crop_size)
-
         if detect_results is not None:
             frame_align_crop_list = detect_results[0]
             frame_mat_list = detect_results[1]
@@ -188,6 +187,7 @@ class SimswapOption(ModelOption):
                 use_mask=self.use_mask,
                 norm=self.spNorm,
                 use_gpu=self.use_gpu,
+                use_cam=kwargs.get("use_cam", True),
             )
             return result_frame
         else:
