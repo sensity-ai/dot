@@ -122,6 +122,8 @@ def reverse2wholeimage(
     kernel_use_cam = torch.ones(5, 5).to(device)
     kernel_use_image = np.ones((40, 40), np.uint8)
     orisize = (oriimg.shape[0], oriimg.shape[1])
+    mat_rev_initial = torch.ones([3, 3]).to(device)
+    mat_rev_initial[2, :] = torch.tensor([0.0, 0.0, 1.0]).to(device)
     for swaped_img, mat, source_img in zip(swaped_imgs, mats, b_align_crop_tenor_list):
 
         img_white = torch.full((1, 3, crop_size, crop_size), 1.0, dtype=torch.float).to(
@@ -129,11 +131,9 @@ def reverse2wholeimage(
         )
 
         # invert the Affine transformation matrix
-        mat_rev = torch.ones([3, 3]).to(device)
-        mat_rev[0:2, :] = torch.tensor(mat).to(device)
-        mat_rev[2, :] = torch.tensor([0.0, 0.0, 1.0]).to(device)
+        mat_rev_initial[0:2, :] = torch.tensor(mat).to(device)
 
-        mat_rev = torch.linalg.inv(mat_rev)
+        mat_rev = torch.linalg.inv(mat_rev_initial)
         mat_rev = mat_rev[:2, :]
 
         mat_rev = mat_rev[None, ...]
