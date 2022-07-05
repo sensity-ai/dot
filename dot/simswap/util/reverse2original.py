@@ -116,8 +116,6 @@ def reverse2wholeimage(
         smooth_mask = SoftErosion(kernel_size=17, threshold=0.9, iterations=7).to(
             device
         )
-    else:
-        pass
 
     img = K.utils.image_to_tensor(oriimg).float().to(device)
     img /= 255.0
