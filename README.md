@@ -28,10 +28,9 @@ dot *is developed for research and demonstration purposes. As an end user, you h
 
 In a nutshell, *dot* works like this
 
-```text
-    __________________      _____________________________      __________________________
-   | your webcam feed | -> | suite of realtime deepfakes | -> | virtual camera injection |
-    ------------------      -----------------------------      --------------------------
+```mermaid
+flowchart LR;
+    your webcam feed -> suite of realtime deepfakes -> virtual camera injection
 ```
 
 All deepfakes supported by *dot* do not require additional training. They can be used
