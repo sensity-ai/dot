@@ -36,4 +36,6 @@ repos:
         rev: v0.961
         hooks:
           - id: mypy
-            additional_dependencies: ["types-requests", "types-pyyaml"]
+            files: ^dot/
+            args: [--ignore-missing, --no-strict-optional]
+            additional_dependencies: [types-pyyaml, types-requests]
