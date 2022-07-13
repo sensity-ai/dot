@@ -14,7 +14,7 @@ Fixes #(issue-number)
 
 ### Changelog:
 
-<!-- 
+<!--
 Add changes in a list and add issue number in brackets, if required.
 Remove sections which are not applicable and remember to update CHANGELOG.md as well.
 -->
