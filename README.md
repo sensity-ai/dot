@@ -286,10 +286,41 @@ Visit [CHANGELOG.md](./CHANGELOG.md) to track changes in the repository.
     pre-commit install
     ```
 
-3. Run Unit Tests (with coverage)
+### CI/CD
+
+-   Run Unit Tests (with coverage):
 
     ```bash
-    pytest --cov=dot --cov-report=term --cov-fail-under=10
+    pytest --cov=src --cov-report=term-missing:skip-covered --cov-fail-under=10
+    ```
+
+-   Lock Base and Dev Requirements (pre-requisite: `pip install pip-tools==6.8.0`):
+
+    ```bash
+    pip-compile setup.cfg
+    pip-compile --extra=dev --output-file=requirements-dev.txt --strip-extras setup.cfg
+    ```
+
+### Semantic Versioning
+
+This repository follows the [Semantic Versioning](https://semver.org/) standard.
+
+-   Bump a major release:
+
+    ```
+    bumpversion major
+    ```
+
+-   Bump a minor release:
+
+    ```
+    bumpversion minor
+    ```
+
+-   Bump a patch release:
+
+    ```
+    bumpversion patch
     ```
 
 ### Maintainers
