@@ -40,11 +40,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### New Contributors
 
 - @giorgiop made their first contribution in https://github.com/sensity-ai/dot/pull/6
+- @ghassen1302 made their first contribution in https://github.com/sensity-ai/dot/pull/6
 - @imgbot made their first contribution in https://github.com/sensity-ai/dot/pull/8
 - @AjinkyaIndulkar made their first contribution in https://github.com/sensity-ai/dot/pull/19
 - @dependabot made their first contribution in https://github.com/sensity-ai/dot/pull/25
 - @vassilispapadop made their first contribution in https://github.com/sensity-ai/dot/pull/28
-- @ghassen1302 made their first contribution in https://github.com/sensity-ai/dot/pull/20
 
 ## [1.0.0] - 2022-06-04
 
