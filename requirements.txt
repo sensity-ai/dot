@@ -30,6 +30,8 @@ imageio==2.19.3
     # via scikit-image
 kiwisolver==1.4.3
     # via matplotlib
+kornia==0.6.5
+    # via dot (setup.cfg)
 llvmlite==0.38.1
     # via numba
 matplotlib==3.5.2
@@ -68,6 +70,7 @@ opencv-python==4.5.5.62
     #   face-alignment
 packaging==21.3
     # via
+    #   kornia
     #   matplotlib
     #   scikit-image
 pillow==9.1.1
@@ -113,6 +116,7 @@ torch==1.9.0
     # via
     #   dot (setup.cfg)
     #   face-alignment
+    #   kornia
     #   torchvision
 torchvision==0.10.0
     # via dot (setup.cfg)
