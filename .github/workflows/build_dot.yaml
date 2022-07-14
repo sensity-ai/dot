@@ -28,6 +28,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg libsndfile1-dev
           pip install -r requirements.txt
           pip install -e .
 
