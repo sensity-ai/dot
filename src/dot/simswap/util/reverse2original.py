@@ -1,13 +1,19 @@
 #!/usr/bin/env python3
 
 import cv2
+import kornia as K
 import numpy as np
 import torch
 import torch.nn as nn
+from kornia.geometry import transform as ko_transform
 from torch.nn import functional as F
 
 
-def encode_segmentation_rgb(segmentation, no_neck=True):
+def isin(ar1, ar2):
+    return (ar1[..., None] == ar2).any(-1)
+
+
+def encode_segmentation_rgb(segmentation, device, no_neck=True):
     parse = segmentation
 
     face_part_ids = (
@@ -15,16 +21,29 @@ def encode_segmentation_rgb(segmentation, no_neck=True):
         if no_neck
         else [1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 13, 14]
     )
-    mouth_id = 11
-    face_map = np.zeros([parse.shape[0], parse.shape[1]])
-    mouth_map = np.zeros([parse.shape[0], parse.shape[1]])
+    mouth_id = [11]
 
-    for valid_id in face_part_ids:
-        valid_index = np.where(parse == valid_id)
-        face_map[valid_index] = 255
-    valid_index = np.where(parse == mouth_id)
-    mouth_map[valid_index] = 255
-    return np.stack([face_map, mouth_map], axis=2)
+    face_map = (
+        isin(
+            parse,
+            torch.tensor(face_part_ids).to(device),
+        )
+        * 255.0
+    ).to(device)
+    mouth_map = (
+        isin(
+            parse,
+            torch.tensor(mouth_id).to(device),
+        )
+        * 255.0
+    ).to(device)
+    mask_stack = torch.stack((face_map, mouth_map), axis=2)
+
+    mask_out = torch.zeros([2, parse.shape[0], parse.shape[1]]).to(device)
+    mask_out[0, :, :] = mask_stack[:, :, 0]
+    mask_out[1, :, :] = mask_stack[:, :, 1]
+
+    return mask_out
 
 
 class SoftErosion(nn.Module):
@@ -63,32 +82,19 @@ class SoftErosion(nn.Module):
         return x, mask
 
 
-def postprocess(swapped_face, target, target_mask, smooth_mask, use_gpu=True):
-    if use_gpu:
-        mask_tensor = (
-            torch.from_numpy(target_mask.copy().transpose((2, 0, 1)))
-            .float()
-            .mul_(1 / 255.0)
-            .cuda()
-        )
-    else:
-        mask_tensor = (
-            torch.from_numpy(target_mask.copy().transpose((2, 0, 1)))
-            .float()
-            .mul_(1 / 255.0)
-            .cpu()
-        )
+def postprocess(swapped_face, target, target_mask, smooth_mask, device):
 
-    face_mask_tensor = mask_tensor[0] + mask_tensor[1]
+    target_mask /= 255.0
+
+    face_mask_tensor = target_mask[0] + target_mask[1]
 
     soft_face_mask_tensor, _ = smooth_mask(face_mask_tensor.unsqueeze_(0).unsqueeze_(0))
     soft_face_mask_tensor.squeeze_()
 
-    soft_face_mask = soft_face_mask_tensor.cpu().numpy()
-    soft_face_mask = soft_face_mask[:, :, np.newaxis]
+    soft_face_mask_tensor = soft_face_mask_tensor[None, :, :]
 
-    result = swapped_face * soft_face_mask + target * (1 - soft_face_mask)
-    result = result[:, :, ::-1]  # .astype(np.uint8)
+    result = swapped_face * soft_face_mask_tensor + target * (1 - soft_face_mask_tensor)
+
     return result
 
 
@@ -100,89 +106,98 @@ def reverse2wholeimage(
     oriimg,
     pasring_model=None,
     norm=None,
-    use_mask=False,
+    use_mask=True,
     use_gpu=True,
+    use_cam=True,
 ):
 
-    target_image_list = []
-    img_mask_list = []
+    device = torch.device("cuda" if use_gpu else "cpu")
     if use_mask:
-        if use_gpu:
-            smooth_mask = SoftErosion(
-                kernel_size=17, threshold=0.9, iterations=7
-            ).cuda()
-        else:
-            smooth_mask = SoftErosion(kernel_size=17, threshold=0.9, iterations=7).cpu()
-    else:
-        pass
+        smooth_mask = SoftErosion(kernel_size=17, threshold=0.9, iterations=7).to(
+            device
+        )
 
+    img = K.utils.image_to_tensor(oriimg).float().to(device)
+    img /= 255.0
+    kernel_use_cam = torch.ones(5, 5).to(device)
+    kernel_use_image = np.ones((40, 40), np.uint8)
+    orisize = (oriimg.shape[0], oriimg.shape[1])
+    mat_rev_initial = torch.ones([3, 3]).to(device)
+    mat_rev_initial[2, :] = torch.tensor([0.0, 0.0, 1.0]).to(device)
     for swaped_img, mat, source_img in zip(swaped_imgs, mats, b_align_crop_tenor_list):
-        swaped_img = swaped_img.cpu().detach().numpy().transpose((1, 2, 0))
-        img_white = np.full((crop_size, crop_size), 255, dtype=float)
 
-        # inverse the Affine transformation matrix
-        mat_rev = np.zeros([2, 3])
-        div1 = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0]
-        mat_rev[0][0] = mat[1][1] / div1
-        mat_rev[0][1] = -mat[0][1] / div1
-        mat_rev[0][2] = -(mat[0][2] * mat[1][1] - mat[0][1] * mat[1][2]) / div1
-        div2 = mat[0][1] * mat[1][0] - mat[0][0] * mat[1][1]
-        mat_rev[1][0] = mat[1][0] / div2
-        mat_rev[1][1] = -mat[0][0] / div2
-        mat_rev[1][2] = -(mat[0][2] * mat[1][0] - mat[0][0] * mat[1][2]) / div2
+        img_white = torch.full((1, 3, crop_size, crop_size), 1.0, dtype=torch.float).to(
+            device
+        )
 
-        orisize = (oriimg.shape[1], oriimg.shape[0])
+        # invert the Affine transformation matrix
+        mat_rev_initial[0:2, :] = torch.tensor(mat).to(device)
+
+        mat_rev = torch.linalg.inv(mat_rev_initial)
+        mat_rev = mat_rev[:2, :]
+
+        mat_rev = mat_rev[None, ...]
+
         if use_mask:
             source_img_norm = norm(source_img, use_gpu=use_gpu)
             source_img_512 = F.interpolate(source_img_norm, size=(512, 512))
             out = pasring_model(source_img_512)[0]
-            parsing = out.squeeze(0).detach().cpu().numpy().argmax(0)
-            vis_parsing_anno = parsing.copy().astype(np.uint8)
-            tgt_mask = encode_segmentation_rgb(vis_parsing_anno)
+            parsing = out.squeeze(0).argmax(0)
+
+            tgt_mask = encode_segmentation_rgb(parsing, device)
+
+            # If the mask is large
             if tgt_mask.sum() >= 5000:
-                target_mask = cv2.resize(tgt_mask, (crop_size, crop_size))
+
+                target_mask = ko_transform.resize(tgt_mask, (crop_size, crop_size))
+
                 target_image_parsing = postprocess(
                     swaped_img,
-                    source_img[0].cpu().detach().numpy().transpose((1, 2, 0)),
+                    source_img[0],
                     target_mask,
                     smooth_mask,
-                    use_gpu=use_gpu,
+                    device=device,
                 )
 
-                target_image = cv2.warpAffine(target_image_parsing, mat_rev, orisize)
+                target_image_parsing = target_image_parsing[None, ...]
+                swaped_img = swaped_img[None, ...]
+
+                target_image = ko_transform.warp_affine(
+                    target_image_parsing, mat_rev, orisize
+                )
             else:
-                target_image = cv2.warpAffine(swaped_img, mat_rev, orisize)[..., ::-1]
+                swaped_img = swaped_img[None, ...]
+                target_image = ko_transform.warp_affine(
+                    swaped_img,
+                    mat_rev,
+                    orisize,
+                )
         else:
-            target_image = cv2.warpAffine(swaped_img, mat_rev, orisize)
+            swaped_img = swaped_img[None, ...]
+            target_image = ko_transform.warp_affine(
+                swaped_img,
+                mat_rev,
+                orisize,
+            )
 
-        img_white = cv2.warpAffine(img_white, mat_rev, orisize)
+        img_white = ko_transform.warp_affine(img_white, mat_rev, orisize)
 
-        img_white[img_white > 20] = 255
+        img_white[img_white > 0.0784] = 1.0
 
-        img_mask = img_white
-
-        kernel = np.ones((40, 40), np.uint8)
-        img_mask = cv2.erode(img_mask, kernel, iterations=1)
-        kernel_size = (20, 20)
-        blur_size = tuple(2 * i + 1 for i in kernel_size)
-        img_mask = cv2.GaussianBlur(img_mask, blur_size, 0)
-
-        img_mask /= 255
-
-        img_mask = np.reshape(img_mask, [img_mask.shape[0], img_mask.shape[1], 1])
-
-        if use_mask:
-            target_image = np.array(target_image, dtype=np.float) * 255
+        if use_cam:
+            img_white = K.morphology.erosion(img_white, kernel_use_cam)
         else:
-            target_image = np.array(target_image, dtype=np.float)[..., ::-1] * 255
+            img_white = K.utils.tensor_to_image(img_white) * 255
+            img_white = cv2.erode(img_white, kernel_use_image, iterations=1)
+            img_white = cv2.GaussianBlur(img_white, (41, 41), 0)
+            img_white = K.utils.image_to_tensor(img_white).to(device)
+            img_white /= 255.0
 
-        img_mask_list.append(img_mask)
-        target_image_list.append(target_image)
+        target_image = K.color.rgb_to_bgr(target_image)
 
-    img = np.array(oriimg, dtype=np.float)
-    for img_mask, target_image in zip(img_mask_list, target_image_list):
-        img = img_mask * target_image + (1 - img_mask) * img
+        img = img_white * target_image + (1 - img_white) * img
 
-    final_img = img.astype(np.uint8)
+    final_img = K.utils.tensor_to_image(img)
+    final_img = (final_img * 255).astype(np.uint8)
 
     return final_img

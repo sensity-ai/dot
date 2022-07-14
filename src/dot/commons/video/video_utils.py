@@ -99,7 +99,7 @@ def video_pipeline(
             ret, frame = cap.read()
             frame = cv2.flip(frame, 1)
             if ret is True:
-                result_frame = process_image(frame, crop_size=crop_size, **kwargs)  # type: ignore
+                result_frame = process_image(frame, use_cam=False, crop_size=crop_size, **kwargs)  # type: ignore
                 result_frame = post_process_image(result_frame, **kwargs)
                 video_writer.write(result_frame)
             else:
