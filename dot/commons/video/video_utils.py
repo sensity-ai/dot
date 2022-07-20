@@ -23,6 +23,7 @@ def video_pipeline(
     change_option: Callable[[np.ndarray], None],
     process_image: Callable[[np.ndarray], np.ndarray],
     post_process_image: Callable[[np.ndarray], np.ndarray],
+    crop_size: int,
     limit: int = None,
     **kwargs: Dict,
 ) -> None:
@@ -38,11 +39,9 @@ def video_pipeline(
         change_option (Callable[[np.ndarray], None]): Set `source` arg as faceswap source image.
         process_image (Callable[[np.ndarray], np.ndarray]): Performs actual face swap.
         post_process_image (Callable[[np.ndarray], np.ndarray]): Applies face restoration GPEN to result image.
+        crop_size (int, optional): Face crop size. Defaults to 224.
         limit (int, optional): Limit number of video-swaps. Defaults to None.
     """
-    frame_width = kwargs.get("frame_width", None)
-    frame_height = kwargs.get("frame_height", None)
-    crop_size = kwargs["opt_crop_size"]
 
     source_imgs = find_files_from_path(source, ["jpg", "png", "jpeg"])
     target_videos = find_files_from_path(target, ["avi", "mp4", "mov", "MOV"])
@@ -74,9 +73,11 @@ def video_pipeline(
         cap = cv2.VideoCapture(target)
 
         fps = int(cap.get(cv2.CAP_PROP_FPS))
-        if frame_width is None or frame_height is None:
-            frame_width = int(cap.get(3))  # type: ignore
-            frame_height = int(cap.get(4))  # type: ignore
+        if crop_size == 256:  # fomm
+            frame_width = frame_height = crop_size
+        else:
+            frame_width = int(cap.get(3))
+            frame_height = int(cap.get(4))
 
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         # trim original video length
