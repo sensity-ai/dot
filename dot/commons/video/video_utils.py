@@ -102,7 +102,7 @@ def video_pipeline(
         )
 
         # process each frame individually
-        for i in tqdm(range(total_frames)):
+        for _ in tqdm(range(total_frames)):
             ret, frame = cap.read()
             frame = cv2.flip(frame, 1)
             if ret is True:
