@@ -92,7 +92,7 @@ class DOT:
             )
         elif swap_type == "fomm":
             option = self.fomm(
-                use_gpu=use_gpu, gpen_type=gpen_type, gpen_path=gpen_path
+                use_gpu=use_gpu, gpen_type=gpen_type, gpen_path=gpen_path, **kwargs
             )
         elif swap_type == "faceswap_cv2":
             option = self.faceswap_cv2(
@@ -198,7 +198,12 @@ class DOT:
         )
 
     def fomm(
-        self, use_gpu: bool, gpen_type: str, gpen_path: str, crop_size: int = 256
+        self,
+        use_gpu: bool,
+        gpen_type: str,
+        gpen_path: str,
+        crop_size: int = 256,
+        **kwargs,
     ) -> FOMMOption:
         """Build FOMM Option.
 
@@ -216,4 +221,5 @@ class DOT:
             gpen_type=gpen_type,
             gpen_path=gpen_path,
             crop_size=crop_size,
+            offline=self.use_video,
         )

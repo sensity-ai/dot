@@ -23,7 +23,7 @@ def video_pipeline(
     change_option: Callable[[np.ndarray], None],
     process_image: Callable[[np.ndarray], np.ndarray],
     post_process_image: Callable[[np.ndarray], np.ndarray],
-    crop_size: int = 224,
+    crop_size: int,
     limit: int = None,
     **kwargs: Dict,
 ) -> None:
@@ -73,8 +73,12 @@ def video_pipeline(
         cap = cv2.VideoCapture(target)
 
         fps = int(cap.get(cv2.CAP_PROP_FPS))
-        frame_width = int(cap.get(3))
-        frame_height = int(cap.get(4))
+        if crop_size == 256:  # fomm
+            frame_width = frame_height = crop_size
+        else:
+            frame_width = int(cap.get(3))
+            frame_height = int(cap.get(4))
+
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         # trim original video length
         if duration and (fps * int(duration)) < total_frames:
@@ -87,6 +91,9 @@ def video_pipeline(
         output_file = os.path.join(save_folder, output_file)
 
         fourcc = cv2.VideoWriter_fourcc("X", "V", "I", "D")
+        video_writer = cv2.VideoWriter(
+            output_file, fourcc, fps, (frame_width, frame_height), True
+        )
         video_writer = cv2.VideoWriter(
             output_file, fourcc, fps, (frame_width, frame_height), True
         )

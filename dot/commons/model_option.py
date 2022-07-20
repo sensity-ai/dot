@@ -221,7 +221,9 @@ class ModelOption(ABC):
                 self.change_option,
                 self.process_image,
                 self.post_process_image,
+                self.crop_size,
                 limit,
+                **kwargs,
             )
 
     def post_process_image(self, image, **kwargs):
