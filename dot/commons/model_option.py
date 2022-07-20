@@ -222,6 +222,7 @@ class ModelOption(ABC):
                 self.process_image,
                 self.post_process_image,
                 limit,
+                **kwargs,
             )
 
     def post_process_image(self, image, **kwargs):

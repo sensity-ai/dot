@@ -23,7 +23,6 @@ def video_pipeline(
     change_option: Callable[[np.ndarray], None],
     process_image: Callable[[np.ndarray], np.ndarray],
     post_process_image: Callable[[np.ndarray], np.ndarray],
-    crop_size: int = 224,
     limit: int = None,
     **kwargs: Dict,
 ) -> None:
@@ -39,9 +38,11 @@ def video_pipeline(
         change_option (Callable[[np.ndarray], None]): Set `source` arg as faceswap source image.
         process_image (Callable[[np.ndarray], np.ndarray]): Performs actual face swap.
         post_process_image (Callable[[np.ndarray], np.ndarray]): Applies face restoration GPEN to result image.
-        crop_size (int, optional): Face crop size. Defaults to 224.
         limit (int, optional): Limit number of video-swaps. Defaults to None.
     """
+    frame_width = kwargs.get("frame_width", None)
+    frame_height = kwargs.get("frame_height", None)
+    crop_size = kwargs["opt_crop_size"]
 
     source_imgs = find_files_from_path(source, ["jpg", "png", "jpeg"])
     target_videos = find_files_from_path(target, ["avi", "mp4", "mov", "MOV"])
@@ -73,8 +74,10 @@ def video_pipeline(
         cap = cv2.VideoCapture(target)
 
         fps = int(cap.get(cv2.CAP_PROP_FPS))
-        frame_width = int(cap.get(3))
-        frame_height = int(cap.get(4))
+        if frame_width is None or frame_height is None:
+            frame_width = int(cap.get(3))  # type: ignore
+            frame_height = int(cap.get(4))  # type: ignore
+
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         # trim original video length
         if duration and (fps * int(duration)) < total_frames:
@@ -90,12 +93,15 @@ def video_pipeline(
         video_writer = cv2.VideoWriter(
             output_file, fourcc, fps, (frame_width, frame_height), True
         )
+        video_writer = cv2.VideoWriter(
+            output_file, fourcc, fps, (frame_width, frame_height), True
+        )
         print(
             f"Source: {source} \nTarget: {target} \nOutput: {output_file} \nFPS: {fps} \nTotal frames: {total_frames}"
         )
 
         # process each frame individually
-        for _ in tqdm(range(total_frames)):
+        for i in tqdm(range(total_frames)):
             ret, frame = cap.read()
             frame = cv2.flip(frame, 1)
             if ret is True:
