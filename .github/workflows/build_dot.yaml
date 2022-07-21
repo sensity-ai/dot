@@ -1,54 +1,38 @@
----
 name: build-dot
 
 on:
-    push:
-        branches:
-            - main
-        paths:
-            - .github/workflows/build_dot.yaml
-            - dot/**
-            - requirements*.txt
-            - '!**.md'
-    pull_request:
-        types: [opened, synchronize, reopened, ready_for_review]
-        paths:
-            - .github/workflows/build_dot.yaml
-            - dot/**
-            - requirements*.txt
-            - '!**.md'
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "**.md"
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths-ignore:
+      - "**.md"
 
 jobs:
-    build-and-test:
-        if: github.event.pull_request.draft == false
-        runs-on: ubuntu-18.04
-        steps:
-            - name: Code Checkout
-              uses: actions/checkout@v2
+  build-and-test:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v3
 
-            - name: Set up Python
-              uses: actions/setup-python@v1
-              with:
-                  python-version: 3.8
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+          cache: 'pip'
+          cache-dependency-path: 'requirements*.txt'
 
-            - name: Set up Cache
-              uses: actions/cache@v2
-              with:
-                  path: |
-                      ~/.cache/pip
-                      /opt/hostedtoolcache/Python/3.8.12/x64/lib/python3.8/site-packages
-                  key: ${{ runner.os }}-pip-v3-${{ hashFiles('requirements.txt') }}
-                  restore-keys: |
-                      ${{ runner.os }}-pip-v3-
+      - name: Install dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg libsndfile1-dev
+          pip install -r requirements.txt
+          pip install -e .
 
-            - name: Install dependencies
-              run: |
-                  sudo apt-get update && sudo apt-get install -y ffmpeg libsndfile1-dev
-                  pip install -r requirements.txt
-                  pip install torch==1.9.0 torchvision==0.10.0 onnxruntime==1.9.0
-                  pip install -e .
-
-            - name: Unit Tests
-              run: |
-                  pip install -c requirements-dev.txt --force-reinstall pytest pytest-cov
-                  pytest --cov=dot --cov-report=term --cov-fail-under=10
+      - name: Unit Tests
+        run: |
+          pip install -c requirements-dev.txt --force-reinstall pytest pytest-cov
+          pytest --cov=src --cov-report=term-missing:skip-covered --cov-fail-under=10
