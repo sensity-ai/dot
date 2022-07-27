@@ -138,7 +138,7 @@ Run `dot --help` to get a full list of available options.
 4. FaceSwap CV2
 
     ```bash
-    dot -c ./configs/faceswap.yaml --target 0 --source "./data" --use_gpu
+    dot -c ./configs/faceswap_cv2.yaml --target 0 --source "./data" --use_gpu
 
     ```
 
