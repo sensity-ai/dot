@@ -138,7 +138,8 @@ Run `dot --help` to get a full list of available options.
 4. FaceSwap CV2
 
     ```bash
-    dot -c ./configs/faceswap.yaml --target 0 --source "./data" -use_gpu
+    dot -c ./configs/faceswap.yaml --target 0 --source "./data" --use_gpu
+
     ```
 
 **Note**: To enable face superresolution, use the flag `--gpen_type gpen_256` or `--gpen_type gpen_512`. To use *dot* on CPU (not recommended), do not pass the `--use_gpu` flag.
