@@ -7,56 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### What's Changed
-
-#### Added
-
-* ...
-
-#### Updated
-
-* ...
-
-#### Fixed
-
-* ...
-
-#### Removed
-
-* ...
-
 ## [1.1.0] - 2022-07-27
 
 ## What's Changed
-
-#### Added
-
+* Update readme by @giorgiop in https://github.com/sensity-ai/dot/pull/6
 * Add more press on README.md by @giorgiop in https://github.com/sensity-ai/dot/pull/7
-* Add Feature to Use Config Files by @AjinkyaIndulkar in https://github.com/sensity-ai/dot/pull/17
-* Add Github Templates by @AjinkyaIndulkar in https://github.com/sensity-ai/dot/pull/16
-* Add contributors list by @AjinkyaIndulkar in https://github.com/sensity-ai/dot/pull/31
-* Add Google Colab demo notebook by @AjinkyaIndulkar https://github.com/sensity-ai/dot/pull/33
-* Add `bumpversion` for semantic versioning by @AjinkyaIndulkar in https://github.com/sensity-ai/dot/pull/34
-
-#### Updated
-
-* Update README by @giorgiop and @ghassen1302 in https://github.com/sensity-ai/dot/pull/6
-* Optimize images by @imgbot in https://github.com/sensity-ai/dot/pull/8
+* [ImgBot] Optimize images by @imgbot in https://github.com/sensity-ai/dot/pull/8
 * Update README to Download Models from Github Release Binaries by @AjinkyaIndulkar in https://github.com/sensity-ai/dot/pull/19
+* Update README + Add Github Templates by @AjinkyaIndulkar in https://github.com/sensity-ai/dot/pull/16
 * Verify camera ID when running dot in camera mode by @AjinkyaIndulkar in https://github.com/sensity-ai/dot/pull/18
-* Bump numpy from 1.21.1 to 1.22.0 by @dependabot in https://github.com/sensity-ai/dot/pull/25
+* Add Feature to Use Config Files by @AjinkyaIndulkar in https://github.com/sensity-ai/dot/pull/17
+* ⬆️ Bump numpy from 1.21.1 to 1.22.0 by @dependabot in https://github.com/sensity-ai/dot/pull/25
 * Update python version to 3.8 by @vassilispapadop in https://github.com/sensity-ai/dot/pull/28
 * Requirements changes now trigger CI by @giorgiop in https://github.com/sensity-ai/dot/pull/27
-* Speed up SimSwap's reverse2original by @AjinkyaIndulkar and @ghassen1302 in https://github.com/sensity-ai/dot/pull/20
-* Update README with speed metrics by @giorgiop in https://github.com/sensity-ai/dot/pull/37
-
-#### Fixed
-
 * Fix python3.8 pip cache location in CI by @AjinkyaIndulkar in https://github.com/sensity-ai/dot/pull/29
 * Fix `--save_folder` CLI Option by @vassilispapadop and @ghassen1302 in https://github.com/sensity-ai/dot/pull/26
+* Add contributors list by @AjinkyaIndulkar in https://github.com/sensity-ai/dot/pull/31
+* Add Google Colab demo notebook by @AjinkyaIndulkar in https://github.com/sensity-ai/dot/pull/33
+* Speed up SimSwap's `reverse2original` by @AjinkyaIndulkar and @ghassen1302 in https://github.com/sensity-ai/dot/pull/20
+* Add `bumpversion` for semantic versioning by @AjinkyaIndulkar in https://github.com/sensity-ai/dot/pull/34
+* Update README with speed metrics by @giorgiop in https://github.com/sensity-ai/dot/pull/37
 
 ## New Contributors
-
 * @giorgiop made their first contribution in https://github.com/sensity-ai/dot/pull/6
 * @ghassen1302 made their first contribution in https://github.com/sensity-ai/dot/pull/6
 * @imgbot made their first contribution in https://github.com/sensity-ai/dot/pull/8
