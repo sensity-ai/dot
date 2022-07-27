@@ -1,14 +1,12 @@
 <div align="center">
 
-<h1> Deepfake Offensive Toolkit </h1>
+<h1> the Deepfake Offensive Toolkit </h1>
 
 [![stars](https://img.shields.io/github/stars/sensity-ai/dot)](https://github.com/sensity-ai/dot/stargazers)
 [![license](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://github.com/sensity-ai/dot/blob/main/LICENSE)
 [![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)](https://www.python.org/downloads/release/python-3812/)
 [![build-dot](https://github.com/sensity-ai/dot/actions/workflows/build_dot.yaml/badge.svg)](https://github.com/sensity-ai/dot/actions/workflows/build_dot.yaml)
 [![code-check](https://github.com/sensity-ai/dot/actions/workflows/code_check.yaml/badge.svg)](https://github.com/sensity-ai/dot/actions/workflows/code_check.yaml)
-
-<br>
 
 <a href="https://colab.research.google.com/github/sensity-ai/dot/blob/main/notebooks/colab_demo.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" height=20></a>
 
@@ -122,45 +120,25 @@ Run `dot --help` to get a full list of available options.
 1. Simswap
 
     ```bash
-    dot \
-    -c ./configs/simswap.yaml \
-    --target 0 \
-    --source "./data" \
-    --show_fps \
-    --use_gpu
+    dot -c ./configs/simswap.yaml --target 0 --source "./data" --use_gpu
     ```
 
 2. SimSwapHQ
 
     ```bash
-    dot \
-    -c ./configs/simswaphq.yaml \
-    --target 0 \
-    --source "./data" \
-    --show_fps \
-    --use_gpu
+    dot -c ./configs/simswaphq.yaml --target 0 --source "./data" --use_gpu
     ```
 
 3. FOMM
 
     ```bash
-    dot \
-    -c ./configs/fomm.yaml \
-    --target 0 \
-    --source "./data" \
-    --show_fps \
-    --use_gpu
+    dot -c ./configs/fomm.yaml --target 0 --source "./data" --use_gpu
     ```
 
-4. FaceSwap
+4. FaceSwap CV2
 
     ```bash
-    dot \
-    -c ./configs/faceswap.yaml \
-    --target 0 \
-    --source "./data" \
-    --show_fps \
-    --use_gpu
+    dot -c ./configs/faceswap.yaml --target 0 --source "./data" -use_gpu
     ```
 
 **Note**: To enable face superresolution, use the flag `--gpen_type gpen_256` or `--gpen_type gpen_512`. To use *dot* on CPU (not recommended), do not pass the `--use_gpu` flag.
@@ -246,6 +224,17 @@ Use the virtual camera with `OBS Studio`:
 - Click the "+" button in the sources section → select "Windows Capture", create a new source and enter "OK" → select window with "python" included in the name and enter OK
 - Click "Start Virtual Camera" button in the controls section
 - Select "OBS Cam" as default camera in the video settings of the application target of the injection
+
+## speed
+
+Tested on a AMD Ryzen 5 2600 Six-Core Processor with one NVIDIA GeForce RTX 2070
+
+```example
+Simswap: FPS 13.0
+Simswap + gpen: FPS 7.0
+SimswapHQ: FPS 11.0
+FOMM: FPS 31.0
+```
 
 ## License
 
