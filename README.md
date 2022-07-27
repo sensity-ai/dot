@@ -14,7 +14,7 @@
 
 *dot* (aka Deepfake Offensive Toolkit) makes real-time, controllable deepfakes ready for virtual cameras injection. *dot* is created for performing penetration testing against e.g. identity verification and video conferencing systems, for the use by security analysts, Red Team members, and biometrics researchers.
 
-If you want to learn more about *dot* is used for penetration tests with deepfakes in the industry, read these articles by [The Verge](https://www.theverge.com/2022/5/18/23092964/deepfake-attack-facial-recognition-liveness-test-banks-sensity-report) and [Biometric Update](https://www.biometricupdate.com/202205/sensity-alleges-biometric-onboarding-providers-downplaying-deepfake-threat)
+If you want to learn more about *dot* is used for penetration tests with deepfakes in the industry, read these articles by [The Verge](https://www.theverge.com/2022/5/18/23092964/deepfake-attack-facial-recognition-liveness-test-banks-sensity-report) and [Biometric Update](https://www.biometricupdate.com/202205/sensity-alleges-biometric-onboarding-providers-downplaying-deepfake-threat).
 
 dot *is developed for research and demonstration purposes. As an end user, you have the responsibility to obey all applicable laws when using this program. Authors and contributing developers assume no liability and are not responsible for any misuse or damage caused by the use of this program.*
 
@@ -226,13 +226,13 @@ Use the virtual camera with `OBS Studio`:
 - Click "Start Virtual Camera" button in the controls section
 - Select "OBS Cam" as default camera in the video settings of the application target of the injection
 
-## speed
+## Speed
 
 Tested on a AMD Ryzen 5 2600 Six-Core Processor with one NVIDIA GeForce RTX 2070
 
 ```example
 Simswap: FPS 13.0
-Simswap + gpen: FPS 7.0
+Simswap + gpen 256: FPS 7.0
 SimswapHQ: FPS 11.0
 FOMM: FPS 31.0
 ```
@@ -252,68 +252,9 @@ licenses too. In particular, this codebase is built on top of the following rese
 
 ## Contributing
 
-This repository follows the [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html) for code formatting.
-
 If you have ideas for improving *dot*, feel free to open relevant Issues and PRs. Please read [CONTRIBUTING.md](./CONTRIBUTING.md) before contributing to the repository.
 
-If you are working on improving the speed of *dot*, please read first our guide on [code profiling](docs/profiling.md).
-
-### Changelog
-
-Visit [CHANGELOG.md](./CHANGELOG.md) to track changes in the repository.
-
-### Setup Dev-Tools
-
-1. Install Dev Requirements
-
-    ```bash
-    pip install -r requirements-dev.txt
-    ```
-
-2. Install Pre-Commit Hooks
-
-    ```bash
-    pre-commit install
-    ```
-
-### CI/CD
-
--   Run Unit Tests (with coverage):
-
-    ```bash
-    pytest --cov=src --cov-report=term-missing:skip-covered --cov-fail-under=10
-    ```
-
--   Lock Base and Dev Requirements (pre-requisite: `pip install pip-tools==6.8.0`):
-
-    ```bash
-    pip-compile setup.cfg
-    pip-compile --extra=dev --output-file=requirements-dev.txt --strip-extras setup.cfg
-    ```
-
-### Semantic Versioning
-
-This repository follows the [Semantic Versioning](https://semver.org/) standard.
-
--   Bump a major release:
-
-    ```
-    bumpversion major
-    ```
-
--   Bump a minor release:
-
-    ```
-    bumpversion minor
-    ```
-
--   Bump a patch release:
-
-    ```
-    bumpversion patch
-    ```
-
-### Maintainers
+## Maintainers
 
 - [@ghassen1302](https://github.com/ghassen1302)
 - [@vassilispapadop](https://github.com/vassilispapadop)
@@ -321,7 +262,7 @@ This repository follows the [Semantic Versioning](https://semver.org/) standard.
 - [@AjinkyaIndulkar](https://github.com/AjinkyaIndulkar)
 - [@kjod](https://github.com/kjod)
 
-### Contributors
+## Contributors
 
 [![](https://img.shields.io/github/contributors-anon/sensity-ai/dot)](https://github.com/sensity-ai/dot/graphs/contributors)
 
@@ -329,6 +270,17 @@ This repository follows the [Semantic Versioning](https://semver.org/) standard.
   <img src="https://contrib.rocks/image?repo=sensity-ai/dot" />
 </a>
 
-## Research
+## Run `dot` on pre-recorded image and video files
 
 - [Run *dot* on image and video files instead of camera feed](docs/run_without_camera.md)
+
+## FAQ
+
+- `dot` is very slow and I can't run it in real time
+
+Make sure that you are running it on a GPU card by using the `--use_gpu` flag. CPU is not recommended.
+If you still find it too slow it may be because you running it on an old GPU model, with less than 8GB of RAM.
+
+- Does `dot` only work with a webcam feed or also with a pre-recorded video?
+
+You can use `dot` on a pre-recorded video file by [these scripts](docs/run_without_camera.md) or try it directly on [Colab](https://colab.research.google.com/github/sensity-ai/dot/blob/main/notebooks/colab_demo.ipynb).
