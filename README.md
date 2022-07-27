@@ -276,7 +276,8 @@ If you have ideas for improving *dot*, feel free to open relevant Issues and PRs
 
 ## FAQ
 
-- `dot` is very slow and I can't run it in real time
+- **`dot` is very slow and I can't run it in real time**
+
 
 Make sure that you are running it on a GPU card by using the `--use_gpu` flag. CPU is not recommended.
 If you still find it too slow it may be because you running it on an old GPU model, with less than 8GB of RAM.
