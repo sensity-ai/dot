@@ -29,7 +29,7 @@ In a nutshell, *dot* works like this
 ```mermaid
 flowchart LR;
     A(your webcam feed) --> B(suite of realtime deepfakes);
-    B(suite of realtime deepfakes) --> C(your webcam feed);
+    B(suite of realtime deepfakes) --> C(virtual camera injection);
 ```
 
 All deepfakes supported by *dot* do not require additional training. They can be used
