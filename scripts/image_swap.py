@@ -25,7 +25,7 @@ Usage:
 
 
 @click.command()
-@click.option("-c", "--config", default="./dot/simswap/configs/config.yaml")
+@click.option("-c", "--config", default="./src/dot/simswap/configs/config.yaml")
 @click.option("-s", "--source", required=True)
 @click.option("-t", "--target", required=True)
 @click.option("-o", "--save_folder", required=False)

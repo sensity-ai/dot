@@ -44,7 +44,7 @@ face_identity_features = {
 
 
 @click.command()
-@click.option("-c", "--config", default="./dot/simswap/configs/config.yaml")
+@click.option("-c", "--config", default="./src/dot/simswap/configs/config.yaml")
 @click.option("--local_root_path", required=True)
 @click.option("--metadata", required=True)
 @click.option("--set", required=True)

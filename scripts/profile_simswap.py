@@ -15,7 +15,7 @@ import yaml
 import dot
 
 # define globals
-CONFIG = "./dot/simswap/configs/config.yaml"
+CONFIG = "./src/dot/simswap/configs/config.yaml"
 SOURCE = "data/obama.jpg"
 TARGET = "data/mona.jpg"
 SAVE_FOLDER = "./profile_output/"
