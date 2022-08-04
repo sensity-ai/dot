@@ -22,7 +22,7 @@ Usage:
 
 
 @click.command()
-@click.option("-c", "--config", default="./dot/simswap/configs/config.yaml")
+@click.option("-c", "--config", default="./src/dot/simswap/configs/config.yaml")
 @click.option("-s", "--source_image_path", required=True)
 @click.option("-t", "--target_video_path", required=True)
 @click.option("-o", "--output", required=True)

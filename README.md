@@ -1,6 +1,6 @@
 <div align="center">
 
-<h1> Deepfake Offensive Toolkit </h1>
+<h1> the Deepfake Offensive Toolkit </h1>
 
 [![stars](https://img.shields.io/github/stars/sensity-ai/dot)](https://github.com/sensity-ai/dot/stargazers)
 [![license](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://github.com/sensity-ai/dot/blob/main/LICENSE)
@@ -8,15 +8,13 @@
 [![build-dot](https://github.com/sensity-ai/dot/actions/workflows/build_dot.yaml/badge.svg)](https://github.com/sensity-ai/dot/actions/workflows/build_dot.yaml)
 [![code-check](https://github.com/sensity-ai/dot/actions/workflows/code_check.yaml/badge.svg)](https://github.com/sensity-ai/dot/actions/workflows/code_check.yaml)
 
-<br>
-
 <a href="https://colab.research.google.com/github/sensity-ai/dot/blob/main/notebooks/colab_demo.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" height=20></a>
 
 </div>
 
 *dot* (aka Deepfake Offensive Toolkit) makes real-time, controllable deepfakes ready for virtual cameras injection. *dot* is created for performing penetration testing against e.g. identity verification and video conferencing systems, for the use by security analysts, Red Team members, and biometrics researchers.
 
-If you want to learn more about *dot* is used for penetration tests with deepfakes in the industry, read these articles by [The Verge](https://www.theverge.com/2022/5/18/23092964/deepfake-attack-facial-recognition-liveness-test-banks-sensity-report) and [Biometric Update](https://www.biometricupdate.com/202205/sensity-alleges-biometric-onboarding-providers-downplaying-deepfake-threat)
+If you want to learn more about *dot* is used for penetration tests with deepfakes in the industry, read these articles by [The Verge](https://www.theverge.com/2022/5/18/23092964/deepfake-attack-facial-recognition-liveness-test-banks-sensity-report) and [Biometric Update](https://www.biometricupdate.com/202205/sensity-alleges-biometric-onboarding-providers-downplaying-deepfake-threat).
 
 dot *is developed for research and demonstration purposes. As an end user, you have the responsibility to obey all applicable laws when using this program. Authors and contributing developers assume no liability and are not responsible for any misuse or damage caused by the use of this program.*
 
@@ -28,10 +26,10 @@ dot *is developed for research and demonstration purposes. As an end user, you h
 
 In a nutshell, *dot* works like this
 
-```text
-    __________________      _____________________________      __________________________
-   | your webcam feed | -> | suite of realtime deepfakes | -> | virtual camera injection |
-    ------------------      -----------------------------      --------------------------
+```mermaid
+flowchart LR;
+    A(your webcam feed) --> B(suite of realtime deepfakes);
+    B(suite of realtime deepfakes) --> C(virtual camera injection);
 ```
 
 All deepfakes supported by *dot* do not require additional training. They can be used
@@ -122,45 +120,26 @@ Run `dot --help` to get a full list of available options.
 1. Simswap
 
     ```bash
-    dot \
-    -c ./configs/simswap.yaml \
-    --target 0 \
-    --source "./data" \
-    --show_fps \
-    --use_gpu
+    dot -c ./configs/simswap.yaml --target 0 --source "./data" --use_gpu
     ```
 
 2. SimSwapHQ
 
     ```bash
-    dot \
-    -c ./configs/simswaphq.yaml \
-    --target 0 \
-    --source "./data" \
-    --show_fps \
-    --use_gpu
+    dot -c ./configs/simswaphq.yaml --target 0 --source "./data" --use_gpu
     ```
 
 3. FOMM
 
     ```bash
-    dot \
-    -c ./configs/fomm.yaml \
-    --target 0 \
-    --source "./data" \
-    --show_fps \
-    --use_gpu
+    dot -c ./configs/fomm.yaml --target 0 --source "./data" --use_gpu
     ```
 
-4. FaceSwap
+4. FaceSwap CV2
 
     ```bash
-    dot \
-    -c ./configs/faceswap.yaml \
-    --target 0 \
-    --source "./data" \
-    --show_fps \
-    --use_gpu
+    dot -c ./configs/faceswap_cv2.yaml --target 0 --source "./data" --use_gpu
+
     ```
 
 **Note**: To enable face superresolution, use the flag `--gpen_type gpen_256` or `--gpen_type gpen_512`. To use *dot* on CPU (not recommended), do not pass the `--use_gpu` flag.
@@ -247,6 +226,17 @@ Use the virtual camera with `OBS Studio`:
 - Click "Start Virtual Camera" button in the controls section
 - Select "OBS Cam" as default camera in the video settings of the application target of the injection
 
+## Speed
+
+Tested on a AMD Ryzen 5 2600 Six-Core Processor with one NVIDIA GeForce RTX 2070
+
+```example
+Simswap: FPS 13.0
+Simswap + gpen 256: FPS 7.0
+SimswapHQ: FPS 11.0
+FOMM: FPS 31.0
+```
+
 ## License
 
 *This is not a commercial Sensity product, and it is distributed freely with no warranties*
@@ -262,37 +252,9 @@ licenses too. In particular, this codebase is built on top of the following rese
 
 ## Contributing
 
-This repository follows the [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html) for code formatting.
-
 If you have ideas for improving *dot*, feel free to open relevant Issues and PRs. Please read [CONTRIBUTING.md](./CONTRIBUTING.md) before contributing to the repository.
 
-If you are working on improving the speed of *dot*, please read first our guide on [code profiling](docs/profiling.md).
-
-### Changelog
-
-Visit [CHANGELOG.md](./CHANGELOG.md) to track changes in the repository.
-
-### Setup Dev-Tools
-
-1. Install Dev Requirements
-
-    ```bash
-    pip install -r requirements-dev.txt
-    ```
-
-2. Install Pre-Commit Hooks
-
-    ```bash
-    pre-commit install
-    ```
-
-3. Run Unit Tests (with coverage)
-
-    ```bash
-    pytest --cov=dot --cov-report=term --cov-fail-under=10
-    ```
-
-### Maintainers
+## Maintainers
 
 - [@ghassen1302](https://github.com/ghassen1302)
 - [@vassilispapadop](https://github.com/vassilispapadop)
@@ -300,7 +262,7 @@ Visit [CHANGELOG.md](./CHANGELOG.md) to track changes in the repository.
 - [@AjinkyaIndulkar](https://github.com/AjinkyaIndulkar)
 - [@kjod](https://github.com/kjod)
 
-### Contributors
+## Contributors
 
 [![](https://img.shields.io/github/contributors-anon/sensity-ai/dot)](https://github.com/sensity-ai/dot/graphs/contributors)
 
@@ -308,6 +270,19 @@ Visit [CHANGELOG.md](./CHANGELOG.md) to track changes in the repository.
   <img src="https://contrib.rocks/image?repo=sensity-ai/dot" />
 </a>
 
-## Research
+## Run `dot` on pre-recorded image and video files
 
 - [Run *dot* on image and video files instead of camera feed](docs/run_without_camera.md)
+
+## FAQ
+
+- **`dot` is very slow and I can't run it in real time**
+
+
+Make sure that you are running it on a GPU card by using the `--use_gpu` flag. CPU is not recommended.
+If you still find it too slow it may be because you running it on an old GPU model, with less than 8GB of RAM.
+
+- **Does `dot` only work with a webcam feed or also with a pre-recorded video?**
+
+
+You can use `dot` on a pre-recorded video file by [these scripts](docs/run_without_camera.md) or try it directly on [Colab](https://colab.research.google.com/github/sensity-ai/dot/blob/main/notebooks/colab_demo.ipynb).
