@@ -14,7 +14,7 @@ import numpy as np
 from mediapipe.python.solutions.drawing_utils import _normalized_to_pixel_coordinates
 from tqdm import tqdm
 
-from ..pose.head_pose_estimation import pose_estimation
+from ..pose.head_pose import pose_estimation
 from ..utils import expand_bbox, find_files_from_path
 
 mp_face = mp.solutions.face_detection.FaceDetection(
