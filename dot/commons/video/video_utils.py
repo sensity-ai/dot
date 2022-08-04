@@ -6,13 +6,73 @@ licensed under the BSD 3-Clause "New" or "Revised" License.
 
 import os
 import random
-from typing import Callable, Dict
+from typing import Callable, Dict, Union
 
 import cv2
+import mediapipe as mp
 import numpy as np
+from mediapipe.python.solutions.drawing_utils import _normalized_to_pixel_coordinates
 from tqdm import tqdm
 
-from ..utils import find_files_from_path
+from ..pose.head_pose_estimation import pose_estimation
+from ..utils import expand_bbox, find_files_from_path
+
+mp_face = mp.solutions.face_detection.FaceDetection(
+    model_selection=0,  # model selection
+    min_detection_confidence=0.5,  # confidence threshold
+)
+
+
+def crop_and_pose(image: np.array, estimate_pose: bool = False) -> Union[np.array, int]:
+    """Crops face of `image` and estimates head pose.
+
+    Args:
+        image (np.array): Image to be cropped and estimate pose.
+        estimate_pose (Boolean, optional): Enables pose estimation. Defaults to False.
+
+    Returns:
+        Union[np.array,int]: Cropped image or -1.
+    """
+
+    image_rows, image_cols, _ = image.shape
+    results = mp_face.process(image)
+    if results.detections is None:
+        return -1
+
+    detection = results.detections[0]
+    location = detection.location_data
+    relative_bounding_box = location.relative_bounding_box
+    rect_start_point = _normalized_to_pixel_coordinates(
+        relative_bounding_box.xmin, relative_bounding_box.ymin, image_cols, image_rows
+    )
+    rect_end_point = _normalized_to_pixel_coordinates(
+        relative_bounding_box.xmin + relative_bounding_box.width,
+        relative_bounding_box.ymin + relative_bounding_box.height,
+        image_cols,
+        image_rows,
+    )
+
+    if rect_start_point is None or rect_end_point is None:
+        print("Relative location issue")
+        return -1
+
+    xleft, ytop = rect_start_point
+    xright, ybot = rect_end_point
+
+    xleft, ytop, xright, ybot = expand_bbox(
+        (xleft, ytop, xright, ybot), image_rows, image_cols, 2.0
+    )
+
+    try:
+        crop_image = image[ytop:ybot, xleft:xright]
+        if estimate_pose:
+            if pose_estimation(image=crop_image, roll=3, pitch=3, yaw=3) != 0:
+                return -1
+
+        return cv2.flip(crop_image, 1)
+    except Exception as e:
+        print(e)
+        return -1
 
 
 def video_pipeline(
@@ -43,9 +103,8 @@ def video_pipeline(
         limit (int, optional): Limit number of video-swaps. Defaults to None.
     """
 
-    source_imgs = find_files_from_path(source, ["jpg", "png", "jpeg"])
+    source_imgs = find_files_from_path(source, ["jpg", "png", "jpeg"], filter=None)
     target_videos = find_files_from_path(target, ["avi", "mp4", "mov", "MOV"])
-
     if not source_imgs or not target_videos:
         print("Could not find any source/target files")
         return
@@ -64,6 +123,13 @@ def video_pipeline(
     # iterate on each source-target pair
     for (source, target) in tqdm(swaps_combination):
         img_a_whole = cv2.imread(source)
+        img_a_whole = crop_and_pose(img_a_whole, estimate_pose=True)
+        if isinstance(img_a_whole, int):
+            print(
+                f"Image {source} failed on face detection or pose estimation requirements haven't met."
+            )
+            continue
+
         change_option(img_a_whole)
 
         img_a_align_crop = process_image(img_a_whole)
@@ -104,8 +170,8 @@ def video_pipeline(
         # process each frame individually
         for _ in tqdm(range(total_frames)):
             ret, frame = cap.read()
-            frame = cv2.flip(frame, 1)
             if ret is True:
+                frame = cv2.flip(frame, 1)
                 result_frame = process_image(frame, use_cam=False, crop_size=crop_size, **kwargs)  # type: ignore
                 result_frame = post_process_image(result_frame, **kwargs)
                 video_writer.write(result_frame)

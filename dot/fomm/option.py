@@ -53,7 +53,6 @@ class FOMMOption(ModelOption):
         )
         # use FOMM offline, video or image file
         self.offline = offline
-
         self.frame_proportion = 0.9
         self.frame_offset_x = 0
         self.frame_offset_y = 0
