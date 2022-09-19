@@ -43,6 +43,10 @@ Supported methods:
 
 ## Installation
 
+> **Note**
+> If there is no mention of Windows or any other OS type, then there is no additional step needed for it.
+> They are common instructions that should work for all OS types.
+
 ### Install Pre-requisites
 
 - Linux
@@ -90,7 +94,7 @@ pip install -e .
 
 ### Download Models
 
--   Download GitHub Release binaries from [here](https://github.com/sensity-ai/dot/releases/tag/1.0.0) or use the following `wget` commands:
+- Download GitHub Release binaries from [here](https://github.com/sensity-ai/dot/releases/tag/1.0.0) or use the following `wget` commands:
 
     ```bash
     wget https://github.com/sensity-ai/dot/releases/download/1.0.0/dot_model_checkpoints.z01 \
@@ -98,14 +102,14 @@ pip install -e .
     && wget https://github.com/sensity-ai/dot/releases/download/1.0.0/dot_model_checkpoints.zip
     ```
 
--   Unzip the binaries and place them in the root directory of the repository:
+- Unzip the binaries and place them in the root directory of the repository:
 
     ```bash
     zip -s 0 dot_model_checkpoints.zip --out saved_models.zip \
     && unzip saved_models.zip
     ```
 
--   Clean up the downloaded binaries:
+- Clean up the downloaded binaries:
 
     ```bash
     rm -rf *.z*
@@ -226,6 +230,23 @@ Use the virtual camera with `OBS Studio`:
 - Click "Start Virtual Camera" button in the controls section
 - Select "OBS Cam" as default camera in the video settings of the application target of the injection
 
+## Run dot with a mobile emulator
+
+- Run `dot`. Check [running-dot](https://github.com/sensity-ai/dot#running-dot) for more information.
+
+- Run `OBS Studio` and set up the virtual camera. Check [virtual-camera-injection](https://github.com/sensity-ai/dot#virtual-camera-injection) for more information.
+
+- Download and Install [Genymotion](https://www.genymotion.com/download/).
+
+- Open Genymotion and set up the Android emulator.
+
+- Set up dot with the mobile emulator:
+  - Open the Android emulator.
+  - Click on `camera` and select `OBS-Camera` as front and back cameras. A preview of the dot window should appear.
+  In case there is no preview, restart `OBS` and the emulator and try again.
+  If that didn't work, use a different virtual camera software like `e2eSoft VCam` or `ManyCam`.
+  - `dot` deepfake output should be now the emulator's phone camera.
+
 ## Speed
 
 Tested on a AMD Ryzen 5 2600 Six-Core Processor with one NVIDIA GeForce RTX 2070
@@ -278,11 +299,9 @@ If you have ideas for improving *dot*, feel free to open relevant Issues and PRs
 
 - **`dot` is very slow and I can't run it in real time**
 
-
 Make sure that you are running it on a GPU card by using the `--use_gpu` flag. CPU is not recommended.
 If you still find it too slow it may be because you running it on an old GPU model, with less than 8GB of RAM.
 
 - **Does `dot` only work with a webcam feed or also with a pre-recorded video?**
-
 
 You can use `dot` on a pre-recorded video file by [these scripts](docs/run_without_camera.md) or try it directly on [Colab](https://colab.research.google.com/github/sensity-ai/dot/blob/main/notebooks/colab_demo.ipynb).
