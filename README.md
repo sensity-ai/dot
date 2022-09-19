@@ -43,10 +43,6 @@ Supported methods:
 
 ## Installation
 
-> **Note**
-> If there is no mention of Windows or any other OS type, then there is no additional step needed for it.
-> They are common instructions that should work for all OS types.
-
 ### Install Pre-requisites
 
 - Linux
@@ -60,6 +56,10 @@ Supported methods:
     ```bash
     brew install ffmpeg cmake
     ```
+
+- Windows
+
+    no pre-requisites to be installed, skip this step
 
 ### Create Conda Environment
 
@@ -232,7 +232,9 @@ Use the virtual camera with `OBS Studio`:
 
 ## Run dot with an Android emulator
 
-- Run `dot`. Check [running-dot](https://github.com/sensity-ai/dot#running-dot) for more information.
+If you are performing a test against a mobile app, virtual cameras are much harder to inject. An alternative is to use mobile emulators and still resort to virtual camera injection.
+
+- Run `dot`. Check [running dot](https://github.com/sensity-ai/dot#running-dot) for more information.
 
 - Run `OBS Studio` and set up the virtual camera. Check [virtual-camera-injection](https://github.com/sensity-ai/dot#virtual-camera-injection) for more information.
 
