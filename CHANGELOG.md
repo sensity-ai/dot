@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+* Update README and CONTRIBUTING by @giorgiop in https://github.com/sensity-ai/dot/pull/40
+* Fix config paths in additional scripts under `scripts/` folder by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/43
+* Update README and add instructions for running dot with an Android emulator by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/45
+
 ## [1.1.0] - 2022-07-27
 
 ## What's Changed
