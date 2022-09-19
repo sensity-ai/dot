@@ -230,7 +230,7 @@ Use the virtual camera with `OBS Studio`:
 - Click "Start Virtual Camera" button in the controls section
 - Select "OBS Cam" as default camera in the video settings of the application target of the injection
 
-## Run dot with a mobile emulator
+## Run dot with an Android emulator
 
 - Run `dot`. Check [running-dot](https://github.com/sensity-ai/dot#running-dot) for more information.
 
@@ -240,7 +240,7 @@ Use the virtual camera with `OBS Studio`:
 
 - Open Genymotion and set up the Android emulator.
 
-- Set up dot with the mobile emulator:
+- Set up dot with the Android emulator:
   - Open the Android emulator.
   - Click on `camera` and select `OBS-Camera` as front and back cameras. A preview of the dot window should appear.
   In case there is no preview, restart `OBS` and the emulator and try again.
