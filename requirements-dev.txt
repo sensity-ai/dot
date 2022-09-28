@@ -151,7 +151,7 @@ pre-commit==2.19.0
     # via dot (setup.cfg)
 prompt-toolkit==3.0.30
     # via ipython
-protobuf==3.20.1
+protobuf==3.20.2
     # via
     #   dot (setup.cfg)
     #   mediapipe
