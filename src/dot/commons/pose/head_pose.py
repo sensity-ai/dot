@@ -13,16 +13,19 @@ mp_drawing = mp.solutions.drawing_utils
 def pose_estimation(
     image: np.array, roll: int = 3, pitch: int = 3, yaw: int = 3
 ) -> int:
-    """Given an image and desired roll, pitch and yaw angles, returns whether head pose estimation meets requirements.
+    """
+    Adjusted from: https://github.com/niconielsen32/ComputerVision/blob/master/headPoseEstimation.py
+    Given an image and desired `roll`, `pitch` and `yaw` angles, the method checks whether
+    estimatated head-pose meets requirements.
 
     Args:
-        image (np.array): Image to estimate head pose.
-        roll (int, optional): Rotation margin in X axis. Defaults to 3.
-        pitch (int, optional): Rotation margin in Y axis. Defaults to 3.
-        yaw (int, optional): Rotation margin in Z axis. Defaults to 3.
+        image: Image to estimate head pose.
+        roll: Rotation margin in X axis.
+        pitch: Rotation margin in Y axis.
+        yaw: Rotation margin in Z axis.
 
     Returns:
-        int: _description_
+        int: Success(0) or Fail(-1).
     """
 
     results = face_mesh.process(image)
