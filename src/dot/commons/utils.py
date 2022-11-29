@@ -68,7 +68,7 @@ def expand_bbox(
     bbox, image_width, image_height, scale=None
 ) -> Tuple[int, int, int, int]:
     if scale is None:
-        raise ValueError("margin and scale are mutually exclusive parameter")
+        raise ValueError("scale parameter is none")
 
     x1, y1, x2, y2 = bbox
 
