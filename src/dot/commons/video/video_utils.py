@@ -160,9 +160,6 @@ def video_pipeline(
         video_writer = cv2.VideoWriter(
             output_file, fourcc, fps, (frame_width, frame_height), True
         )
-        video_writer = cv2.VideoWriter(
-            output_file, fourcc, fps, (frame_width, frame_height), True
-        )
         print(
             f"Source: {source} \nTarget: {target} \nOutput: {output_file} \nFPS: {fps} \nTotal frames: {total_frames}"
         )
