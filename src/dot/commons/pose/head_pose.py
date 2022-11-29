@@ -9,6 +9,16 @@ face_mesh = mp_face_mesh.FaceMesh(
 )
 mp_drawing = mp.solutions.drawing_utils
 
+# https://github.com/tensorflow/tfjs-models/blob/838611c02f51159afdd77469ce67f0e26b7bbb23/face-landmarks-detection/src/mediapipe-facemesh/keypoints.ts
+HEAD_POSE_LANDMARKS = [
+    33,
+    263,
+    1,
+    61,
+    291,
+    199,
+]
+
 
 def pose_estimation(
     image: np.array, roll: int = 3, pitch: int = 3, yaw: int = 3
@@ -16,7 +26,7 @@ def pose_estimation(
     """
     Adjusted from: https://github.com/niconielsen32/ComputerVision/blob/master/headPoseEstimation.py
     Given an image and desired `roll`, `pitch` and `yaw` angles, the method checks whether
-    estimatated head-pose meets requirements.
+    estimated head-pose meets requirements.
 
     Args:
         image: Image to estimate head pose.
@@ -35,14 +45,7 @@ def pose_estimation(
     if results.multi_face_landmarks:
         for face_landmarks in results.multi_face_landmarks:
             for idx, lm in enumerate(face_landmarks.landmark):
-                if (
-                    idx == 33
-                    or idx == 263
-                    or idx == 1
-                    or idx == 61
-                    or idx == 291
-                    or idx == 199
-                ):
+                if idx in HEAD_POSE_LANDMARKS:
                     x, y = int(lm.x * img_w), int(lm.y * img_h)
 
                     # get 2d coordinates
