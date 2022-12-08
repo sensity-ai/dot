@@ -9,7 +9,7 @@ face_mesh = mp_face_mesh.FaceMesh(
 )
 mp_drawing = mp.solutions.drawing_utils
 
-# https://github.com/tensorflow/tfjs-models/blob/838611c02f51159afdd77469ce67f0e26b7bbb23/face-landmarks-detection/src/mediapipe-facemesh/keypoints.ts
+# https://github.com/google/mediapipe/issues/1615
 HEAD_POSE_LANDMARKS = [
     33,
     263,
