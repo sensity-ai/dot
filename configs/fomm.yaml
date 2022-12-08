@@ -1,3 +1,4 @@
 ---
 swap_type: fomm
 model_path: ./saved_models/fomm/vox-adv-cpk.pth.tar
+head_pose: true

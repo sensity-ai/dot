@@ -23,7 +23,9 @@ mp_face = mp.solutions.face_detection.FaceDetection(
 )
 
 
-def crop_and_pose(image: np.array, estimate_pose: bool = False) -> Union[np.array, int]:
+def _crop_and_pose(
+    image: np.array, estimate_pose: bool = False
+) -> Union[np.array, int]:
     """Crops face of `image` and estimates head pose.
 
     Args:
@@ -46,8 +48,8 @@ def crop_and_pose(image: np.array, estimate_pose: bool = False) -> Union[np.arra
         relative_bounding_box.xmin, relative_bounding_box.ymin, image_cols, image_rows
     )
     rect_end_point = _normalized_to_pixel_coordinates(
-        relative_bounding_box.xmin + relative_bounding_box.width,
-        relative_bounding_box.ymin + relative_bounding_box.height,
+        min(relative_bounding_box.xmin + relative_bounding_box.width, 1.0),
+        min(relative_bounding_box.ymin + relative_bounding_box.height, 1.0),
         image_cols,
         image_rows,
     )
@@ -99,10 +101,11 @@ def video_pipeline(
         change_option (Callable[[np.ndarray], None]): Set `source` arg as faceswap source image.
         process_image (Callable[[np.ndarray], np.ndarray]): Performs actual face swap.
         post_process_image (Callable[[np.ndarray], np.ndarray]): Applies face restoration GPEN to result image.
+        head_pose (bool): Estimates head pose before swap. Used by Avatarify.
         crop_size (int, optional): Face crop size. Defaults to 224.
         limit (int, optional): Limit number of video-swaps. Defaults to None.
     """
-
+    head_pose = kwargs["head_pose"]
     source_imgs = find_files_from_path(source, ["jpg", "png", "jpeg"], filter=None)
     target_videos = find_files_from_path(target, ["avi", "mp4", "mov", "MOV"])
     if not source_imgs or not target_videos:
@@ -123,7 +126,7 @@ def video_pipeline(
     # iterate on each source-target pair
     for (source, target) in tqdm(swaps_combination):
         img_a_whole = cv2.imread(source)
-        img_a_whole = crop_and_pose(img_a_whole, estimate_pose=True)
+        img_a_whole = _crop_and_pose(img_a_whole, estimate_pose=head_pose)
         if isinstance(img_a_whole, int):
             print(
                 f"Image {source} failed on face detection or pose estimation requirements haven't met."
