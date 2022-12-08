@@ -54,10 +54,6 @@ def _crop_and_pose(
         image_rows,
     )
 
-    if rect_start_point is None or rect_end_point is None:
-        print("Relative location issue")
-        return -1
-
     xleft, ytop = rect_start_point
     xright, ybot = rect_end_point
 
