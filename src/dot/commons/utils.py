@@ -11,6 +11,9 @@ from typing import Dict, List, Tuple
 import cv2
 import numpy as np
 
+SEED = 42
+np.random.seed(SEED)
+
 
 def log(*args, file=sys.stderr, **kwargs):
     time_str = f"{time.time():.6f}"
@@ -52,7 +55,7 @@ def find_files_from_path(path: str, ext: List, filter: str = None):
         [
             files.extend(glob.glob(path + "**/*." + e, recursive=True)) for e in ext  # type: ignore
         ]
-        random.shuffle(files)
+        np.random.shuffle(files)
 
         # filter
         if filter is not None:
