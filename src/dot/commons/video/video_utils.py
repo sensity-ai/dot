@@ -83,7 +83,7 @@ def video_pipeline(
     change_option: Callable[[np.ndarray], None],
     process_image: Callable[[np.ndarray], np.ndarray],
     post_process_image: Callable[[np.ndarray], np.ndarray],
-    crop_size: int,
+    crop_size: int = 224,
     limit: int = None,
     **kwargs: Dict,
 ) -> None:
