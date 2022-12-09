@@ -20,7 +20,7 @@ bump2version==1.0.1
     # via bumpversion
 bumpversion==0.6.0
     # via dot (setup.cfg)
-certifi==2022.6.15
+certifi==2022.12.7
     # via requests
 cfgv==3.3.1
     # via pre-commit
@@ -151,7 +151,7 @@ pre-commit==2.19.0
     # via dot (setup.cfg)
 prompt-toolkit==3.0.30
     # via ipython
-protobuf==3.20.1
+protobuf==3.20.2
     # via
     #   dot (setup.cfg)
     #   mediapipe
