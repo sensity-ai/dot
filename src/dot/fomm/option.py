@@ -38,11 +38,12 @@ def determine_path():
 class FOMMOption(ModelOption):
     def __init__(
         self,
-        use_gpu=True,
-        use_mask=False,
-        crop_size=224,
-        gpen_type=None,
-        gpen_path=None,
+        use_gpu: bool = True,
+        use_mask: bool = False,
+        crop_size: int = 256,
+        gpen_type: str = None,
+        gpen_path: str = None,
+        offline: bool = False,
     ):
         super(FOMMOption, self).__init__(
             gpen_type=gpen_type,
@@ -50,6 +51,8 @@ class FOMMOption(ModelOption):
             crop_size=crop_size,
             gpen_path=gpen_path,
         )
+        # use FOMM offline, video or image file
+        self.offline = offline
         self.frame_proportion = 0.9
         self.frame_offset_x = 0
         self.frame_offset_y = 0
@@ -58,7 +61,7 @@ class FOMMOption(ModelOption):
         self.preview_flip = False
         self.output_flip = False
         self.find_keyframe = False
-        self.is_calibrated = False
+        self.is_calibrated = True if self.offline else False
 
         self.show_landmarks = False
         self.passthrough = False
@@ -76,7 +79,6 @@ class FOMMOption(ModelOption):
         self.display_string = ""
 
     def create_model(self, model_path, **kwargs) -> None:  # type: ignore
-
         opt_config = determine_path() + "/config/vox-adv-256.yaml"
         opt_checkpoint = model_path
 
@@ -157,7 +159,8 @@ class FOMMOption(ModelOption):
             log(key)
 
     def process_image(self, image, use_gpu=True, **kwargs) -> np.array:
-        self.handle_keyboard_input()
+        if not self.offline:
+            self.handle_keyboard_input()
 
         stream_img_size = image.shape[1], image.shape[0]
 
@@ -239,7 +242,8 @@ class FOMMOption(ModelOption):
         if not self.opt_hide_rect:
             draw_rect(preview_frame)
 
-        cv2.imshow("FOMM", preview_frame[..., ::-1])
+        if not self.offline:
+            cv2.imshow("FOMM", preview_frame[..., ::-1])
 
         if out is not None:
             if not self.opt_no_pad:
