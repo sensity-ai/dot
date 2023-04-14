@@ -6,10 +6,13 @@ import random
 import sys
 import time
 from collections import defaultdict
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import cv2
 import numpy as np
+
+SEED = 42
+np.random.seed(SEED)
 
 
 def log(*args, file=sys.stderr, **kwargs):
@@ -41,7 +44,7 @@ def find_images_from_path(path):
         return files
 
 
-def find_files_from_path(path: str, ext: List):
+def find_files_from_path(path: str, ext: List, filter: str = None):
     """
     @arguments:
         path              (str)     Parent directory of files
@@ -52,10 +55,39 @@ def find_files_from_path(path: str, ext: List):
         [
             files.extend(glob.glob(path + "**/*." + e, recursive=True)) for e in ext  # type: ignore
         ]
+        np.random.shuffle(files)
+
+        # filter
+        if filter is not None:
+            files = [file for file in files if filter in file]
+            print("Filtered files: ", len(files))
 
         return files
 
     return [path]
+
+
+def expand_bbox(
+    bbox, image_width, image_height, scale=None
+) -> Tuple[int, int, int, int]:
+    if scale is None:
+        raise ValueError("scale parameter is none")
+
+    x1, y1, x2, y2 = bbox
+
+    center_x, center_y = (x1 + x2) // 2, (y1 + y2) // 2
+
+    size_bb = round(max(x2 - x1, y2 - y1) * scale)
+
+    # Check for out of bounds, x-y top left corner
+    x1 = max(int(center_x - size_bb // 2), 0)
+    y1 = max(int(center_y - size_bb // 2), 0)
+
+    # Check for too big bb size for given x, y
+    size_bb = min(image_width - x1, size_bb)
+    size_bb = min(image_height - y1, size_bb)
+
+    return (x1, y1, x1 + size_bb, y1 + size_bb)
 
 
 def rand_idx_tuple(source_len, target_len):

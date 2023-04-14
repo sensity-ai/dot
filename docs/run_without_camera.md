@@ -4,11 +4,21 @@
 ## Using Images
 
 ```bash
-dot -c ./configs/simswap.yaml --target data/ --source "data/" --save_folder test_local --use_image --use_gpu
+dot -c ./configs/simswap.yaml --target data/ --source "data/" --save_folder test_local/ --use_image --use_gpu
 ```
 
 ```bash
 dot -c ./configs/faceswap_cv2.yaml --target data/ --source "data/" --save_folder test_local/ --use_image --use_gpu
+```
+
+## Using Videos
+
+```
+dot -c ./configs/simswap.yaml --target "/path/to/driving/video" --source "data/image.png"  --save_folder test_local/ --use_gpu --use_video
+```
+
+```
+dot -c ./configs/fomm.yaml --target "/path/to/driving/video" --source "data/image.png"  --save_folder test_local/  --use_gpu --use_video
 ```
 
 ## Faceswap images from directory (Simswap)

@@ -23,6 +23,7 @@ def run(
     gpen_type: str = None,
     gpen_path: str = "./saved_models/gpen",
     crop_size: int = 224,
+    head_pose: bool = False,
     save_folder: str = None,
     show_fps: bool = False,
     use_gpu: bool = False,
@@ -74,6 +75,7 @@ def run(
         arcface_model_path=arcface_model_path,
         checkpoints_dir=checkpoints_dir,
         opt_crop_size=crop_size,
+        head_pose=head_pose,
     )
 
 
@@ -212,6 +214,7 @@ def main(
         gpen_type=config.get("gpen_type", gpen_type),
         gpen_path=config.get("gpen_path", gpen_path),
         crop_size=config.get("crop_size", crop_size),
+        head_pose=config.get("head_pose", False),
         save_folder=save_folder,
         show_fps=show_fps,
         use_gpu=use_gpu,
