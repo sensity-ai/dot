@@ -13,6 +13,10 @@ customtkinter.set_default_color_theme("blue")
 
 
 class ToplevelUsageWindow(customtkinter.CTkToplevel):
+    """
+    Tha class of the usage window
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -50,6 +54,10 @@ class ToplevelUsageWindow(customtkinter.CTkToplevel):
 
 
 class ToplevelAboutWindow(customtkinter.CTkToplevel):
+    """
+    Tha class of the about window
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -79,6 +87,10 @@ class ToplevelAboutWindow(customtkinter.CTkToplevel):
 
 
 class App(customtkinter.CTk):
+    """
+    Tha main class of the ui interface
+    """
+
     def __init__(self):
         super().__init__()
 
@@ -524,6 +536,10 @@ class App(customtkinter.CTk):
         )
 
     def usage_window(self):
+        """
+        Open the usage window
+        """
+
         if (
             self.toplevel_usage_window is None
             or not self.toplevel_usage_window.winfo_exists()
@@ -534,6 +550,10 @@ class App(customtkinter.CTk):
         self.toplevel_usage_window.focus()
 
     def about_window(self):
+        """
+        Open the about window
+        """
+
         if (
             self.toplevel_about_window is None
             or not self.toplevel_about_window.winfo_exists()
@@ -543,15 +563,42 @@ class App(customtkinter.CTk):
             )  # create window if its None or destroyed
         self.toplevel_about_window.focus()
 
-    def UploadAction(self, entry_element):
+    def UploadAction(self, entry_element: customtkinter.CTkOptionMenu):
+        """
+        Action for the upload buttons to update the value of a CTkEntry
+
+        Args:
+            entry_element (customtkinter.CTkOptionMenu): The CTkEntry element.
+        """
+
         filename = tkinter.filedialog.askopenfilename()
         self.modify_entry(entry_element, filename)
 
-    def modify_entry(self, entry_element, text):
+    def modify_entry(self, entry_element: customtkinter.CTkEntry, text: str):
+        """
+        Modify the value of the CTkEntry
+
+        Args:
+            entry_element (customtkinter.CTkOptionMenu): The CTkEntry element.
+            text (str): The new text that will be inserted into the CTkEntry
+        """
+
         entry_element.delete(0, tkinter.END)
         entry_element.insert(0, text)
 
-    def upload_action_config_file(self, element, config_file_var):
+    def upload_action_config_file(
+        self,
+        element: customtkinter.CTkOptionMenu,
+        config_file_var: customtkinter.StringVar,
+    ):
+        """
+        Set the configurations for the swap_type using the upload button
+
+        Args:
+            element (customtkinter.CTkOptionMenu): The OptionMenu element.
+            config_file_var (customtkinter.StringVar): OptionMenu variable.
+        """
+
         entry_list = [
             "source",
             "target",
@@ -567,7 +614,6 @@ class App(customtkinter.CTk):
         radio_list = ["swap_type"]
 
         filename = tkinter.filedialog.askopenfilename()
-        # self.modify_entry(entry_element, filename)
 
         config = {}
         if len(filename) > 0:
@@ -596,7 +642,14 @@ class App(customtkinter.CTk):
                 if entry not in config.keys():
                     self.modify_entry(eval(f"self.{entry}"), "")
 
-    def optionmenu_callback(self, choice):
+    def optionmenu_callback(self, choice: str):
+        """
+        Set the configurations for the swap_type using the optionmenu
+
+        Args:
+            choice (str): The type of swap to run.
+        """
+
         entry_list = [
             "source",
             "target",
@@ -630,6 +683,10 @@ class App(customtkinter.CTk):
                         self.modify_entry(eval(f"self.{entry}"), "")
 
     def start_button_event(self):
+        """
+        Start running the deepfake
+        """
+
         # load config, if provided
         config = {}
         if len(self.config_file.get()) > 0:

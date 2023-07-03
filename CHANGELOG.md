@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Speed up SimSwap's `reverse2original` by @AjinkyaIndulkar and @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/20
 * Add `bumpversion` for semantic versioning by @AjinkyaIndulkar in https://github.com/sensity-ai/dot/pull/34
 * Update README with speed metrics by @giorgiop in https://github.com/sensity-ai/dot/pull/37
-* Add a Graphical interface for dot @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/85
+* Add a Graphical interface for dot by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/85
 
 ## New Contributors
 * @giorgiop made their first contribution in https://github.com/sensity-ai/dot/pull/6
