@@ -25,12 +25,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Update python version to 3.8 by @vassilispapadop in https://github.com/sensity-ai/dot/pull/28
 * Requirements changes now trigger CI by @giorgiop in https://github.com/sensity-ai/dot/pull/27
 * Fix python3.8 pip cache location in CI by @AjinkyaIndulkar in https://github.com/sensity-ai/dot/pull/29
-* Fix `--save_folder` CLI Option by @vassilispapadop and @ghassen1302 in https://github.com/sensity-ai/dot/pull/26
+* Fix `--save_folder` CLI Option by @vassilispapadop and @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/26
 * Add contributors list by @AjinkyaIndulkar in https://github.com/sensity-ai/dot/pull/31
 * Add Google Colab demo notebook by @AjinkyaIndulkar in https://github.com/sensity-ai/dot/pull/33
-* Speed up SimSwap's `reverse2original` by @AjinkyaIndulkar and @ghassen1302 in https://github.com/sensity-ai/dot/pull/20
+* Speed up SimSwap's `reverse2original` by @AjinkyaIndulkar and @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/20
 * Add `bumpversion` for semantic versioning by @AjinkyaIndulkar in https://github.com/sensity-ai/dot/pull/34
 * Update README with speed metrics by @giorgiop in https://github.com/sensity-ai/dot/pull/37
+* Add a Graphical interface for dot @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/85
 
 ## New Contributors
 * @giorgiop made their first contribution in https://github.com/sensity-ai/dot/pull/6
