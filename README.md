@@ -119,6 +119,23 @@ pip install -e .
 
 ### Running dot
 
+#### Graphical interface
+
+To use the graphical interface of dot run
+
+```bash
+conda activate dot
+python ./src/dot/ui/ui.py
+```
+
+Watch the following demo video for better understanding of the interface
+
+<p align="center">
+<img src="./assets/gui_dot_demo.gif" width="500" height="406"/>
+</p>
+
+#### CLI
+
 Run `dot --help` to get a full list of available options.
 
 1. Simswap
