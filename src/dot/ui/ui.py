@@ -14,7 +14,7 @@ customtkinter.set_default_color_theme("blue")
 
 class ToplevelUsageWindow(customtkinter.CTkToplevel):
     """
-    Tha class of the usage window
+    The class of the usage window
     """
 
     def __init__(self, *args, **kwargs):
@@ -55,7 +55,7 @@ class ToplevelUsageWindow(customtkinter.CTkToplevel):
 
 class ToplevelAboutWindow(customtkinter.CTkToplevel):
     """
-    Tha class of the about window
+    The class of the about window
     """
 
     def __init__(self, *args, **kwargs):
@@ -88,7 +88,7 @@ class ToplevelAboutWindow(customtkinter.CTkToplevel):
 
 class App(customtkinter.CTk):
     """
-    Tha main class of the ui interface
+    The main class of the ui interface
     """
 
     def __init__(self):
