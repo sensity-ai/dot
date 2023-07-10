@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
+"""
+Copyright (c) 2022, Sensity B.V. All rights reserved.
+licensed under the BSD 3-Clause "New" or "Revised" License.
+"""
 
 import os
 import tkinter
 
+import click
 import customtkinter
 import yaml
 
@@ -34,7 +39,7 @@ class ToplevelUsageWindow(customtkinter.CTkToplevel):
             """
             swap_type (str): The type of swap to run.\n
             source (str): The source image or video.\n
-            target (Union[int, str]): The target image or video.\n
+            target (Union[int, str]): The target image, video or camera id.\n
             model_path (str, optional): The path to the model's weights. Defaults to None.\n
             parsing_model_path (str, optional): The path to the parsing model. Defaults to None.\n
             arcface_model_path (str, optional): The path to the arcface model. Defaults to None.\n
@@ -727,6 +732,13 @@ class App(customtkinter.CTk):
         )
 
 
-if __name__ == "__main__":
+@click.command()
+def main():
+    """Run the dot UI."""
+
     app = App()
     app.mainloop()
+
+
+if __name__ == "__main__":
+    main()

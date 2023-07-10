@@ -125,8 +125,10 @@ To use the graphical interface of dot run
 
 ```bash
 conda activate dot
-python ./src/dot/ui/ui.py
+dot-ui
 ```
+
+For more information about each field, click on the menu `Help/Usage`.
 
 Watch the following demo video for better understanding of the interface
 
