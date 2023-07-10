@@ -200,7 +200,7 @@ scikit-image==0.19.1
     # via
     #   dot (setup.cfg)
     #   face-alignment
-scipy==1.7.0
+scipy==1.10.0
     # via
     #   dot (setup.cfg)
     #   face-alignment
