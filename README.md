@@ -41,9 +41,44 @@ Supported methods:
 - lower quality face swap (via OpenCV)
 - [FOMM](https://github.com/AliaksandrSiarohin/first-order-model), First Order Motion Model for image animation
 
-## Installation
+## Running dot
 
-### Install Pre-requisites
+### Graphical interface
+
+#### GUI Installation
+
+Download and run the dot executable for your OS:
+
+- Windows:
+  - ToDo
+- Ubuntu:
+  - ToDo
+- Mac:
+  - ToDo
+
+#### GUI Usage
+
+Usage example:
+
+1. Specify the source image in the field `source`.
+2. Specify the camera id number in the field `target`. In most cases, `0` is the correct camera id.
+3. Specify the config file in the field `config_file`. Select a default configuration from the dropdown list or use a custom file.
+4. (Optional) Check the field `use_gpu` to use the GPU.
+5. Click on the `RUN` button to start the deepfake.
+
+For more information about each field, click on the menu `Help/Usage`.
+
+Watch the following demo video for better understanding of the interface
+
+<p align="center">
+<img src="./assets/gui_dot_demo.gif" width="500" height="406"/>
+</p>
+
+### Command Line
+
+#### CLI Installation
+
+##### Install Pre-requisites
 
 - Linux
 
@@ -61,11 +96,11 @@ Supported methods:
 
     no pre-requisites to be installed, skip this step
 
-### Create Conda Environment
+##### Create Conda Environment
 
 > The instructions assumes that you have Miniconda installed on your machine. If you don't, you can refer to this [link](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) for installation instructions.
 
-#### With GPU Support
+###### With GPU Support
 
 ```bash
 conda env create -f envs/environment-gpu.yaml
@@ -79,20 +114,20 @@ Install the `torch` and `torchvision` dependencies based on the CUDA version ins
 
 To check that `torch` and `torchvision` are installed correctly, run the following command: `python -c "import torch; print(torch.cuda.is_available())"`. If the output is `True`, the dependencies are installed with CUDA support.
 
-#### With CPU Support (slow, not recommended)
+###### With CPU Support (slow, not recommended)
 
 ```bash
 conda env create -f envs/environment-cpu.yaml
 conda activate dot
 ```
 
-### Install dot
+##### Install dot
 
 ```bash
 pip install -e .
 ```
 
-### Download Models
+##### Download Models
 
 - Download GitHub Release binaries from [here](https://github.com/sensity-ai/dot/releases/tag/1.0.0) or use the following `wget` commands:
 
@@ -115,9 +150,7 @@ pip install -e .
     rm -rf *.z*
     ```
 
-## Usage
-
-### Running dot
+#### CLI Usage
 
 Run `dot --help` to get a full list of available options.
 
@@ -148,7 +181,7 @@ Run `dot --help` to get a full list of available options.
 
 **Note**: To enable face superresolution, use the flag `--gpen_type gpen_256` or `--gpen_type gpen_512`. To use *dot* on CPU (not recommended), do not pass the `--use_gpu` flag.
 
-### Controlling dot
+#### Controlling dot with CLI
 
 > **Disclaimer**: We use the `SimSwap` technique for the following demonstration
 

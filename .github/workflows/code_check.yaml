@@ -10,7 +10,7 @@ on:
 jobs:
     code-check:
         if: github.event.pull_request.draft == false
-        runs-on: ubuntu-18.04
+        runs-on: ubuntu-latest
         steps:
             - name: Code Checkout
               uses: actions/checkout@v2
