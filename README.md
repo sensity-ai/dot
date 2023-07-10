@@ -41,80 +41,6 @@ Supported methods:
 - lower quality face swap (via OpenCV)
 - [FOMM](https://github.com/AliaksandrSiarohin/first-order-model), First Order Motion Model for image animation
 
-## Installation
-
-### Install Pre-requisites
-
-- Linux
-
-    ```bash
-    sudo apt install ffmpeg cmake
-    ```
-
-- MacOS
-
-    ```bash
-    brew install ffmpeg cmake
-    ```
-
-- Windows
-
-    no pre-requisites to be installed, skip this step
-
-### Create Conda Environment
-
-> The instructions assumes that you have Miniconda installed on your machine. If you don't, you can refer to this [link](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) for installation instructions.
-
-#### With GPU Support
-
-```bash
-conda env create -f envs/environment-gpu.yaml
-conda activate dot
-```
-
-Install the `torch` and `torchvision` dependencies based on the CUDA version installed on your machine:
-
-- Install `cudatoolkit` from `conda`: `conda install cudatoolkit=<cuda_version_no>` (replace `<cuda_version_no>` with the version on your machine)
-- Install `torch` and `torchvision` dependencies: `pip install torch==1.9.0+<cuda_tag> torchvision==0.10.0+<cuda_tag> -f https://download.pytorch.org/whl/torch_stable.html`, where `<cuda_tag>` is the CUDA tag defined by Pytorch. For example, `pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 -f https://download.pytorch.org/whl/torch_stable.html` for CUDA 11.1. See [here](https://pytorch.org/get-started/previous-versions/) for a list of all available `torch` and `torchvision` versions.
-
-To check that `torch` and `torchvision` are installed correctly, run the following command: `python -c "import torch; print(torch.cuda.is_available())"`. If the output is `True`, the dependencies are installed with CUDA support.
-
-#### With CPU Support (slow, not recommended)
-
-```bash
-conda env create -f envs/environment-cpu.yaml
-conda activate dot
-```
-
-### Install dot
-
-```bash
-pip install -e .
-```
-
-### Download Models
-
-- Download GitHub Release binaries from [here](https://github.com/sensity-ai/dot/releases/tag/1.0.0) or use the following `wget` commands:
-
-    ```bash
-    wget https://github.com/sensity-ai/dot/releases/download/1.0.0/dot_model_checkpoints.z01 \
-    && wget https://github.com/sensity-ai/dot/releases/download/1.0.0/dot_model_checkpoints.z02 \
-    && wget https://github.com/sensity-ai/dot/releases/download/1.0.0/dot_model_checkpoints.zip
-    ```
-
-- Unzip the binaries and place them in the root directory of the repository:
-
-    ```bash
-    zip -s 0 dot_model_checkpoints.zip --out saved_models.zip \
-    && unzip saved_models.zip
-    ```
-
-- Clean up the downloaded binaries:
-
-    ```bash
-    rm -rf *.z*
-    ```
-
 ## Running dot
 
 ### Graphical interface
@@ -149,6 +75,80 @@ Watch the following demo video for better understanding of the interface
 </p>
 
 ### Command Line
+
+#### CLI Installation
+
+##### Install Pre-requisites
+
+- Linux
+
+    ```bash
+    sudo apt install ffmpeg cmake
+    ```
+
+- MacOS
+
+    ```bash
+    brew install ffmpeg cmake
+    ```
+
+- Windows
+
+    no pre-requisites to be installed, skip this step
+
+##### Create Conda Environment
+
+> The instructions assumes that you have Miniconda installed on your machine. If you don't, you can refer to this [link](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) for installation instructions.
+
+###### With GPU Support
+
+```bash
+conda env create -f envs/environment-gpu.yaml
+conda activate dot
+```
+
+Install the `torch` and `torchvision` dependencies based on the CUDA version installed on your machine:
+
+- Install `cudatoolkit` from `conda`: `conda install cudatoolkit=<cuda_version_no>` (replace `<cuda_version_no>` with the version on your machine)
+- Install `torch` and `torchvision` dependencies: `pip install torch==1.9.0+<cuda_tag> torchvision==0.10.0+<cuda_tag> -f https://download.pytorch.org/whl/torch_stable.html`, where `<cuda_tag>` is the CUDA tag defined by Pytorch. For example, `pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 -f https://download.pytorch.org/whl/torch_stable.html` for CUDA 11.1. See [here](https://pytorch.org/get-started/previous-versions/) for a list of all available `torch` and `torchvision` versions.
+
+To check that `torch` and `torchvision` are installed correctly, run the following command: `python -c "import torch; print(torch.cuda.is_available())"`. If the output is `True`, the dependencies are installed with CUDA support.
+
+###### With CPU Support (slow, not recommended)
+
+```bash
+conda env create -f envs/environment-cpu.yaml
+conda activate dot
+```
+
+##### Install dot
+
+```bash
+pip install -e .
+```
+
+##### Download Models
+
+- Download GitHub Release binaries from [here](https://github.com/sensity-ai/dot/releases/tag/1.0.0) or use the following `wget` commands:
+
+    ```bash
+    wget https://github.com/sensity-ai/dot/releases/download/1.0.0/dot_model_checkpoints.z01 \
+    && wget https://github.com/sensity-ai/dot/releases/download/1.0.0/dot_model_checkpoints.z02 \
+    && wget https://github.com/sensity-ai/dot/releases/download/1.0.0/dot_model_checkpoints.zip
+    ```
+
+- Unzip the binaries and place them in the root directory of the repository:
+
+    ```bash
+    zip -s 0 dot_model_checkpoints.zip --out saved_models.zip \
+    && unzip saved_models.zip
+    ```
+
+- Clean up the downloaded binaries:
+
+    ```bash
+    rm -rf *.z*
+    ```
 
 #### CLI Usage
 
