@@ -64,7 +64,7 @@ iniconfig==1.1.1
     # via pytest
 ipdb==0.13.9
     # via dot (setup.cfg)
-ipython==8.4.0
+ipython==8.10.0
     # via
     #   dot (setup.cfg)
     #   ipdb
