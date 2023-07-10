@@ -194,7 +194,7 @@ pyyaml==5.4.1
     # via
     #   dot (setup.cfg)
     #   pre-commit
-requests==2.25.1
+requests==2.31.0
     # via dot (setup.cfg)
 scikit-image==0.19.1
     # via
