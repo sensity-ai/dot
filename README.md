@@ -115,18 +115,22 @@ pip install -e .
     rm -rf *.z*
     ```
 
-## Usage
+## Running dot
 
-### Running dot
+### Graphical interface
 
-#### Graphical interface
+#### GUI Installation
 
-To use the graphical interface of dot run
+Download and run the dot executable for your OS:
 
-```bash
-conda activate dot
-dot-ui
-```
+- Windows:
+  - ToDo
+- Ubuntu:
+  - ToDo
+- Mac:
+  - ToDo
+
+#### GUI Usage
 
 Usage example:
 
@@ -144,7 +148,9 @@ Watch the following demo video for better understanding of the interface
 <img src="./assets/gui_dot_demo.gif" width="500" height="406"/>
 </p>
 
-#### CLI
+### Command Line
+
+#### CLI Usage
 
 Run `dot --help` to get a full list of available options.
 
@@ -175,7 +181,7 @@ Run `dot --help` to get a full list of available options.
 
 **Note**: To enable face superresolution, use the flag `--gpen_type gpen_256` or `--gpen_type gpen_512`. To use *dot* on CPU (not recommended), do not pass the `--use_gpu` flag.
 
-### Controlling dot
+#### Controlling dot with CLI
 
 > **Disclaimer**: We use the `SimSwap` technique for the following demonstration
 
