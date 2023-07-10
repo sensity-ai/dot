@@ -132,7 +132,7 @@ tifffile==2022.5.4
     # via scikit-image
 tomli==2.0.1
     # via pytest
-torch==1.9.0
+torch==1.13.1
     # via
     #   dot (setup.cfg)
     #   face-alignment
