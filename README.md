@@ -128,6 +128,14 @@ conda activate dot
 dot-ui
 ```
 
+Usage example:
+
+1. Specify the source image in the field `source`.
+2. Specify the camera id number in the field `target`. In most cases, `0` is the correct camera id.
+3. Specify the config file in the field `config_file`. Select a default configuration from the dropdown list or use a custom file.
+4. (Optional) Check the field `use_gpu` to use the GPU.
+5. Click on the `RUN` button to start the deepfake.
+
 For more information about each field, click on the menu `Help/Usage`.
 
 Watch the following demo video for better understanding of the interface
