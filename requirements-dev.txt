@@ -6,10 +6,10 @@
 #
 absl-py==1.1.0
     # via mediapipe
+altgraph==0.17.3
+    # via pyinstaller
 asttokens==2.0.5
     # via stack-data
-atomicwrites==1.4.1
-    # via pytest
 attrs==21.4.0
     # via
     #   mediapipe
@@ -26,18 +26,12 @@ certifi==2022.12.7
     # via requests
 cfgv==3.3.1
     # via pre-commit
-chardet==4.0.0
+charset-normalizer==3.2.0
     # via requests
 click==8.0.2
     # via
     #   black
     #   dot (setup.cfg)
-colorama==0.4.6
-    # via
-    #   click
-    #   ipython
-    #   pytest
-    #   tqdm
 coverage==6.4.2
     # via pytest-cov
 customtkinter==5.2.0
@@ -142,6 +136,8 @@ parso==0.8.3
     # via jedi
 pathspec==0.9.0
     # via black
+pexpect==4.8.0
+    # via ipython
 pickleshare==0.7.5
     # via ipython
 pillow==9.3.0
@@ -166,6 +162,8 @@ protobuf==3.20.2
     #   dot (setup.cfg)
     #   mediapipe
     #   onnxruntime
+ptyprocess==0.7.0
+    # via pexpect
 pure-eval==0.2.2
     # via stack-data
 py==1.11.0
@@ -176,6 +174,10 @@ pyflakes==2.3.1
     # via flake8
 pygments==2.15.0
     # via ipython
+pyinstaller==5.13.0
+    # via dot (setup.cfg)
+pyinstaller-hooks-contrib==2023.5
+    # via pyinstaller
 pyparsing==3.0.9
     # via
     #   matplotlib

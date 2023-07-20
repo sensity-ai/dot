@@ -5,11 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.2.0] - 2023-07-20
 
+## What's Changed
+* Create a dot executable for windows by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/92
+* Add a graphical interface for dot by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/85
 * Update README and CONTRIBUTING by @giorgiop in https://github.com/sensity-ai/dot/pull/40
 * Fix config paths in additional scripts under `scripts/` folder by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/43
 * Update README and add instructions for running dot with an Android emulator by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/45
+
+**Full Changelog**: https://github.com/sensity-ai/dot/compare/1.1.0...1.2.0
 
 ## [1.1.0] - 2022-07-27
 
@@ -31,7 +36,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Speed up SimSwap's `reverse2original` by @ajndkr and @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/20
 * Add `bumpversion` for semantic versioning by @ajndkr in https://github.com/sensity-ai/dot/pull/34
 * Update README with speed metrics by @giorgiop in https://github.com/sensity-ai/dot/pull/37
-* Add a Graphical interface for dot by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/85
 
 ## New Contributors
 * @giorgiop made their first contribution in https://github.com/sensity-ai/dot/pull/6
@@ -49,6 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Full Changelog**: https://github.com/sensity-ai/dot/commits/1.0.0
 
-[Unreleased]: https://github.com/sensity-ai/dot/compare/1.1.0...HEAD
+[Unreleased]: https://github.com/sensity-ai/dot/compare/1.2.0...HEAD
+[1.2.0]: https://github.com/sensity-ai/dot/compare/1.1.0...1.2.0
 [1.1.0]: https://github.com/sensity-ai/dot/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/sensity-ai/dot/releases/tag/1.0.0
