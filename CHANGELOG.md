@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## What's Changed
 * Create a dot executable for windows by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/92
-* Add a Graphical interface for dot by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/85
+* Add a graphical interface for dot by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/85
 * Update README and CONTRIBUTING by @giorgiop in https://github.com/sensity-ai/dot/pull/40
 * Fix config paths in additional scripts under `scripts/` folder by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/43
 * Update README and add instructions for running dot with an Android emulator by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/45
