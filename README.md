@@ -199,6 +199,20 @@ Watch the following demo video for better understanding of the control options:
 <img src="./assets/dot_demo.gif" width="480"/>
 </p>
 
+## Setting up docker
+
+- Build the container
+
+    ```
+    docker-compose up --build -d
+    ```
+
+- Access the container
+
+    ```
+    docker-compose exec dot "/bin/bash"
+    ```
+
 ## Virtual Camera Injection
 
 Instructions vary depending on your operating system.
