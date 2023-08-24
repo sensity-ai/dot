@@ -33,6 +33,8 @@ exceptiongroup==1.1.2
     # via pytest
 face-alignment==1.3.3
     # via dot (setup.cfg)
+filelock==3.12.2
+    # via torch
 flatbuffers==2.0
     # via
     #   mediapipe
@@ -45,18 +47,26 @@ imageio==2.19.3
     # via scikit-image
 iniconfig==2.0.0
     # via pytest
+jinja2==3.1.2
+    # via torch
 kiwisolver==1.4.3
     # via matplotlib
 kornia==0.6.5
     # via dot (setup.cfg)
 llvmlite==0.38.1
     # via numba
+markupsafe==2.1.3
+    # via jinja2
 matplotlib==3.5.2
     # via mediapipe
 mediapipe==0.10.3
     # via dot (setup.cfg)
+mpmath==1.3.0
+    # via sympy
 networkx==2.8.4
-    # via scikit-image
+    # via
+    #   scikit-image
+    #   torch
 numba==0.55.2
     # via face-alignment
 numpy==1.22.0
@@ -120,7 +130,9 @@ pywavelets==1.3.0
 pyyaml==5.4.1
     # via dot (setup.cfg)
 requests==2.31.0
-    # via dot (setup.cfg)
+    # via
+    #   dot (setup.cfg)
+    #   torchvision
 scikit-image==0.19.1
     # via
     #   dot (setup.cfg)
@@ -134,17 +146,19 @@ six==1.16.0
     # via python-dateutil
 sounddevice==0.4.6
     # via mediapipe
+sympy==1.12
+    # via torch
 tifffile==2022.5.4
     # via scikit-image
 tomli==2.0.1
     # via pytest
-torch==1.9.0
+torch==2.0.1
     # via
     #   dot (setup.cfg)
     #   face-alignment
     #   kornia
     #   torchvision
-torchvision==0.10.0
+torchvision==0.15.2
     # via dot (setup.cfg)
 tqdm==4.64.0
     # via face-alignment

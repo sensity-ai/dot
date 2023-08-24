@@ -1,4 +1,5 @@
 import math
+
 import torch
 import torch.nn.functional as F
 from torch import nn
@@ -15,7 +16,7 @@ class SEBlock(nn.Module):
             nn.Linear(channel, channel // reduction),
             nn.PReLU(),
             nn.Linear(channel // reduction, channel),
-            nn.Sigmoid()
+            nn.Sigmoid(),
         )
 
     def forward(self, x):
@@ -64,7 +65,6 @@ class IRBlock(nn.Module):
 
 
 class ResNet(nn.Module):
-
     def __init__(self, block, layers, use_se=True):
         self.inplanes = 64
         self.use_se = use_se
@@ -96,13 +96,20 @@ class ResNet(nn.Module):
         downsample = None
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
-                nn.Conv2d(self.inplanes, planes * block.expansion,
-                          kernel_size=1, stride=stride, bias=False),
+                nn.Conv2d(
+                    self.inplanes,
+                    planes * block.expansion,
+                    kernel_size=1,
+                    stride=stride,
+                    bias=False,
+                ),
                 nn.BatchNorm2d(planes * block.expansion),
             )
 
         layers = []
-        layers.append(block(self.inplanes, planes, stride, downsample, use_se=self.use_se))
+        layers.append(
+            block(self.inplanes, planes, stride, downsample, use_se=self.use_se)
+        )
         self.inplanes = planes
         for i in range(1, blocks):
             layers.append(block(self.inplanes, planes, use_se=self.use_se))

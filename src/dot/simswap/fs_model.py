@@ -91,6 +91,7 @@ class fsModel(BaseModel):
 
         return img_fake
 
+
 def create_model(
     opt_verbose,
     opt_crop_size,

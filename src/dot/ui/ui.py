@@ -16,8 +16,8 @@ from dot.__main__ import run
 customtkinter.set_appearance_mode("Dark")
 customtkinter.set_default_color_theme("blue")
 
-class ToolTip(object):
 
+class ToolTip(object):
     def __init__(self, widget):
         self.widget = widget
         self.tipwindow = None
@@ -31,13 +31,19 @@ class ToolTip(object):
             return
         x, y, cx, cy = self.widget.bbox("insert")
         x = x + self.widget.winfo_rootx() + 57
-        y = y + cy + self.widget.winfo_rooty() +27
+        y = y + cy + self.widget.winfo_rooty() + 27
         self.tipwindow = tw = tkinter.Toplevel(self.widget)
         tw.wm_overrideredirect(1)
         tw.wm_geometry("+%d+%d" % (x, y))
-        label = tkinter.Label(tw, text=self.text, justify=tkinter.LEFT,
-                      background="#ffffff", relief=tkinter.SOLID, borderwidth=1,
-                      font=("arial", "10", "normal"))
+        label = tkinter.Label(
+            tw,
+            text=self.text,
+            justify=tkinter.LEFT,
+            background="#ffffff",
+            relief=tkinter.SOLID,
+            borderwidth=1,
+            font=("arial", "10", "normal"),
+        )
         label.pack(ipadx=8, ipady=5)
 
     def hidetip(self):
@@ -45,6 +51,7 @@ class ToolTip(object):
         self.tipwindow = None
         if tw:
             tw.destroy()
+
 
 class ToplevelUsageWindow(customtkinter.CTkToplevel):
     """
@@ -226,16 +233,15 @@ class App(customtkinter.CTk):
         )
         self.CreateToolTip(
             self.source,
-            text = "The path of the source directory that contains a set of images\n"
-            "or the path of one image intended for utilization in the deepfake generation process"
+            text="The path of the source directory that contains a set of images\n"
+            "or the path of one image intended for utilization in the deepfake generation process",
         )
 
         self.target.grid(row=2, column=0, pady=10, padx=(80, 20), sticky="w")
         self.target_label.grid(row=2, column=0, pady=10, padx=(35, 20), sticky="w")
         self.target.insert(0, 0)
         self.CreateToolTip(
-            self.target,
-            text = 'The camera id. Usually 0 is the correct id'
+            self.target, text="The camera id. Usually 0 is the correct id"
         )
 
         self.config_file_combobox.grid(
@@ -251,8 +257,7 @@ class App(customtkinter.CTk):
             sticky="w",
         )
         self.CreateToolTip(
-            self.config_file_combobox,
-            text = 'Configuration file for the deepfake'
+            self.config_file_combobox, text="Configuration file for the deepfake"
         )
 
         # create entry text for dot options
@@ -417,31 +422,24 @@ class App(customtkinter.CTk):
         self.crop_size_label.grid(row=3, column=3, pady=10, padx=(50, 20), sticky="w")
         self.crop_size.grid(row=3, column=3, pady=10, padx=(115, 20), sticky="w")
 
-        self.CreateToolTip(
-            self.crop_size,
-            text = 'The size of the image crop'
-        )
-        self.CreateToolTip(
-            self.gpen_path,
-            text = 'The path to the gpen models'
-        )
+        self.CreateToolTip(self.crop_size, text="The size of the image crop")
+        self.CreateToolTip(self.gpen_path, text="The path to the gpen models")
         self.CreateToolTip(
             self.checkpoints_dir,
-            text = 'The path to the checkpoints directory. Used by SimSwap'
+            text="The path to the checkpoints directory. Used by SimSwap",
         )
         self.CreateToolTip(
             self.arcface_model_path,
-            text = 'The path to the arcface model. Used by SimSwap'
+            text="The path to the arcface model. Used by SimSwap",
         )
         self.CreateToolTip(
             self.parsing_model_path,
-            text = 'The path to the parsing model. Used by SimSwap'
+            text="The path to the parsing model. Used by SimSwap",
         )
         self.CreateToolTip(
-            self.model_path,
-            text = "The path to the model's weights. Used by fomm"
+            self.model_path, text="The path to the model's weights. Used by fomm"
         )
-        
+
         # create radiobutton frame for swap_type
         self.swap_type_frame = customtkinter.CTkFrame(self)
         self.swap_type_frame.grid(
@@ -461,10 +459,7 @@ class App(customtkinter.CTk):
             text="fomm",
         )
         self.fomm_radio_button.grid(row=1, column=2, pady=10, padx=20, sticky="w")
-        self.CreateToolTip(
-            self.fomm_radio_button,
-            text = 'Use the deepfake from fomm'
-        )
+        self.CreateToolTip(self.fomm_radio_button, text="Use the deepfake from fomm")
 
         self.faceswap_cv2_radio_button = customtkinter.CTkRadioButton(
             master=self.swap_type_frame,
@@ -476,8 +471,7 @@ class App(customtkinter.CTk):
             row=2, column=2, pady=10, padx=20, sticky="w"
         )
         self.CreateToolTip(
-            self.faceswap_cv2_radio_button,
-            text = 'Use the deepfake from faceswap cv2'
+            self.faceswap_cv2_radio_button, text="Use the deepfake from faceswap cv2"
         )
 
         self.simswap_radio_button = customtkinter.CTkRadioButton(
@@ -488,8 +482,7 @@ class App(customtkinter.CTk):
         )
         self.simswap_radio_button.grid(row=3, column=2, pady=10, padx=20, sticky="w")
         self.CreateToolTip(
-            self.simswap_radio_button,
-            text = 'Use the deepfake from SimSwap'
+            self.simswap_radio_button, text="Use the deepfake from SimSwap"
         )
 
         # create radiobutton frame for gpen_type
@@ -515,8 +508,7 @@ class App(customtkinter.CTk):
             row=1, column=2, pady=10, padx=20, sticky="w"
         )
         self.CreateToolTip(
-            self.gpen_type_radio_button_1,
-            text = 'Apply face restoration with GPEN 256'
+            self.gpen_type_radio_button_1, text="Apply face restoration with GPEN 256"
         )
 
         self.gpen_type_radio_button_2 = customtkinter.CTkRadioButton(
@@ -529,8 +521,7 @@ class App(customtkinter.CTk):
             row=2, column=2, pady=10, padx=20, sticky="w"
         )
         self.CreateToolTip(
-            self.gpen_type_radio_button_2,
-            text = 'Apply face restoration with GPEN 512'
+            self.gpen_type_radio_button_2, text="Apply face restoration with GPEN 512"
         )
 
         # create checkbox and switch frame
@@ -563,28 +554,24 @@ class App(customtkinter.CTk):
         self.show_fps_checkbox.grid(row=1, column=3, pady=(39, 0), padx=20, sticky="w")
         self.use_gpu_checkbox.grid(row=2, column=3, pady=(20, 0), padx=20, sticky="w")
         self.head_pose_checkbox.grid(row=5, column=3, pady=(20, 0), padx=20, sticky="w")
-        self.CreateToolTip(
-            self.show_fps_checkbox,
-            text = 'Show the fps value'
-        )
+        self.CreateToolTip(self.show_fps_checkbox, text="Show the fps value")
         self.CreateToolTip(
             self.use_gpu_checkbox,
-            text = "If checked, the deepfake will use the GPU.\n"
-                   "If it's not checked, the deepfake will use the CPU"
+            text="If checked, the deepfake will use the GPU.\n"
+            "If it's not checked, the deepfake will use the CPU",
         )
         self.CreateToolTip(
-            self.head_pose_checkbox,
-            text = 'Estimate head pose before swap. Used by fomm'
+            self.head_pose_checkbox, text="Estimate head pose before swap. Used by fomm"
         )
 
         # create run button
         self.error_label = customtkinter.CTkLabel(
-            master=self,
-            text_color="red",
-            text=""
+            master=self, text_color="red", text=""
         )
-        self.error_label.grid(row=4, column=0, columnspan=4, padx=(20, 20), pady=(0, 20), sticky="nsew")
-        
+        self.error_label.grid(
+            row=4, column=0, columnspan=4, padx=(20, 20), pady=(0, 20), sticky="nsew"
+        )
+
         self.run_button = customtkinter.CTkButton(
             master=self,
             fg_color="white",
@@ -596,26 +583,28 @@ class App(customtkinter.CTk):
         self.run_button.grid(
             row=2, column=1, columnspan=2, padx=(50, 150), pady=(20, 0), sticky="nsew"
         )
-        self.CreateToolTip(
-            self.run_button,
-            text = 'Start running the deepfake'
-        )
+        self.CreateToolTip(self.run_button, text="Start running the deepfake")
 
         self.run_label = customtkinter.CTkLabel(
             master=self,
             text="The initial execution of dot may require a few minutes to complete.",
-            text_color="gray"
+            text_color="gray",
         )
-        self.run_label.grid(row=3, column=0, columnspan=3, padx=(180, 0), pady=(0, 20), sticky="nsew")
+        self.run_label.grid(
+            row=3, column=0, columnspan=3, padx=(180, 0), pady=(0, 20), sticky="nsew"
+        )
 
     def CreateToolTip(self, widget, text):
         toolTip = ToolTip(widget)
+
         def enter(event):
             toolTip.showtip(text)
+
         def leave(event):
             toolTip.hidetip()
-        widget.bind('<Enter>', enter)
-        widget.bind('<Leave>', leave)
+
+        widget.bind("<Enter>", enter)
+        widget.bind("<Leave>", leave)
 
     def usage_window(self):
         """
@@ -766,16 +755,18 @@ class App(customtkinter.CTk):
         """
         try:
             error_label.configure(text="")
-            
+
             # load config, if provided
             config = {}
             if len(self.config_file.get()) > 0:
                 with open(self.config_file.get()) as f:
                     config = yaml.safe_load(f)
-            
+
             # run dot
             run(
-                swap_type=config.get("swap_type", self.swap_type_radio_var.get() or None),
+                swap_type=config.get(
+                    "swap_type", self.swap_type_radio_var.get() or None
+                ),
                 source=config.get("source", self.source.get() or None),
                 target=config.get("target", self.target.get() or None),
                 model_path=config.get("model_path", self.model_path.get() or None),
@@ -794,7 +785,11 @@ class App(customtkinter.CTk):
                 ),
                 crop_size=config.get(
                     "crop_size",
-                    (int(self.crop_size.get()) if len(self.crop_size.get()) > 0 else None)
+                    (
+                        int(self.crop_size.get())
+                        if len(self.crop_size.get()) > 0
+                        else None
+                    )
                     or 224,
                 ),
                 head_pose=config.get("head_pose", int(self.head_pose_checkbox.get())),
@@ -808,6 +803,7 @@ class App(customtkinter.CTk):
         except Exception as e:
             print(e)
             error_label.configure(text=e)
+
 
 @click.command()
 def main():
