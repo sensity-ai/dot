@@ -9,7 +9,7 @@ from torchvision import transforms
 
 from dot.commons import ModelOption
 from dot.simswap.mediapipe.face_mesh import FaceMesh
-from dot.simswap.models.models import create_model
+from dot.simswap.fs_model import create_model
 from dot.simswap.parsing_model.model import BiSeNet
 from dot.simswap.util.norm import SpecificNorm
 from dot.simswap.util.reverse2original import reverse2wholeimage
