@@ -110,7 +110,7 @@ conda activate dot
 
 Install the `torch` and `torchvision` dependencies based on the CUDA version installed on your machine:
 
-- Install cuda 11.8 from [link](https://developer.nvidia.com/cuda-11-8-0-download-archive)
+- Install CUDA 11.8 from [link](https://developer.nvidia.com/cuda-11-8-0-download-archive)
 - Install `cudatoolkit` from `conda`: `conda install cudatoolkit=<cuda_version_no>` (replace `<cuda_version_no>` with the version on your machine)
 - Install `torch` and `torchvision` dependencies: `pip install torch==2.0.1+<cuda_tag> torchvision==0.15.2+<cuda_tag> torchaudio==2.0.2 --index-url https://download.pytorch.org/whl/cu118`, where `<cuda_tag>` is the CUDA tag defined by Pytorch. For example, `pip install torch==2.0.1+cu118 torchvision==0.15.2+cu118 torchaudio==2.0.2 --index-url https://download.pytorch.org/whl/cu118` for CUDA 11.8.
 
