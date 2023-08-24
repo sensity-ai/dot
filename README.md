@@ -94,7 +94,7 @@ Watch the following demo video for better understanding of the interface
 
 - Windows
 
-    1. Dwonload and install Visual Studio Community from [here](https://visualstudio.microsoft.com/vs/community/)
+    1. Download and install Visual Studio Community from [here](https://visualstudio.microsoft.com/vs/community/)
     2. Install Desktop development with C++ from the Visual studio installer
 
 ##### Create Conda Environment
