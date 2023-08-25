@@ -94,7 +94,8 @@ Watch the following demo video for better understanding of the interface
 
 - Windows
 
-    no pre-requisites to be installed, skip this step
+    1. Download and install Visual Studio Community from [here](https://visualstudio.microsoft.com/vs/community/)
+    2. Install Desktop development with C++ from the Visual studio installer
 
 ##### Create Conda Environment
 
@@ -109,8 +110,11 @@ conda activate dot
 
 Install the `torch` and `torchvision` dependencies based on the CUDA version installed on your machine:
 
+- Install CUDA 11.8 from [link](https://developer.nvidia.com/cuda-11-8-0-download-archive)
 - Install `cudatoolkit` from `conda`: `conda install cudatoolkit=<cuda_version_no>` (replace `<cuda_version_no>` with the version on your machine)
-- Install `torch` and `torchvision` dependencies: `pip install torch==1.9.0+<cuda_tag> torchvision==0.10.0+<cuda_tag> -f https://download.pytorch.org/whl/torch_stable.html`, where `<cuda_tag>` is the CUDA tag defined by Pytorch. For example, `pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 -f https://download.pytorch.org/whl/torch_stable.html` for CUDA 11.1. See [here](https://pytorch.org/get-started/previous-versions/) for a list of all available `torch` and `torchvision` versions.
+- Install `torch` and `torchvision` dependencies: `pip install torch==2.0.1+<cuda_tag> torchvision==0.15.2+<cuda_tag> torchaudio==2.0.2 --index-url https://download.pytorch.org/whl/cu118`, where `<cuda_tag>` is the CUDA tag defined by Pytorch. For example, `pip install torch==2.0.1+cu118 torchvision==0.15.2+cu118 torchaudio==2.0.2 --index-url https://download.pytorch.org/whl/cu118` for CUDA 11.8.
+
+  Note: `torch1.9.0+cu111` can also be used.
 
 To check that `torch` and `torchvision` are installed correctly, run the following command: `python -c "import torch; print(torch.cuda.is_available())"`. If the output is `True`, the dependencies are installed with CUDA support.
 
@@ -129,26 +133,8 @@ pip install -e .
 
 ##### Download Models
 
-- Download GitHub Release binaries from [here](https://github.com/sensity-ai/dot/releases/tag/1.0.0) or use the following `wget` commands:
-
-    ```bash
-    wget https://github.com/sensity-ai/dot/releases/download/1.0.0/dot_model_checkpoints.z01 \
-    && wget https://github.com/sensity-ai/dot/releases/download/1.0.0/dot_model_checkpoints.z02 \
-    && wget https://github.com/sensity-ai/dot/releases/download/1.0.0/dot_model_checkpoints.zip
-    ```
-
-- Unzip the binaries and place them in the root directory of the repository:
-
-    ```bash
-    zip -s 0 dot_model_checkpoints.zip --out saved_models.zip \
-    && unzip saved_models.zip
-    ```
-
-- Clean up the downloaded binaries:
-
-    ```bash
-    rm -rf *.z*
-    ```
+- Download dot model checkpoints from [here](https://drive.google.com/file/d/1Qaf9hE62XSvgmxR43dfiwEPWWS_dXSCE/view?usp=sharing)
+- Unzip the downloaded file in the root of this project
 
 #### CLI Usage
 

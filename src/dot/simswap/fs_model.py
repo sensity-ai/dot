@@ -25,7 +25,7 @@ def determine_path():
         sys.exit()
 
 
-sys.path.insert(0, determine_path() + "/models")
+sys.path.insert(0, determine_path())
 
 # TODO: Move this class inside models
 
@@ -52,7 +52,6 @@ class fsModel(BaseModel):
         BaseModel.initialize(
             self, opt_gpu_ids, opt_checkpoints_dir, opt_name, opt_verbose
         )
-
         torch.backends.cudnn.benchmark = True
 
         if use_gpu:
@@ -79,7 +78,7 @@ class fsModel(BaseModel):
                 arcface_model_path, map_location=torch.device("cpu")
             )
 
-        self.netArc = netArc_checkpoint["model"].module
+        self.netArc = netArc_checkpoint
         self.netArc = self.netArc.to(device)
         self.netArc.eval()
 
@@ -91,3 +90,40 @@ class fsModel(BaseModel):
         img_fake = self.netG.forward(img_att, latent_id)
 
         return img_fake
+
+
+def create_model(
+    opt_verbose,
+    opt_crop_size,
+    opt_fp16,
+    opt_gpu_ids,
+    opt_checkpoints_dir,
+    opt_name,
+    opt_resize_or_crop,
+    opt_load_pretrain,
+    opt_which_epoch,
+    opt_continue_train,
+    arcface_model_path,
+    use_gpu=True,
+):
+
+    model = fsModel()
+
+    model.initialize(
+        opt_gpu_ids,
+        opt_checkpoints_dir,
+        opt_name,
+        opt_verbose,
+        opt_crop_size,
+        opt_resize_or_crop,
+        opt_load_pretrain,
+        opt_which_epoch,
+        opt_continue_train,
+        arcface_model_path,
+        use_gpu=use_gpu,
+    )
+
+    if opt_verbose:
+        print("model [%s] was created" % (model.name()))
+
+    return model

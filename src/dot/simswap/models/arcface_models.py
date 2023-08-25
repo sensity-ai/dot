@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import math
 
 import torch
@@ -28,7 +26,6 @@ class SEBlock(nn.Module):
         return x * y
 
 
-# Todo Can this be removed?
 class IRBlock(nn.Module):
     expansion = 1
 
@@ -132,6 +129,7 @@ class ResNet(nn.Module):
 
         x = self.bn2(x)
         x = self.dropout(x)
+        # feature = x
         x = x.view(x.size(0), -1)
         x = self.fc(x)
         x = self.bn3(x)

@@ -17,6 +17,42 @@ customtkinter.set_appearance_mode("Dark")
 customtkinter.set_default_color_theme("blue")
 
 
+class ToolTip(object):
+    def __init__(self, widget):
+        self.widget = widget
+        self.tipwindow = None
+        self.id = None
+        self.x = self.y = 0
+
+    def showtip(self, text):
+        "Display text in tooltip window"
+        self.text = text
+        if self.tipwindow or not self.text:
+            return
+        x, y, cx, cy = self.widget.bbox("insert")
+        x = x + self.widget.winfo_rootx() + 57
+        y = y + cy + self.widget.winfo_rooty() + 27
+        self.tipwindow = tw = tkinter.Toplevel(self.widget)
+        tw.wm_overrideredirect(1)
+        tw.wm_geometry("+%d+%d" % (x, y))
+        label = tkinter.Label(
+            tw,
+            text=self.text,
+            justify=tkinter.LEFT,
+            background="#ffffff",
+            relief=tkinter.SOLID,
+            borderwidth=1,
+            font=("arial", "10", "normal"),
+        )
+        label.pack(ipadx=8, ipady=5)
+
+    def hidetip(self):
+        tw = self.tipwindow
+        self.tipwindow = None
+        if tw:
+            tw.destroy()
+
+
 class ToplevelUsageWindow(customtkinter.CTkToplevel):
     """
     The class of the usage window
@@ -26,7 +62,7 @@ class ToplevelUsageWindow(customtkinter.CTkToplevel):
         super().__init__(*args, **kwargs)
 
         self.title("Usage")
-        self.geometry(f"{700}x{550}")
+        self.geometry(f"{700}x{470}")
         self.resizable(False, False)
         self.attributes("-topmost", True)
 
@@ -37,22 +73,20 @@ class ToplevelUsageWindow(customtkinter.CTkToplevel):
         self.textbox.insert(
             "0.0",
             """
-            swap_type (str): The type of swap to run.\n
             source (str): The source image or video.\n
             target (Union[int, str]): The target image, video or camera id.\n
+            config_file (str): Path to the configuration file for the deepfake.\n
+            swap_type (str): The type of swap to run.\n
+            gpen_type (str, optional): The type of gpen model to use. Defaults to None.\n
+            gpen_path (str, optional): The path to the gpen models. Defaults to "./saved_models/gpen".\n
+            show_fps (bool, optional): Pass flag to show fps value. Defaults to False.\n
+            use_gpu (bool, optional): Pass flag to use GPU else use CPU. Defaults to False.\n
+            head_pose (bool): Estimates head pose before swap. Used by fomm.\n
             model_path (str, optional): The path to the model's weights. Defaults to None.\n
             parsing_model_path (str, optional): The path to the parsing model. Defaults to None.\n
             arcface_model_path (str, optional): The path to the arcface model. Defaults to None.\n
             checkpoints_dir (str, optional): The path to the checkpoints directory. Defaults to None.\n
-            gpen_type (str, optional): The type of gpen model to use. Defaults to None.\n
-            gpen_path (str, optional): The path to the gpen models. Defaults to "./saved_models/gpen".\n
             crop_size (int, optional): The size to crop the images to. Defaults to 224.\n
-            save_folder (str, optional): The path to the save folder. Defaults to None.\n
-            show_fps (bool, optional): Pass flag to show fps value. Defaults to False.\n
-            use_gpu (bool, optional): Pass flag to use GPU else use CPU. Defaults to False.\n
-            use_video (bool, optional): Pass flag to use video-swap pipeline. Defaults to False.\n
-            use_image (bool, optional): Pass flag to use image-swap pipeline. Defaults to False.\n
-            limit (int, optional): The number of frames to process. Defaults to None.
             """,
         )
         self.textbox.configure(state=tkinter.DISABLED)
@@ -101,7 +135,7 @@ class App(customtkinter.CTk):
 
         # configure window
         self.title("Deepfake Offensive Toolkit")
-        self.geometry(f"{835}x{635}")
+        self.geometry(f"{835}x{600}")
         self.resizable(False, False)
 
         self.grid_columnconfigure((0, 1), weight=1)
@@ -188,18 +222,27 @@ class App(customtkinter.CTk):
             width=10,
         )
 
-        self.source_label.grid(row=1, column=0, pady=(50, 10), padx=30, sticky="w")
-        self.source.grid(row=1, column=0, pady=(50, 10), padx=(80, 20), sticky="w")
+        self.source_label.grid(row=1, column=0, pady=(32, 10), padx=30, sticky="w")
+        self.source.grid(row=1, column=0, pady=(32, 10), padx=(80, 20), sticky="w")
         self.source_button.grid(
             row=1,
             column=0,
-            pady=(50, 10),
+            pady=(32, 10),
             padx=(175, 20),
             sticky="w",
+        )
+        self.CreateToolTip(
+            self.source,
+            text="The path of the source directory that contains a set of images\n"
+            "or the path of one image intended for utilization in the deepfake generation process",
         )
 
         self.target.grid(row=2, column=0, pady=10, padx=(80, 20), sticky="w")
         self.target_label.grid(row=2, column=0, pady=10, padx=(35, 20), sticky="w")
+        self.target.insert(0, 0)
+        self.CreateToolTip(
+            self.target, text="The camera id. Usually 0 is the correct id"
+        )
 
         self.config_file_combobox.grid(
             row=3, column=0, pady=10, padx=(80, 20), sticky="w"
@@ -212,6 +255,9 @@ class App(customtkinter.CTk):
             pady=10,
             padx=(175, 20),
             sticky="w",
+        )
+        self.CreateToolTip(
+            self.config_file_combobox, text="Configuration file for the deepfake"
         )
 
         # create entry text for dot options
@@ -263,25 +309,11 @@ class App(customtkinter.CTk):
             master=self.option_entry_frame, placeholder_text="gpen_path", width=85
         )
 
-        self.save_folder_label = customtkinter.CTkLabel(
-            master=self.option_entry_frame, text="save_folder"
-        )
-        self.save_folder = customtkinter.CTkEntry(
-            master=self.option_entry_frame, placeholder_text="save_folder", width=85
-        )
-
         self.crop_size_label = customtkinter.CTkLabel(
             master=self.option_entry_frame, text="crop_size"
         )
         self.crop_size = customtkinter.CTkEntry(
             master=self.option_entry_frame, placeholder_text="crop_size"
-        )
-
-        self.limit_label = customtkinter.CTkLabel(
-            master=self.option_entry_frame, text="limit"
-        )
-        self.limit = customtkinter.CTkEntry(
-            master=self.option_entry_frame, placeholder_text="limit"
         )
 
         self.model_path_button = customtkinter.CTkButton(
@@ -322,14 +354,6 @@ class App(customtkinter.CTk):
             text_color="white",
             text="Open",
             command=lambda: self.UploadAction(self.gpen_path),
-            width=10,
-        )
-        self.save_folder_button = customtkinter.CTkButton(
-            master=self.option_entry_frame,
-            fg_color="gray",
-            text_color="white",
-            text="Open",
-            command=lambda: self.UploadAction(self.save_folder),
             width=10,
         )
 
@@ -374,20 +398,10 @@ class App(customtkinter.CTk):
         )
 
         self.checkpoints_dir_label.grid(
-            row=4, column=2, pady=10, padx=(16, 20), sticky="w"
+            row=1, column=3, pady=10, padx=(16, 20), sticky="w"
         )
-        self.checkpoints_dir.grid(row=4, column=2, pady=10, padx=(115, 20), sticky="w")
+        self.checkpoints_dir.grid(row=1, column=3, pady=10, padx=(115, 20), sticky="w")
         self.checkpoints_dir_button.grid(
-            row=4,
-            column=2,
-            pady=10,
-            padx=(210, 20),
-            sticky="w",
-        )
-
-        self.gpen_path_label.grid(row=1, column=3, pady=10, padx=(48, 20), sticky="w")
-        self.gpen_path.grid(row=1, column=3, pady=10, padx=(115, 20), sticky="w")
-        self.gpen_path_button.grid(
             row=1,
             column=3,
             pady=10,
@@ -395,9 +409,9 @@ class App(customtkinter.CTk):
             sticky="w",
         )
 
-        self.save_folder_label.grid(row=2, column=3, pady=10, padx=(40, 20), sticky="w")
-        self.save_folder.grid(row=2, column=3, pady=10, padx=(115, 20), sticky="w")
-        self.save_folder_button.grid(
+        self.gpen_path_label.grid(row=2, column=3, pady=10, padx=(48, 20), sticky="w")
+        self.gpen_path.grid(row=2, column=3, pady=10, padx=(115, 20), sticky="w")
+        self.gpen_path_button.grid(
             row=2,
             column=3,
             pady=10,
@@ -408,8 +422,23 @@ class App(customtkinter.CTk):
         self.crop_size_label.grid(row=3, column=3, pady=10, padx=(50, 20), sticky="w")
         self.crop_size.grid(row=3, column=3, pady=10, padx=(115, 20), sticky="w")
 
-        self.limit_label.grid(row=4, column=3, pady=10, padx=(80, 20), sticky="w")
-        self.limit.grid(row=4, column=3, pady=10, padx=(115, 20), sticky="w")
+        self.CreateToolTip(self.crop_size, text="The size of the image crop")
+        self.CreateToolTip(self.gpen_path, text="The path to the gpen models")
+        self.CreateToolTip(
+            self.checkpoints_dir,
+            text="The path to the checkpoints directory. Used by SimSwap",
+        )
+        self.CreateToolTip(
+            self.arcface_model_path,
+            text="The path to the arcface model. Used by SimSwap",
+        )
+        self.CreateToolTip(
+            self.parsing_model_path,
+            text="The path to the parsing model. Used by SimSwap",
+        )
+        self.CreateToolTip(
+            self.model_path, text="The path to the model's weights. Used by fomm"
+        )
 
         # create radiobutton frame for swap_type
         self.swap_type_frame = customtkinter.CTkFrame(self)
@@ -429,8 +458,9 @@ class App(customtkinter.CTk):
             value="fomm",
             text="fomm",
         )
-
         self.fomm_radio_button.grid(row=1, column=2, pady=10, padx=20, sticky="w")
+        self.CreateToolTip(self.fomm_radio_button, text="Use the deepfake from fomm")
+
         self.faceswap_cv2_radio_button = customtkinter.CTkRadioButton(
             master=self.swap_type_frame,
             variable=self.swap_type_radio_var,
@@ -440,6 +470,10 @@ class App(customtkinter.CTk):
         self.faceswap_cv2_radio_button.grid(
             row=2, column=2, pady=10, padx=20, sticky="w"
         )
+        self.CreateToolTip(
+            self.faceswap_cv2_radio_button, text="Use the deepfake from faceswap cv2"
+        )
+
         self.simswap_radio_button = customtkinter.CTkRadioButton(
             master=self.swap_type_frame,
             variable=self.swap_type_radio_var,
@@ -447,6 +481,9 @@ class App(customtkinter.CTk):
             text="simswap",
         )
         self.simswap_radio_button.grid(row=3, column=2, pady=10, padx=20, sticky="w")
+        self.CreateToolTip(
+            self.simswap_radio_button, text="Use the deepfake from SimSwap"
+        )
 
         # create radiobutton frame for gpen_type
         self.gpen_type_frame = customtkinter.CTkFrame(self)
@@ -470,6 +507,10 @@ class App(customtkinter.CTk):
         self.gpen_type_radio_button_1.grid(
             row=1, column=2, pady=10, padx=20, sticky="w"
         )
+        self.CreateToolTip(
+            self.gpen_type_radio_button_1, text="Apply face restoration with GPEN 256"
+        )
+
         self.gpen_type_radio_button_2 = customtkinter.CTkRadioButton(
             master=self.gpen_type_frame,
             variable=self.gpen_type_radio_var,
@@ -478,6 +519,9 @@ class App(customtkinter.CTk):
         )
         self.gpen_type_radio_button_2.grid(
             row=2, column=2, pady=10, padx=20, sticky="w"
+        )
+        self.CreateToolTip(
+            self.gpen_type_radio_button_2, text="Apply face restoration with GPEN 512"
         )
 
         # create checkbox and switch frame
@@ -500,20 +544,6 @@ class App(customtkinter.CTk):
             variable=self.use_gpu_checkbox_var,
         )
 
-        self.use_video_checkbox_var = tkinter.IntVar()
-        self.use_video_checkbox = customtkinter.CTkCheckBox(
-            master=self.checkbox_slider_frame,
-            text="use_video",
-            variable=self.use_video_checkbox_var,
-        )
-
-        self.use_image_checkbox_var = tkinter.IntVar()
-        self.use_image_checkbox = customtkinter.CTkCheckBox(
-            master=self.checkbox_slider_frame,
-            text="use_image",
-            variable=self.use_image_checkbox_var,
-        )
-
         self.head_pose_checkbox_var = tkinter.IntVar()
         self.head_pose_checkbox = customtkinter.CTkCheckBox(
             master=self.checkbox_slider_frame,
@@ -521,24 +551,60 @@ class App(customtkinter.CTk):
             variable=self.head_pose_checkbox_var,
         )
 
-        self.show_fps_checkbox.grid(row=1, column=3, pady=(20, 0), padx=20, sticky="w")
+        self.show_fps_checkbox.grid(row=1, column=3, pady=(39, 0), padx=20, sticky="w")
         self.use_gpu_checkbox.grid(row=2, column=3, pady=(20, 0), padx=20, sticky="w")
-        self.use_video_checkbox.grid(row=3, column=3, pady=(20, 0), padx=20, sticky="w")
-        self.use_image_checkbox.grid(row=4, column=3, pady=(20, 0), padx=20, sticky="w")
         self.head_pose_checkbox.grid(row=5, column=3, pady=(20, 0), padx=20, sticky="w")
+        self.CreateToolTip(self.show_fps_checkbox, text="Show the fps value")
+        self.CreateToolTip(
+            self.use_gpu_checkbox,
+            text="If checked, the deepfake will use the GPU.\n"
+            "If it's not checked, the deepfake will use the CPU",
+        )
+        self.CreateToolTip(
+            self.head_pose_checkbox, text="Estimate head pose before swap. Used by fomm"
+        )
 
         # create run button
+        self.error_label = customtkinter.CTkLabel(
+            master=self, text_color="red", text=""
+        )
+        self.error_label.grid(
+            row=4, column=0, columnspan=4, padx=(20, 20), pady=(0, 20), sticky="nsew"
+        )
+
         self.run_button = customtkinter.CTkButton(
             master=self,
             fg_color="white",
             border_width=2,
             text_color="black",
             text="RUN",
-            command=self.start_button_event,
+            command=lambda: self.start_button_event(self.error_label),
         )
         self.run_button.grid(
-            row=2, column=1, columnspan=2, padx=(0, 100), pady=(20, 20), sticky="nsew"
+            row=2, column=1, columnspan=2, padx=(50, 150), pady=(20, 0), sticky="nsew"
         )
+        self.CreateToolTip(self.run_button, text="Start running the deepfake")
+
+        self.run_label = customtkinter.CTkLabel(
+            master=self,
+            text="The initial execution of dot may require a few minutes to complete.",
+            text_color="gray",
+        )
+        self.run_label.grid(
+            row=3, column=0, columnspan=3, padx=(180, 0), pady=(0, 20), sticky="nsew"
+        )
+
+    def CreateToolTip(self, widget, text):
+        toolTip = ToolTip(widget)
+
+        def enter(event):
+            toolTip.showtip(text)
+
+        def leave(event):
+            toolTip.hidetip()
+
+        widget.bind("<Enter>", enter)
+        widget.bind("<Leave>", leave)
 
     def usage_window(self):
         """
@@ -612,9 +678,7 @@ class App(customtkinter.CTk):
             "arcface_model_path",
             "checkpoints_dir",
             "gpen_path",
-            "save_folder",
             "crop_size",
-            "limit",
         ]
         radio_list = ["swap_type"]
 
@@ -663,9 +727,7 @@ class App(customtkinter.CTk):
             "arcface_model_path",
             "checkpoints_dir",
             "gpen_path",
-            "save_folder",
             "crop_size",
-            "limit",
         ]
         radio_list = ["swap_type"]
 
@@ -687,49 +749,60 @@ class App(customtkinter.CTk):
                     if entry not in config.keys():
                         self.modify_entry(eval(f"self.{entry}"), "")
 
-    def start_button_event(self):
+    def start_button_event(self, error_label):
         """
         Start running the deepfake
         """
+        try:
+            error_label.configure(text="")
 
-        # load config, if provided
-        config = {}
-        if len(self.config_file.get()) > 0:
-            with open(self.config_file.get()) as f:
-                config = yaml.safe_load(f)
+            # load config, if provided
+            config = {}
+            if len(self.config_file.get()) > 0:
+                with open(self.config_file.get()) as f:
+                    config = yaml.safe_load(f)
 
-        # run dot
-        run(
-            swap_type=config.get("swap_type", self.swap_type_radio_var.get() or None),
-            source=config.get("source", self.source.get() or None),
-            target=config.get("target", self.target.get() or None),
-            model_path=config.get("model_path", self.model_path.get() or None),
-            parsing_model_path=config.get(
-                "parsing_model_path", self.parsing_model_path.get() or None
-            ),
-            arcface_model_path=config.get(
-                "arcface_model_path", self.arcface_model_path.get() or None
-            ),
-            checkpoints_dir=config.get(
-                "checkpoints_dir", self.checkpoints_dir.get() or None
-            ),
-            gpen_type=config.get("gpen_type", self.gpen_type_radio_var.get()),
-            gpen_path=config.get(
-                "gpen_path", self.gpen_path.get() or "./saved_models/gpen"
-            ),
-            crop_size=config.get(
-                "crop_size",
-                (int(self.crop_size.get()) if len(self.crop_size.get()) > 0 else None)
-                or 224,
-            ),
-            head_pose=config.get("head_pose", int(self.head_pose_checkbox.get())),
-            save_folder=config.get("save_folder", self.save_folder.get() or None),
-            show_fps=config.get("show_fps", int(self.show_fps_checkbox.get())),
-            use_gpu=config.get("use_gpu", int(self.use_gpu_checkbox.get())),
-            use_video=config.get("use_video", int(self.use_video_checkbox.get())),
-            use_image=config.get("use_image", int(self.use_image_checkbox.get())),
-            limit=config.get("limit", self.limit.get() or None),
-        )
+            # run dot
+            run(
+                swap_type=config.get(
+                    "swap_type", self.swap_type_radio_var.get() or None
+                ),
+                source=config.get("source", self.source.get() or None),
+                target=config.get("target", self.target.get() or None),
+                model_path=config.get("model_path", self.model_path.get() or None),
+                parsing_model_path=config.get(
+                    "parsing_model_path", self.parsing_model_path.get() or None
+                ),
+                arcface_model_path=config.get(
+                    "arcface_model_path", self.arcface_model_path.get() or None
+                ),
+                checkpoints_dir=config.get(
+                    "checkpoints_dir", self.checkpoints_dir.get() or None
+                ),
+                gpen_type=config.get("gpen_type", self.gpen_type_radio_var.get()),
+                gpen_path=config.get(
+                    "gpen_path", self.gpen_path.get() or "./saved_models/gpen"
+                ),
+                crop_size=config.get(
+                    "crop_size",
+                    (
+                        int(self.crop_size.get())
+                        if len(self.crop_size.get()) > 0
+                        else None
+                    )
+                    or 224,
+                ),
+                head_pose=config.get("head_pose", int(self.head_pose_checkbox.get())),
+                save_folder=None,
+                show_fps=config.get("show_fps", int(self.show_fps_checkbox.get())),
+                use_gpu=config.get("use_gpu", int(self.use_gpu_checkbox.get())),
+                use_video=False,
+                use_image=False,
+                limit=None,
+            )
+        except Exception as e:
+            print(e)
+            error_label.configure(text=e)
 
 
 @click.command()
