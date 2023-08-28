@@ -50,7 +50,7 @@ Supported methods:
 Download and run the dot executable for your OS:
 
 - Windows:
-  - Download `dot.zip` from [here](https://drive.google.com/drive/folders/1gR5zIG2RHoMnsaXVzeBlM_Sk1tO4scJx?usp=drive_link), unzip it and then run `dot.exe`
+  - Download `dot.zip` from [here](https://drive.google.com/file/d/1HKj6kYXv8NczLcDI7xDXU7aWXpDGz6vg/view?usp=sharing), unzip it and then run `dot.exe`
 - Ubuntu:
   - ToDo
 - Mac:
