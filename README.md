@@ -49,7 +49,7 @@ Supported methods:
 
 Download and run the dot executable for your OS:
 
-- Windows:
+- Windows (Tested on Windows 10 and 11):
   - Download `dot.zip` from [here](https://drive.google.com/file/d/1HKj6kYXv8NczLcDI7xDXU7aWXpDGz6vg/view?usp=sharing), unzip it and then run `dot.exe`
 - Ubuntu:
   - ToDo
