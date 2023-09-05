@@ -136,12 +136,13 @@ def reverse2wholeimage(
 
         if device == "cpu":
             mat_rev = torch.linalg.inv(mat_rev_initial)
+            mat_rev = mat_rev[:2, :]
+            mat_rev = mat_rev[None, ...]
         else:
             with cp.cuda.Device(torch.cuda.current_device()):
                 mat_rev = cp.linalg.inv(cp.asarray(mat_rev_initial))
-
-        mat_rev = mat_rev[:2, :]
-        mat_rev = torch.as_tensor(mat_rev[None, ...], device=device)
+                mat_rev = mat_rev[:2, :]
+                mat_rev = torch.as_tensor(mat_rev[None, ...], device=device)
 
         if use_mask:
             source_img_norm = norm(source_img, use_gpu=use_gpu)
