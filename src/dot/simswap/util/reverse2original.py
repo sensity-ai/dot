@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import cupy as cp
 import cv2
 import kornia as K
 import numpy as np
@@ -133,10 +134,14 @@ def reverse2wholeimage(
         # invert the Affine transformation matrix
         mat_rev_initial[0:2, :] = torch.tensor(mat).to(device)
 
-        mat_rev = torch.linalg.inv(mat_rev_initial)
-        mat_rev = mat_rev[:2, :]
+        if device == "cpu":
+            mat_rev = torch.linalg.inv(mat_rev_initial)
+        else:
+            with cp.cuda.Device(torch.cuda.current_device()):
+                mat_rev = cp.linalg.inv(cp.asarray(mat_rev_initial))
 
-        mat_rev = mat_rev[None, ...]
+        mat_rev = mat_rev[:2, :]
+        mat_rev = torch.as_tensor(mat_rev[None, ...], device=device)
 
         if use_mask:
             source_img_norm = norm(source_img, use_gpu=use_gpu)

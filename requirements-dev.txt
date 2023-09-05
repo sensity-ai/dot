@@ -44,6 +44,8 @@ colorama==0.4.6
     #   tqdm
 coverage==6.4.2
     # via pytest-cov
+cupy==12.2.0
+    # via dot (setup.cfg)
 customtkinter==5.2.0
     # via dot (setup.cfg)
 cycler==0.11.0
@@ -62,6 +64,8 @@ executing==0.8.3
     # via stack-data
 face-alignment==1.3.3
     # via dot (setup.cfg)
+fastrlock==0.8.2
+    # via cupy
 filelock==3.7.1
     # via
     #   torch
@@ -124,6 +128,7 @@ numba==0.55.2
     # via face-alignment
 numpy==1.22.0
     # via
+    #   cupy
     #   dot (setup.cfg)
     #   face-alignment
     #   imageio
