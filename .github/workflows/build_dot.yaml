@@ -19,6 +19,11 @@ jobs:
       - name: Code Checkout
         uses: actions/checkout@v3
 
+      - name: cuda-toolkit
+        uses: Jimver/cuda-toolkit@v0.2.11
+        with:
+          cuda: '11.8.0'
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
