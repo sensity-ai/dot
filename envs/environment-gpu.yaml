@@ -8,4 +8,5 @@ dependencies:
     - pip=21.3
     - pip:
           - onnxruntime-gpu==1.9.0
+          - cupy==12.2.0
           - -r ../requirements-gpu.txt
