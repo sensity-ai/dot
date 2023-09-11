@@ -19,11 +19,6 @@ jobs:
       - name: Code Checkout
         uses: actions/checkout@v3
 
-      - name: cuda-toolkit
-        uses: Jimver/cuda-toolkit@v0.2.11
-        with:
-          cuda: '11.8.0'
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -34,7 +29,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update && sudo apt-get install -y ffmpeg libsndfile1-dev
-          pip install -r requirements.txt
+          pip install -r requirements-cpu.txt
           pip install -e .
 
       - name: Unit Tests
