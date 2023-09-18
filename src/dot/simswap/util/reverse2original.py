@@ -56,8 +56,9 @@ class SoftErosion(nn.Module):
 
         # Create kernel
         y_indices, x_indices = torch.meshgrid(
-            torch.arange(0.0, kernel_size), torch.arange(0.0, kernel_size),
-            indexing='xy',
+            torch.arange(0.0, kernel_size),
+            torch.arange(0.0, kernel_size),
+            indexing="xy",
         )
         dist = torch.sqrt((x_indices - r) ** 2 + (y_indices - r) ** 2)
         kernel = dist.max() - dist
