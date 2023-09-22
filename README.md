@@ -185,7 +185,9 @@ Watch the following demo video for better understanding of the control options:
 <img src="./assets/dot_demo.gif" width="480"/>
 </p>
 
-## Setting up docker
+## Docker
+
+### Setting up docker
 
 - Build the container
 
@@ -197,6 +199,82 @@ Watch the following demo video for better understanding of the control options:
 
     ```
     docker-compose exec dot "/bin/bash"
+    ```
+
+### Connect docker to the webcam
+
+#### Ubuntu
+
+1. Build the container
+
+    ```
+    docker build -t dot -f Dockerfile .
+    ```
+2. Run the container
+
+    ```
+    docker run -ti --gpus all \
+    -e NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+    -e NVIDIA_VISIBLE_DEVICES=all \
+    -e PYTHONUNBUFFERED=1 \
+    -v .:/dot \
+    --runtime nvidia \
+    --entrypoint: /bin/bash \
+    -p 8080:8080 \
+    --name dot \
+    --device=/dev/video0:/dev/video0
+    ```
+
+#### Windows
+
+1. Follow the instructions [here](https://medium.com/@jijupax/connect-the-webcam-to-docker-on-mac-or-windows-51d894c44468) under Windows to set up the webcam with docker.
+
+2. Build the container
+
+    ```
+    docker build -t dot -f Dockerfile .
+    ```
+3. Run the container
+
+    ```
+    docker run -ti --gpus all \
+    -e NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+    -e NVIDIA_VISIBLE_DEVICES=all \
+    -e PYTHONUNBUFFERED=1 \
+    -e DISPLAY=192.168.99.1:0 \
+    -v .:/dot \
+    --runtime nvidia \
+    --entrypoint: /bin/bash \
+    -p 8080:8080 \
+    --name dot \
+    --device=/dev/video0:/dev/video0 \
+    -v /tmp/.X11-unix:/tmp/.X11-unix
+    ```
+
+#### macOS
+
+1. Follow the instructions [here](https://github.com/gzupark/boot2docker-webcam-mac/blob/master/README.md) to set up the webcam with docker.
+
+2. Build the container
+
+    ```
+    docker build -t dot -f Dockerfile .
+    ```
+3. Run the container
+
+    ```
+    docker run -ti --gpus all \
+    -e NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+    -e NVIDIA_VISIBLE_DEVICES=all \
+    -e PYTHONUNBUFFERED=1 \
+    -e DISPLAY=$IP:0 \
+    -v .:/dot \
+    --runtime nvidia \
+    --entrypoint: /bin/bash \
+    -p 8080:8080 \
+    --name dot \
+    --device=/dev/video0:/dev/video0 \
+    -v /tmp/.X11-unix:/tmp/.X11-unix
     ```
 
 ## Virtual Camera Injection
