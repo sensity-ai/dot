@@ -56,7 +56,9 @@ class SoftErosion(nn.Module):
 
         # Create kernel
         y_indices, x_indices = torch.meshgrid(
-            torch.arange(0.0, kernel_size), torch.arange(0.0, kernel_size)
+            torch.arange(0.0, kernel_size),
+            torch.arange(0.0, kernel_size),
+            indexing="xy",
         )
         dist = torch.sqrt((x_indices - r) ** 2 + (y_indices - r) ** 2)
         kernel = dist.max() - dist
@@ -133,10 +135,17 @@ def reverse2wholeimage(
         # invert the Affine transformation matrix
         mat_rev_initial[0:2, :] = torch.tensor(mat).to(device)
 
-        mat_rev = torch.linalg.inv(mat_rev_initial)
-        mat_rev = mat_rev[:2, :]
+        if device == "cpu":
+            mat_rev = torch.linalg.inv(mat_rev_initial)
+            mat_rev = mat_rev[:2, :]
+            mat_rev = mat_rev[None, ...]
+        else:
+            import cupy as cp
 
-        mat_rev = mat_rev[None, ...]
+            with cp.cuda.Device(torch.cuda.current_device()):
+                mat_rev = cp.linalg.inv(cp.asarray(mat_rev_initial))
+                mat_rev = mat_rev[:2, :]
+                mat_rev = torch.as_tensor(mat_rev[None, ...], device=device)
 
         if use_mask:
             source_img_norm = norm(source_img, use_gpu=use_gpu)

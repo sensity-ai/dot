@@ -10,6 +10,8 @@ altgraph==0.17.3
     # via pyinstaller
 asttokens==2.0.5
     # via stack-data
+atomicwrites==1.4.1
+    # via pytest
 attrs==21.4.0
     # via
     #   mediapipe
@@ -24,6 +26,8 @@ bumpversion==0.6.0
     # via dot (setup.cfg)
 certifi==2023.7.22
     # via requests
+cffi==1.15.1
+    # via sounddevice
 cfgv==3.3.1
     # via pre-commit
 charset-normalizer==3.2.0
@@ -32,6 +36,12 @@ click==8.0.2
     # via
     #   black
     #   dot (setup.cfg)
+colorama==0.4.6
+    # via
+    #   click
+    #   ipython
+    #   pytest
+    #   tqdm
 coverage==6.4.2
     # via pytest-cov
 customtkinter==5.2.0
@@ -53,11 +63,15 @@ executing==0.8.3
 face-alignment==1.3.3
     # via dot (setup.cfg)
 filelock==3.7.1
-    # via virtualenv
+    # via
+    #   torch
+    #   virtualenv
 flake8==3.9.2
     # via dot (setup.cfg)
 flatbuffers==2.0
-    # via onnxruntime
+    # via
+    #   mediapipe
+    #   onnxruntime
 fonttools==4.34.4
     # via matplotlib
 identify==2.5.1
@@ -78,24 +92,32 @@ isort==5.12.0
     # via dot (setup.cfg)
 jedi==0.18.1
     # via ipython
+jinja2==3.1.2
+    # via torch
 kiwisolver==1.4.3
     # via matplotlib
 kornia==0.6.5
     # via dot (setup.cfg)
 llvmlite==0.38.1
     # via numba
+markupsafe==2.1.3
+    # via jinja2
 matplotlib==3.5.2
     # via mediapipe
 matplotlib-inline==0.1.3
     # via ipython
 mccabe==0.6.1
     # via flake8
-mediapipe==0.8.9
+mediapipe==0.10.3
     # via dot (setup.cfg)
+mpmath==1.3.0
+    # via sympy
 mypy-extensions==0.4.3
     # via black
 networkx==2.8.4
-    # via scikit-image
+    # via
+    #   scikit-image
+    #   torch
 nodeenv==1.7.0
     # via pre-commit
 numba==0.55.2
@@ -136,8 +158,8 @@ parso==0.8.3
     # via jedi
 pathspec==0.9.0
     # via black
-pexpect==4.8.0
-    # via ipython
+pefile==2023.2.7
+    # via pyinstaller
 pickleshare==0.7.5
     # via ipython
 pillow==9.3.0
@@ -162,14 +184,14 @@ protobuf==3.20.2
     #   dot (setup.cfg)
     #   mediapipe
     #   onnxruntime
-ptyprocess==0.7.0
-    # via pexpect
 pure-eval==0.2.2
     # via stack-data
 py==1.11.0
     # via pytest
 pycodestyle==2.7.0
     # via flake8
+pycparser==2.21
+    # via cffi
 pyflakes==2.3.1
     # via flake8
 pygments==2.15.0
@@ -192,12 +214,16 @@ python-dateutil==2.8.2
     # via matplotlib
 pywavelets==1.3.0
     # via scikit-image
+pywin32-ctypes==0.2.2
+    # via pyinstaller
 pyyaml==5.4.1
     # via
     #   dot (setup.cfg)
     #   pre-commit
 requests==2.31.0
-    # via dot (setup.cfg)
+    # via
+    #   dot (setup.cfg)
+    #   torchvision
 scikit-image==0.19.1
     # via
     #   dot (setup.cfg)
@@ -210,11 +236,14 @@ scipy==1.10.0
 six==1.16.0
     # via
     #   asttokens
-    #   mediapipe
     #   python-dateutil
     #   virtualenv
+sounddevice==0.4.6
+    # via mediapipe
 stack-data==0.3.0
     # via ipython
+sympy==1.12
+    # via torch
 tifffile==2022.5.4
     # via scikit-image
 toml==0.10.2
@@ -226,13 +255,13 @@ tomli==2.0.1
     #   black
     #   coverage
     #   pytest
-torch==1.9.0
+torch==2.0.1
     # via
     #   dot (setup.cfg)
     #   face-alignment
     #   kornia
     #   torchvision
-torchvision==0.10.0
+torchvision==0.15.2
     # via dot (setup.cfg)
 tqdm==4.64.0
     # via face-alignment
@@ -252,8 +281,6 @@ virtualenv==20.15.1
     # via pre-commit
 wcwidth==0.2.5
     # via prompt-toolkit
-wheel==0.38.1
-    # via mediapipe
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
