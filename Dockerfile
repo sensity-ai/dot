@@ -37,7 +37,7 @@ RUN conda init bash \
     && pip install --no-cache-dir torch==2.0.1+cu118 torchvision==0.15.2+cu118 torchaudio==2.0.2 --index-url https://download.pytorch.org/whl/cu118 \
     && pip install gdown \
     && gdown 1Qaf9hE62XSvgmxR43dfiwEPWWS_dXSCE \
-    && unzip dot_model_checkpoints.zip \
+    && unzip -o dot_model_checkpoints.zip \
     && rm -rf *.z*
 
 RUN cd dot \
