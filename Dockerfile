@@ -1,4 +1,4 @@
-FROM nvidia/cuda:11.1.1-cudnn8-devel-ubuntu20.04
+FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04
 
 # set working directory
 WORKDIR /dot
@@ -30,19 +30,16 @@ ENV PATH="/root/miniconda3/bin:${PATH}"
 RUN conda --version
 
 # Download and extract model checkpoints
-RUN cd dot && wget https://github.com/sensity-ai/dot/releases/download/1.0.0/dot_model_checkpoints.z01  \
-    && wget https://github.com/sensity-ai/dot/releases/download/1.0.0/dot_model_checkpoints.z02 \
-    && wget https://github.com/sensity-ai/dot/releases/download/1.0.0/dot_model_checkpoints.zip \
-    && zip -s 0 dot_model_checkpoints.zip --out saved_models.zip \
-    && unzip -o saved_models.zip \
-    && rm -rf *.z*
+RUN gdown 1Qaf9hE62XSvgmxR43dfiwEPWWS_dXSCE
+RUN unzip dot_model_checkpoints.zip
+RUN rm -rf *.z*
 
 # Create and activate the conda environment and install requirements
 RUN conda init bash \
     && . ~/.bashrc \
     && cd dot && conda env create -f envs/environment-gpu.yaml \
     && conda activate dot \
-    && pip install --no-cache-dir torch==1.9.0+cu111 torchvision==0.10.0+cu111 -f https://download.pytorch.org/whl/torch_stable.html
+    && pip install --no-cache-dir torch==2.0.1+cu118 torchvision==0.15.2+cu118 torchaudio==2.0.2 --index-url https://download.pytorch.org/whl/cu118
 
 RUN cd dot \
     && /root/miniconda3/envs/dot/bin/pip install --no-cache-dir -e .
