@@ -29,17 +29,16 @@ ENV PATH="/root/miniconda3/bin:${PATH}"
 
 RUN conda --version
 
-# Download and extract model checkpoints
-RUN gdown 1Qaf9hE62XSvgmxR43dfiwEPWWS_dXSCE
-RUN unzip dot_model_checkpoints.zip
-RUN rm -rf *.z*
-
-# Create and activate the conda environment and install requirements
+# Create and activate the conda environment, install requirements and download and extract the checkpoints
 RUN conda init bash \
     && . ~/.bashrc \
     && cd dot && conda env create -f envs/environment-gpu.yaml \
     && conda activate dot \
-    && pip install --no-cache-dir torch==2.0.1+cu118 torchvision==0.15.2+cu118 torchaudio==2.0.2 --index-url https://download.pytorch.org/whl/cu118
+    && pip install --no-cache-dir torch==2.0.1+cu118 torchvision==0.15.2+cu118 torchaudio==2.0.2 --index-url https://download.pytorch.org/whl/cu118 \
+    && pip install gdown \
+    && gdown 1Qaf9hE62XSvgmxR43dfiwEPWWS_dXSCE \
+    && unzip dot_model_checkpoints.zip \
+    && rm -rf *.z*
 
 RUN cd dot \
     && /root/miniconda3/envs/dot/bin/pip install --no-cache-dir -e .
