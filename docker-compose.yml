@@ -15,7 +15,7 @@ services:
     runtime: nvidia
     entrypoint: /bin/bash
     ports:
-      - "8892:8892"
+      - "8080:8080"
     container_name: dot
     stdin_open: true
     tty: true

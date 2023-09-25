@@ -210,6 +210,7 @@ Watch the following demo video for better understanding of the control options:
     ```
     docker build -t dot -f Dockerfile .
     ```
+
 2. Run the container
 
     ```
@@ -219,10 +220,10 @@ Watch the following demo video for better understanding of the control options:
     -e PYTHONUNBUFFERED=1 \
     -v .:/dot \
     --runtime nvidia \
-    --entrypoint: /bin/bash \
+    --entrypoint /bin/bash \
     -p 8080:8080 \
-    --name dot \
-    --device=/dev/video0:/dev/video0
+    --device=/dev/video0:/dev/video0 \
+    dot
     ```
 
 #### Windows
@@ -244,11 +245,11 @@ Watch the following demo video for better understanding of the control options:
     -e DISPLAY=192.168.99.1:0 \
     -v .:/dot \
     --runtime nvidia \
-    --entrypoint: /bin/bash \
+    --entrypoint /bin/bash \
     -p 8080:8080 \
-    --name dot \
     --device=/dev/video0:/dev/video0 \
-    -v /tmp/.X11-unix:/tmp/.X11-unix
+    -v /tmp/.X11-unix:/tmp/.X11-unix \
+    dot
     ```
 
 #### macOS
@@ -270,11 +271,11 @@ Watch the following demo video for better understanding of the control options:
     -e DISPLAY=$IP:0 \
     -v .:/dot \
     --runtime nvidia \
-    --entrypoint: /bin/bash \
+    --entrypoint /bin/bash \
     -p 8080:8080 \
-    --name dot \
     --device=/dev/video0:/dev/video0 \
-    -v /tmp/.X11-unix:/tmp/.X11-unix
+    -v /tmp/.X11-unix:/tmp/.X11-unix \
+    dot
     ```
 
 ## Virtual Camera Injection
