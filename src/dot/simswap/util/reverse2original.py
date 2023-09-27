@@ -113,7 +113,9 @@ def reverse2wholeimage(
     use_cam=True,
 ):
 
-    device = torch.device("cuda" if use_gpu else "cpu")
+    device = torch.device(
+        ("mps" if torch.backends.mps.is_available() else "cuda") if use_gpu else "cpu"
+    )
     if use_mask:
         smooth_mask = SoftErosion(kernel_size=17, threshold=0.9, iterations=7).to(
             device
@@ -133,12 +135,19 @@ def reverse2wholeimage(
         )
 
         # invert the Affine transformation matrix
-        mat_rev_initial[0:2, :] = torch.tensor(mat).to(device)
+        if device == torch.device("mps"):
+            mat_rev_initial[0:2, :] = torch.tensor(mat, dtype=torch.float32).to(device)
+        else:
+            mat_rev_initial[0:2, :] = torch.tensor(mat).to(device)
 
-        if device == "cpu":
+        if device == torch.device("cpu"):
             mat_rev = torch.linalg.inv(mat_rev_initial)
             mat_rev = mat_rev[:2, :]
             mat_rev = mat_rev[None, ...]
+        elif device == torch.device("mps"):
+            mat_rev = torch.linalg.inv(mat_rev_initial)
+            mat_rev = mat_rev[:2, :]
+            mat_rev = torch.as_tensor(mat_rev[None, ...], device=device)
         else:
             import cupy as cp
 

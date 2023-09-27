@@ -142,7 +142,7 @@ def load_parsing_model(path, use_mask, use_gpu):
         n_classes = 19
         net = BiSeNet(n_classes=n_classes)
         if use_gpu:
-            net.cuda()
+            net.to("mps" if torch.backends.mps.is_available() else "cuda")
             net.load_state_dict(torch.load(path))
         else:
             net.cpu()
@@ -170,7 +170,13 @@ def crop_align(
     img_id = img_a.view(-1, img_a.shape[0], img_a.shape[1], img_a.shape[2])
 
     # convert numpy to tensor
-    img_id = img_id.cuda() if use_gpu else img_id.cpu()
+    img_id = (
+        img_id.to("mps")
+        if torch.backends.mps.is_available()
+        else "cuda"
+        if use_gpu
+        else img_id.cpu()
+    )
 
     # create latent id
     img_id_downsample = F.interpolate(img_id, size=(112, 112))

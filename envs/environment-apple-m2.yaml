@@ -1,0 +1,10 @@
+---
+name: dot
+channels:
+    - conda-forge
+    - defaults
+dependencies:
+    - python=3.8
+    - pip=21.3
+    - pip:
+          - -r ../requirements-apple-m2.txt
