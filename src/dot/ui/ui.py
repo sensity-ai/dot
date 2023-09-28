@@ -135,7 +135,7 @@ class App(customtkinter.CTk):
 
         # configure window
         self.title("Deepfake Offensive Toolkit")
-        self.geometry(f"{835}x{600}")
+        self.geometry(f"{835}x{700}")
         self.resizable(False, False)
 
         self.grid_columnconfigure((0, 1), weight=1)
@@ -222,12 +222,12 @@ class App(customtkinter.CTk):
             width=10,
         )
 
-        self.source_label.grid(row=1, column=0, pady=(32, 10), padx=30, sticky="w")
-        self.source.grid(row=1, column=0, pady=(32, 10), padx=(80, 20), sticky="w")
+        self.source_label.grid(row=1, column=0, pady=(57, 10), padx=30, sticky="w")
+        self.source.grid(row=1, column=0, pady=(57, 10), padx=(80, 20), sticky="w")
         self.source_button.grid(
             row=1,
             column=0,
-            pady=(32, 10),
+            pady=(57, 10),
             padx=(175, 20),
             sticky="w",
         )
@@ -241,7 +241,10 @@ class App(customtkinter.CTk):
         self.target_label.grid(row=2, column=0, pady=10, padx=(35, 20), sticky="w")
         self.target.insert(0, 0)
         self.CreateToolTip(
-            self.target, text="The camera id. Usually 0 is the correct id"
+            self.target,
+            text="The camera id. Usually 0 is the correct id.\n"
+            "To use image or video swaps, type the path to an image or a video "
+            "and check the option use_image or use_video.",
         )
 
         self.config_file_combobox.grid(
@@ -530,6 +533,20 @@ class App(customtkinter.CTk):
             row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew"
         )
 
+        self.use_video_checkbox_var = tkinter.IntVar()
+        self.use_video_checkbox = customtkinter.CTkCheckBox(
+            master=self.checkbox_slider_frame,
+            text="use_video",
+            variable=self.use_video_checkbox_var,
+        )
+
+        self.use_image_checkbox_var = tkinter.IntVar()
+        self.use_image_checkbox = customtkinter.CTkCheckBox(
+            master=self.checkbox_slider_frame,
+            text="use_image",
+            variable=self.use_image_checkbox_var,
+        )
+
         self.show_fps_checkbox_var = tkinter.IntVar()
         self.show_fps_checkbox = customtkinter.CTkCheckBox(
             master=self.checkbox_slider_frame,
@@ -551,9 +568,13 @@ class App(customtkinter.CTk):
             variable=self.head_pose_checkbox_var,
         )
 
-        self.show_fps_checkbox.grid(row=1, column=3, pady=(39, 0), padx=20, sticky="w")
-        self.use_gpu_checkbox.grid(row=2, column=3, pady=(20, 0), padx=20, sticky="w")
+        self.use_image_checkbox.grid(row=1, column=3, pady=(25, 0), padx=20, sticky="w")
+        self.use_video_checkbox.grid(row=2, column=3, pady=(20, 0), padx=20, sticky="w")
+        self.show_fps_checkbox.grid(row=3, column=3, pady=(20, 0), padx=20, sticky="w")
+        self.use_gpu_checkbox.grid(row=4, column=3, pady=(20, 0), padx=20, sticky="w")
         self.head_pose_checkbox.grid(row=5, column=3, pady=(20, 0), padx=20, sticky="w")
+        self.CreateToolTip(self.use_image_checkbox, text="Use image swap pipeline")
+        self.CreateToolTip(self.use_video_checkbox, text="Use video swap pipeline")
         self.CreateToolTip(self.show_fps_checkbox, text="Show the fps value")
         self.CreateToolTip(
             self.use_gpu_checkbox,
@@ -581,7 +602,7 @@ class App(customtkinter.CTk):
             command=lambda: self.start_button_event(self.error_label),
         )
         self.run_button.grid(
-            row=2, column=1, columnspan=2, padx=(50, 150), pady=(20, 0), sticky="nsew"
+            row=2, column=1, columnspan=2, padx=(50, 150), pady=(30, 0), sticky="nsew"
         )
         self.CreateToolTip(self.run_button, text="Start running the deepfake")
 
@@ -793,12 +814,22 @@ class App(customtkinter.CTk):
                     or 224,
                 ),
                 head_pose=config.get("head_pose", int(self.head_pose_checkbox.get())),
-                save_folder=None,
                 show_fps=config.get("show_fps", int(self.show_fps_checkbox.get())),
                 use_gpu=config.get("use_gpu", int(self.use_gpu_checkbox.get())),
-                use_video=False,
-                use_image=False,
+                use_video=config.get(
+                    "use_video",
+                    int(self.use_video_checkbox.get())
+                    if not int(self.use_image_checkbox.get())
+                    else 0,
+                ),
+                use_image=config.get(
+                    "use_image",
+                    int(self.use_image_checkbox.get())
+                    if not int(self.use_video_checkbox.get())
+                    else 0,
+                ),
                 limit=None,
+                save_folder="output",
             )
         except Exception as e:
             print(e)
