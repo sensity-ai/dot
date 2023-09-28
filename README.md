@@ -118,6 +118,15 @@ Install the `torch` and `torchvision` dependencies based on the CUDA version ins
 
 To check that `torch` and `torchvision` are installed correctly, run the following command: `python -c "import torch; print(torch.cuda.is_available())"`. If the output is `True`, the dependencies are installed with CUDA support.
 
+###### With MPS Support(Apple Silicon)
+
+```bash
+conda env create -f envs/environment-apple-m2.yaml
+conda activate dot
+```
+
+To check that `torch` and `torchvision` are installed correctly, run the following command: `python -c "import torch; print(torch.backends.mps.is_available())"`. If the output is `True`, the dependencies are installed with Metal programming framework support.
+
 ###### With CPU Support (slow, not recommended)
 
 ```bash
