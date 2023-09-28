@@ -21,7 +21,7 @@ def run(
     arcface_model_path: str = None,
     checkpoints_dir: str = None,
     gpen_type: str = None,
-    gpen_path: str = "./saved_models/gpen",
+    gpen_path: str = "saved_models/gpen",
     crop_size: int = 224,
     head_pose: bool = False,
     save_folder: str = None,
@@ -42,7 +42,7 @@ def run(
         arcface_model_path (str, optional): The path to the arcface model. Defaults to None.
         checkpoints_dir (str, optional): The path to the checkpoints directory. Defaults to None.
         gpen_type (str, optional): The type of gpen model to use. Defaults to None.
-        gpen_path (str, optional): The path to the gpen models. Defaults to "./saved_models/gpen".
+        gpen_path (str, optional): The path to the gpen models. Defaults to "saved_models/gpen".
         crop_size (int, optional): The size to crop the images to. Defaults to 224.
         save_folder (str, optional): The path to the save folder. Defaults to None.
         show_fps (bool, optional): Pass flag to show fps value. Defaults to False.
@@ -130,7 +130,7 @@ def run(
 @click.option(
     "--gpen_path",
     "gpen_path",
-    default="./saved_models/gpen",
+    default="saved_models/gpen",
     help="Path to gpen models.",
 )
 @click.option("--crop_size", "crop_size", type=int, default=224)
@@ -185,7 +185,7 @@ def main(
     arcface_model_path: str = None,
     checkpoints_dir: str = None,
     gpen_type: str = None,
-    gpen_path: str = "./saved_models/gpen",
+    gpen_path: str = "saved_models/gpen",
     crop_size: int = 224,
     save_folder: str = None,
     show_fps: bool = False,
