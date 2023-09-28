@@ -113,13 +113,13 @@ six==1.16.0
     #   python-dateutil
 tifffile==2022.5.4
     # via scikit-image
-torch==1.9.0
+torch==2.0.1
     # via
     #   dot (setup.cfg)
     #   face-alignment
     #   kornia
     #   torchvision
-torchvision==0.10.0
+torchvision==0.15.2
     # via dot (setup.cfg)
 tqdm==4.64.0
     # via face-alignment
