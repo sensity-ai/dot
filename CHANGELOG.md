@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ## What's Changed
+* Add video and image swap to the GUI by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/116
 * Fix of cusolver error on GPU by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/110
 * Update the GUI, PyTorch and the documentation by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/107
 
