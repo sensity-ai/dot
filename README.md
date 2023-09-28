@@ -53,8 +53,8 @@ Download and run the dot executable for your OS:
   - Download `dot.zip` from [here](https://drive.google.com/file/d/10fdnSszaEbpGdCKxxeBFXQrkagxe3-RT/view), unzip it and then run `dot.exe`
 - Ubuntu:
   - ToDo
-- Mac:
-  - ToDo
+- Mac (Tested on Sonoma 14.0):
+  - Download `dot-macos.zip` from [here](https://drive.google.com/file/d/1IEueMmJwesbpvZd4UNd6XubdLduqFcJ3/view?usp=drive_link), unzip it and then run `MacOS/dot-executable`
 
 #### GUI Usage
 
