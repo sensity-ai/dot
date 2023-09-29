@@ -53,7 +53,8 @@ Download and run the dot executable for your OS:
   - Download `dot.zip` from [here](https://drive.google.com/file/d/10fdnSszaEbpGdCKxxeBFXQrkagxe3-RT/view), unzip it and then run `dot.exe`
 - Ubuntu:
   - ToDo
-- Mac (Tested on Sonoma 14.0):
+- Mac (Tested on Apple M2 Sonoma 14.0):
+
   - Download `dot-executable.app` from [here](https://drive.google.com/drive/folders/1n22mvWSFmXbSAspZWp5sChbCqXgOEKGx?usp=drive_link)
   - Run `dot-executable.app`
   - In case of camera reading error:
