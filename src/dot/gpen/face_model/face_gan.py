@@ -28,6 +28,11 @@ class FaceGAN(object):
         self.n_mlp = 8
         self.is_norm = is_norm
         self.resolution = size
+        self.device = (
+            ("mps" if torch.backends.mps.is_available() else "cuda")
+            if use_gpu
+            else "cpu"
+        )
         self.load_model(
             channel_multiplier=channel_multiplier, narrow=narrow, use_gpu=use_gpu
         )
@@ -36,8 +41,8 @@ class FaceGAN(object):
         if use_gpu:
             self.model = FullGenerator(
                 self.resolution, 512, self.n_mlp, channel_multiplier, narrow=narrow
-            ).cuda()
-            pretrained_dict = torch.load(self.mfile)
+            ).to(self.device)
+            pretrained_dict = torch.load(self.mfile, map_location=self.device)
         else:
             self.model = FullGenerator(
                 self.resolution, 512, self.n_mlp, channel_multiplier, narrow=narrow
@@ -60,7 +65,7 @@ class FaceGAN(object):
 
     def img2tensor(self, img, use_gpu=True):
         if use_gpu:
-            img_t = torch.from_numpy(img).cuda() / 255.0
+            img_t = torch.from_numpy(img).to(self.device) / 255.0
         else:
             img_t = torch.from_numpy(img).cpu() / 255.0
         if self.is_norm:

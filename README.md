@@ -53,8 +53,13 @@ Download and run the dot executable for your OS:
   - Download `dot.zip` from [here](https://drive.google.com/file/d/10fdnSszaEbpGdCKxxeBFXQrkagxe3-RT/view), unzip it and then run `dot.exe`
 - Ubuntu:
   - ToDo
-- Mac:
-  - ToDo
+- Mac (Tested on Apple M2 Sonoma 14.0):
+
+  - Download `dot-executable.app` from [here](https://drive.google.com/drive/folders/1n22mvWSFmXbSAspZWp5sChbCqXgOEKGx?usp=drive_link)
+  - Run `dot-executable.app`
+  - In case of camera reading error:
+    - Right click and choose `Show Package Contents`
+    - Execute `dot-executable` from `Contents/MacOS` folder
 
 #### GUI Usage
 
@@ -117,6 +122,15 @@ Install the `torch` and `torchvision` dependencies based on the CUDA version ins
   Note: `torch1.9.0+cu111` can also be used.
 
 To check that `torch` and `torchvision` are installed correctly, run the following command: `python -c "import torch; print(torch.cuda.is_available())"`. If the output is `True`, the dependencies are installed with CUDA support.
+
+###### With MPS Support(Apple Silicon)
+
+```bash
+conda env create -f envs/environment-apple-m2.yaml
+conda activate dot
+```
+
+To check that `torch` and `torchvision` are installed correctly, run the following command: `python -c "import torch; print(torch.backends.mps.is_available())"`. If the output is `True`, the dependencies are installed with Metal programming framework support.
 
 ###### With CPU Support (slow, not recommended)
 
