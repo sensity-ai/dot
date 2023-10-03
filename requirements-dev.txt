@@ -275,7 +275,7 @@ typing-extensions==4.3.0
     # via
     #   black
     #   torch
-urllib3==1.26.10
+urllib3==1.26.17
     # via requests
 virtualenv==20.15.1
     # via pre-commit
