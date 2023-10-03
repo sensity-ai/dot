@@ -606,10 +606,6 @@ class App(customtkinter.CTk):
                     "Resources",
                 )
 
-            # if sys.platform == "darwin":
-            #     # reset camera access
-            #     os.system("tccutil reset Camera")
-
     def CreateToolTip(self, widget, text):
         toolTip = ToolTip(widget)
 
