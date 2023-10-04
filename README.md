@@ -284,7 +284,8 @@ If you are performing a test against a mobile app, virtual cameras are much hard
 
 ## Speed
 
-### Windows
+### With GPU
+
 
 Tested on a AMD Ryzen 5 2600 Six-Core Processor with one NVIDIA GeForce RTX 2070
 
