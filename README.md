@@ -296,7 +296,8 @@ SimswapHQ: FPS 11.0
 FOMM: FPS 31.0
 ```
 
-### MacOS
+### With Apple Silicon
+
 
 Tested on Macbook Air M2 2022 16GB
 ```example
