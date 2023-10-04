@@ -17,9 +17,7 @@ from .generic import (
 )
 
 # define globals
-CACHED_PREDICTOR_PATH = (
-    "./saved_models/faceswap_cv/shape_predictor_68_face_landmarks.dat"
-)
+CACHED_PREDICTOR_PATH = "saved_models/faceswap_cv/shape_predictor_68_face_landmarks.dat"
 
 
 class Swap:

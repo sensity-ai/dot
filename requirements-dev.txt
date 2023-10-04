@@ -162,7 +162,7 @@ pefile==2023.2.7
     # via pyinstaller
 pickleshare==0.7.5
     # via ipython
-pillow==9.3.0
+pillow==10.0.1
     # via
     #   dot (setup.cfg)
     #   imageio
@@ -275,7 +275,7 @@ typing-extensions==4.3.0
     # via
     #   black
     #   torch
-urllib3==1.26.10
+urllib3==1.26.17
     # via requests
 virtualenv==20.15.1
     # via pre-commit

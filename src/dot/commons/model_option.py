@@ -21,7 +21,7 @@ class ModelOption(ABC):
     def __init__(
         self,
         gpen_type=None,
-        gpen_path="./saved_models/gpen",
+        gpen_path="saved_models/gpen",
         use_gpu=True,
         crop_size=256,
     ):

@@ -113,7 +113,9 @@ def reverse2wholeimage(
     use_cam=True,
 ):
 
-    device = torch.device("cuda" if use_gpu else "cpu")
+    device = torch.device(
+        ("mps" if torch.backends.mps.is_available() else "cuda") if use_gpu else "cpu"
+    )
     if use_mask:
         smooth_mask = SoftErosion(kernel_size=17, threshold=0.9, iterations=7).to(
             device

@@ -1,9 +1,9 @@
 ---
 analysis:
     simswap:
-        parsing_model_path: ./saved_models/simswap/parsing_model/checkpoint/79999_iter.pth
-        checkpoints_dir: ./saved_models/simswap/checkpoints
-        arcface_model_path: ./saved_models/simswap/arcface_model/arcface_checkpoint.tar
+        parsing_model_path: saved_models/simswap/parsing_model/checkpoint/79999_iter.pth
+        checkpoints_dir: saved_models/simswap/checkpoints
+        arcface_model_path: saved_models/simswap/arcface_model/arcface_checkpoint.tar
         detection_threshold: 0.6
         det_size: [640, 640]
         use_gpu: true
@@ -19,4 +19,4 @@ analysis:
         opt_which_epoch: '550000'
         opt_continue_train: store_true
         gpen: gpen_256
-        gpen_path: ./saved_models/gpen
+        gpen_path: saved_models/gpen
