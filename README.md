@@ -55,8 +55,8 @@ Download and run the dot executable for your OS:
   - ToDo
 - Mac (Tested on Apple M2 Sonoma 14.0):
 
-  - Download `dot-executable.app` from [here](https://drive.google.com/drive/folders/1n22mvWSFmXbSAspZWp5sChbCqXgOEKGx?usp=drive_link)
-  - Run `dot-executable.app`
+  - Download `dot-m2.zip` from [here](https://drive.google.com/file/d/1KTRzQrl_AVpiFIxUxW_k2F5EsosJJ_1Y/view?usp=sharing) and unzip it
+  - Open terminal and run `xattr -cr dot-executable.app` to remove any extended attributes
   - In case of camera reading error:
     - Right click and choose `Show Package Contents`
     - Execute `dot-executable` from `Contents/MacOS` folder
@@ -284,6 +284,9 @@ If you are performing a test against a mobile app, virtual cameras are much hard
 
 ## Speed
 
+### With GPU
+
+
 Tested on a AMD Ryzen 5 2600 Six-Core Processor with one NVIDIA GeForce RTX 2070
 
 ```example
@@ -291,6 +294,17 @@ Simswap: FPS 13.0
 Simswap + gpen 256: FPS 7.0
 SimswapHQ: FPS 11.0
 FOMM: FPS 31.0
+```
+
+### With Apple Silicon
+
+
+Tested on Macbook Air M2 2022 16GB
+```example
+Simswap: FPS 3.2
+Simswap + gpen 256: FPS 1.8
+SimswapHQ: FPS 2.7
+FOMM: FPS 2.0
 ```
 
 ## License
