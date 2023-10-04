@@ -53,8 +53,13 @@ Download and run the dot executable for your OS:
   - Download `dot.zip` from [here](https://drive.google.com/file/d/10fdnSszaEbpGdCKxxeBFXQrkagxe3-RT/view), unzip it and then run `dot.exe`
 - Ubuntu:
   - ToDo
-- Mac:
-  - ToDo
+- Mac (Tested on Apple M2 Sonoma 14.0):
+
+  - Download `dot-m2.zip` from [here](https://drive.google.com/file/d/1KTRzQrl_AVpiFIxUxW_k2F5EsosJJ_1Y/view?usp=sharing) and unzip it
+  - Open terminal and run `xattr -cr dot-executable.app` to remove any extended attributes
+  - In case of camera reading error:
+    - Right click and choose `Show Package Contents`
+    - Execute `dot-executable` from `Contents/MacOS` folder
 
 #### GUI Usage
 
@@ -117,6 +122,15 @@ Install the `torch` and `torchvision` dependencies based on the CUDA version ins
   Note: `torch1.9.0+cu111` can also be used.
 
 To check that `torch` and `torchvision` are installed correctly, run the following command: `python -c "import torch; print(torch.cuda.is_available())"`. If the output is `True`, the dependencies are installed with CUDA support.
+
+###### With MPS Support(Apple Silicon)
+
+```bash
+conda env create -f envs/environment-apple-m2.yaml
+conda activate dot
+```
+
+To check that `torch` and `torchvision` are installed correctly, run the following command: `python -c "import torch; print(torch.backends.mps.is_available())"`. If the output is `True`, the dependencies are installed with Metal programming framework support.
 
 ###### With CPU Support (slow, not recommended)
 
@@ -363,6 +377,9 @@ If you are performing a test against a mobile app, virtual cameras are much hard
 
 ## Speed
 
+### With GPU
+
+
 Tested on a AMD Ryzen 5 2600 Six-Core Processor with one NVIDIA GeForce RTX 2070
 
 ```example
@@ -370,6 +387,17 @@ Simswap: FPS 13.0
 Simswap + gpen 256: FPS 7.0
 SimswapHQ: FPS 11.0
 FOMM: FPS 31.0
+```
+
+### With Apple Silicon
+
+
+Tested on Macbook Air M2 2022 16GB
+```example
+Simswap: FPS 3.2
+Simswap + gpen 256: FPS 1.8
+SimswapHQ: FPS 2.7
+FOMM: FPS 2.0
 ```
 
 ## License
