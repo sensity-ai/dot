@@ -101,7 +101,7 @@ def video_pipeline(
         crop_size (int, optional): Face crop size. Defaults to 224.
         limit (int, optional): Limit number of video-swaps. Defaults to None.
     """
-    head_pose = kwargs["head_pose"]
+    head_pose = kwargs.get("head_pose", False)
     source_imgs = find_files_from_path(source, ["jpg", "png", "jpeg"], filter=None)
     target_videos = find_files_from_path(target, ["avi", "mp4", "mov", "MOV"])
     if not source_imgs or not target_videos:
