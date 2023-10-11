@@ -126,8 +126,8 @@ def reverse2wholeimage(
     kernel_use_cam = torch.ones(5, 5).to(device)
     kernel_use_image = np.ones((40, 40), np.uint8)
     orisize = (oriimg.shape[0], oriimg.shape[1])
-    mat_rev_initial = torch.ones([3, 3]).to(device)
-    mat_rev_initial[2, :] = torch.tensor([0.0, 0.0, 1.0]).to(device)
+    mat_rev_initial = np.ones([3, 3])
+    mat_rev_initial[2, :] = np.array([0.0, 0.0, 1.0])
     for swaped_img, mat, source_img in zip(swaped_imgs, mats, b_align_crop_tenor_list):
 
         img_white = torch.full((1, 3, crop_size, crop_size), 1.0, dtype=torch.float).to(
@@ -135,26 +135,10 @@ def reverse2wholeimage(
         )
 
         # invert the Affine transformation matrix
-        if device == torch.device("mps"):
-            mat_rev_initial[0:2, :] = torch.tensor(mat, dtype=torch.float32).to(device)
-        else:
-            mat_rev_initial[0:2, :] = torch.tensor(mat).to(device)
-
-        if device == torch.device("cpu"):
-            mat_rev = torch.linalg.inv(mat_rev_initial)
-            mat_rev = mat_rev[:2, :]
-            mat_rev = mat_rev[None, ...]
-        elif device == torch.device("mps"):
-            mat_rev = torch.linalg.inv(mat_rev_initial)
-            mat_rev = mat_rev[:2, :]
-            mat_rev = torch.as_tensor(mat_rev[None, ...], device=device)
-        else:
-            import cupy as cp
-
-            with cp.cuda.Device(torch.cuda.current_device()):
-                mat_rev = cp.linalg.inv(cp.asarray(mat_rev_initial))
-                mat_rev = mat_rev[:2, :]
-                mat_rev = torch.as_tensor(mat_rev[None, ...], device=device)
+        mat_rev_initial[0:2, :] = mat
+        mat_rev = np.linalg.inv(mat_rev_initial.astype(np.float32))
+        mat_rev = mat_rev[:2, :]
+        mat_rev = torch.tensor(mat_rev[None, ...]).to(device)
 
         if use_mask:
             source_img_norm = norm(source_img, use_gpu=use_gpu)
