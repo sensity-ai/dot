@@ -29,13 +29,12 @@ ENV PATH="/root/miniconda3/bin:${PATH}"
 
 RUN conda --version
 
-# Create the conda environment
-RUN conda init bash \
-    && . ~/.bashrc \
-    && conda env create -f envs/environment-gpu.yaml
-
-# Make RUN commands use the new environment:
-SHELL ["conda", "run", "-n", "dot", "/bin/bash", "-c"]
+# Install requirements
+RUN conda config --add channels conda-forge
+RUN conda install python==3.8
+RUN conda install pip==21.3
+RUN pip install onnxruntime-gpu==1.9.0
+RUN pip install -r requirements.txt
 
 # Install pytorch
 RUN pip install --no-cache-dir torch==2.0.1+cu118 torchvision==0.15.2+cu118 torchaudio==2.0.2 --index-url https://download.pytorch.org/whl/cu118
