@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ## What's Changed
+* Update colab notebook by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/128
 * Add a Docker container for dot by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/95
 * Fix of cusolver error on GPU by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/110
 * Update the GUI, PyTorch and the documentation by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/107
