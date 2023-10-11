@@ -228,11 +228,14 @@ Watch the following demo video for better understanding of the control options:
 2. Run the container
 
     ```
+    xhost +
     docker run -ti --gpus all \
     -e NVIDIA_DRIVER_CAPABILITIES=compute,utility \
     -e NVIDIA_VISIBLE_DEVICES=all \
     -e PYTHONUNBUFFERED=1 \
+    -e DISPLAY \
     -v .:/dot \
+    -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
     --runtime nvidia \
     --entrypoint /bin/bash \
     -p 8080:8080 \
@@ -284,11 +287,11 @@ Watch the following demo video for better understanding of the control options:
     -e PYTHONUNBUFFERED=1 \
     -e DISPLAY=$IP:0 \
     -v .:/dot \
+    -v /tmp/.X11-unix:/tmp/.X11-unix \
     --runtime nvidia \
     --entrypoint /bin/bash \
     -p 8080:8080 \
     --device=/dev/video0:/dev/video0 \
-    -v /tmp/.X11-unix:/tmp/.X11-unix \
     dot
     ```
 
