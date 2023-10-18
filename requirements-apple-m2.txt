@@ -125,7 +125,7 @@ tqdm==4.64.0
     # via face-alignment
 typing-extensions==4.3.0
     # via torch
-urllib3==1.26.17
+urllib3==1.26.18
     # via requests
 wheel==0.38.1
     # via mediapipe
