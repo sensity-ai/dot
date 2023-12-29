@@ -7,6 +7,7 @@ licensed under the BSD 3-Clause "New" or "Revised" License.
 import os
 import sys
 import tkinter
+import traceback
 from pathlib import Path
 
 import click
@@ -115,10 +116,10 @@ class ToplevelAboutWindow(customtkinter.CTkToplevel):
         self.textbox.insert(
             "0.0",
             """
-            dot (aka Deepfake Offensive Toolkit) makes real-time, controllable deepfakes ready for virtual cameras injection. \n
-            dot is created for performing penetration testing against e.g. identity verification and video conferencing systems, \n
-            for the use by security analysts, Red Team members, and biometrics researchers. \n
-            dot is developed for research and demonstration purposes. \n
+            DOT (aka Deepfake Offensive Toolkit) makes real-time, controllable deepfakes ready for virtual \n
+            cameras injection. DOT is created for performing penetration testing against e.g. identity \n
+            verification and video conferencing systems, for the use by security analysts, \n
+            Red Team members, and biometrics researchers. DOT is developed for research and demonstration purposes. \n
             As an end user, you have the responsibility to obey all applicable laws when using this program. \n
             Authors and contributing developers assume no liability and are not responsible for any misuse \n
             or damage caused by the use of this program.
@@ -821,6 +822,7 @@ class App(customtkinter.CTk):
             )
         except Exception as e:
             print(e)
+            print(traceback.format_exc())
             error_label.configure(text=e)
 
 
