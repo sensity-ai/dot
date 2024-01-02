@@ -147,7 +147,7 @@ pip install -e .
 
 ##### Download Models
 
-- Download dot model checkpoints from [here](https://drive.google.com/file/d/1Qaf9hE62XSvgmxR43dfiwEPWWS_dXSCE/view?usp=sharing)
+- Download dot model checkpoints from [here](https://drive.google.com/file/d/1nL3WkntTrVBZVQvOF2i7clY8eFRqSr8L/view)
 - Unzip the downloaded file in the root of this project
 
 #### CLI Usage
