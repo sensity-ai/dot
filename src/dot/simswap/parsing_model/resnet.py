@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.model_zoo as modelzoo
 
-resnet18_url = "https://download.pytorch.org/models/resnet18-5c106cde.pth"
+resnet18_url = "saved_models/simswap/resnet18-5c106cde.pth"
 
 
 def conv3x3(in_planes, out_planes, stride=1):
