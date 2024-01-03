@@ -4,7 +4,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.utils.model_zoo as modelzoo
 
 resnet18_url = "saved_models/simswap/resnet18-5c106cde.pth"
 
@@ -77,7 +76,7 @@ class Resnet18(nn.Module):
         return feat8, feat16, feat32
 
     def init_weight(self):
-        state_dict = modelzoo.load_url(resnet18_url)
+        state_dict = torch.load(resnet18_url, map_location=None, weights_only=False)
         self_state_dict = self.state_dict()
         for k, v in state_dict.items():
             if "fc" in k:
