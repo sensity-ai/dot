@@ -50,7 +50,7 @@ Supported methods:
 Download and run the dot executable for your OS:
 
 - Windows (Tested on Windows 10 and 11):
-  - Download `dot.zip` from [here](https://drive.google.com/file/d/1dSwxNFYafV4UmRoof59ohVWEwbTj7LfW/view), unzip it and then run `dot.exe`
+  - Download `dot.zip` from [here](https://drive.google.com/file/d/10LXgtE721YPXdHfzcDUp6ba-9klueocR/view), unzip it and then run `dot.exe`
 - Ubuntu:
   - ToDo
 - Mac (Tested on Apple M2 Sonoma 14.0):
@@ -147,7 +147,7 @@ pip install -e .
 
 ##### Download Models
 
-- Download dot model checkpoints from [here](https://drive.google.com/file/d/1Qaf9hE62XSvgmxR43dfiwEPWWS_dXSCE/view?usp=sharing)
+- Download dot model checkpoints from [here](https://drive.google.com/file/d/1nL3WkntTrVBZVQvOF2i7clY8eFRqSr8L/view)
 - Unzip the downloaded file in the root of this project
 
 #### CLI Usage

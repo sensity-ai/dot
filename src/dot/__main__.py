@@ -4,6 +4,7 @@ Copyright (c) 2022, Sensity B.V. All rights reserved.
 licensed under the BSD 3-Clause "New" or "Revised" License.
 """
 
+import traceback
 from typing import Union
 
 import click
@@ -51,32 +52,35 @@ def run(
         use_image (bool, optional): Pass flag to use image-swap pipeline. Defaults to False.
         limit (int, optional): The number of frames to process. Defaults to None.
     """
-    # initialize dot
-    _dot = DOT(use_video=use_video, use_image=use_image, save_folder=save_folder)
+    try:
+        # initialize dot
+        _dot = DOT(use_video=use_video, use_image=use_image, save_folder=save_folder)
 
-    # build dot
-    option = _dot.build_option(
-        swap_type=swap_type,
-        use_gpu=use_gpu,
-        gpen_type=gpen_type,
-        gpen_path=gpen_path,
-        crop_size=crop_size,
-    )
+        # build dot
+        option = _dot.build_option(
+            swap_type=swap_type,
+            use_gpu=use_gpu,
+            gpen_type=gpen_type,
+            gpen_path=gpen_path,
+            crop_size=crop_size,
+        )
 
-    # run dot
-    _dot.generate(
-        option=option,
-        source=source,
-        target=target,
-        show_fps=show_fps,
-        model_path=model_path,
-        limit=limit,
-        parsing_model_path=parsing_model_path,
-        arcface_model_path=arcface_model_path,
-        checkpoints_dir=checkpoints_dir,
-        opt_crop_size=crop_size,
-        head_pose=head_pose,
-    )
+        # run dot
+        _dot.generate(
+            option=option,
+            source=source,
+            target=target,
+            show_fps=show_fps,
+            model_path=model_path,
+            limit=limit,
+            parsing_model_path=parsing_model_path,
+            arcface_model_path=arcface_model_path,
+            checkpoints_dir=checkpoints_dir,
+            opt_crop_size=crop_size,
+            head_pose=head_pose,
+        )
+    except:  # noqa
+        print(traceback.format_exc())
 
 
 @click.command()
