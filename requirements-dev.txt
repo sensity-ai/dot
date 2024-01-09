@@ -72,7 +72,7 @@ flatbuffers==2.0
     # via
     #   mediapipe
     #   onnxruntime
-fonttools==4.34.4
+fonttools==4.43.0
     # via matplotlib
 identify==2.5.1
     # via pre-commit

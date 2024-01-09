@@ -39,7 +39,7 @@ flatbuffers==2.0
     # via
     #   mediapipe
     #   onnxruntime
-fonttools==4.34.4
+fonttools==4.43.0
     # via matplotlib
 idna==2.10
     # via requests
