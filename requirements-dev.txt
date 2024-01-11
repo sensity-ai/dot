@@ -92,7 +92,7 @@ isort==5.12.0
     # via dot (setup.cfg)
 jedi==0.18.1
     # via ipython
-jinja2==3.1.2
+jinja2==3.1.3
     # via torch
 kiwisolver==1.4.3
     # via matplotlib
