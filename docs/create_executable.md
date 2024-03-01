@@ -33,4 +33,8 @@ ToDo
 
 ## Mac
 
-ToDo
+```
+pyinstaller --noconfirm --onedir --name "dot" --add-data="src/dot/fomm/config:dot/fomm/config" --add-data="src/dot/simswap/models:dot/simswap/models" --add-data="path/to/site-packages:." --add-data="configs:configs/" --add-data="data:data/" --add-data="saved_models:saved_models/" src/dot/ui/ui.py
+```
+
+The executable files can be found under the folder `dist`.
