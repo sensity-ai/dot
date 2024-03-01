@@ -32,7 +32,7 @@ The executable files can be found under the folder `dist`.
 ToDo
 
 ## Mac
-Follow these steps to generate the executable for Windows.
+Follow these steps to generate the executable for Mac.
 
 1. Run these commands
 
