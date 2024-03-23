@@ -4,6 +4,7 @@ Copyright (c) 2022, Sensity B.V. All rights reserved.
 licensed under the BSD 3-Clause "New" or "Revised" License.
 """
 
+import traceback
 from typing import Union
 
 import click
@@ -21,7 +22,7 @@ def run(
     arcface_model_path: str = None,
     checkpoints_dir: str = None,
     gpen_type: str = None,
-    gpen_path: str = "./saved_models/gpen",
+    gpen_path: str = "saved_models/gpen",
     crop_size: int = 224,
     head_pose: bool = False,
     save_folder: str = None,
@@ -42,7 +43,7 @@ def run(
         arcface_model_path (str, optional): The path to the arcface model. Defaults to None.
         checkpoints_dir (str, optional): The path to the checkpoints directory. Defaults to None.
         gpen_type (str, optional): The type of gpen model to use. Defaults to None.
-        gpen_path (str, optional): The path to the gpen models. Defaults to "./saved_models/gpen".
+        gpen_path (str, optional): The path to the gpen models. Defaults to "saved_models/gpen".
         crop_size (int, optional): The size to crop the images to. Defaults to 224.
         save_folder (str, optional): The path to the save folder. Defaults to None.
         show_fps (bool, optional): Pass flag to show fps value. Defaults to False.
@@ -51,32 +52,35 @@ def run(
         use_image (bool, optional): Pass flag to use image-swap pipeline. Defaults to False.
         limit (int, optional): The number of frames to process. Defaults to None.
     """
-    # initialize dot
-    _dot = DOT(use_video=use_video, use_image=use_image, save_folder=save_folder)
+    try:
+        # initialize dot
+        _dot = DOT(use_video=use_video, use_image=use_image, save_folder=save_folder)
 
-    # build dot
-    option = _dot.build_option(
-        swap_type=swap_type,
-        use_gpu=use_gpu,
-        gpen_type=gpen_type,
-        gpen_path=gpen_path,
-        crop_size=crop_size,
-    )
+        # build dot
+        option = _dot.build_option(
+            swap_type=swap_type,
+            use_gpu=use_gpu,
+            gpen_type=gpen_type,
+            gpen_path=gpen_path,
+            crop_size=crop_size,
+        )
 
-    # run dot
-    _dot.generate(
-        option=option,
-        source=source,
-        target=target,
-        show_fps=show_fps,
-        model_path=model_path,
-        limit=limit,
-        parsing_model_path=parsing_model_path,
-        arcface_model_path=arcface_model_path,
-        checkpoints_dir=checkpoints_dir,
-        opt_crop_size=crop_size,
-        head_pose=head_pose,
-    )
+        # run dot
+        _dot.generate(
+            option=option,
+            source=source,
+            target=target,
+            show_fps=show_fps,
+            model_path=model_path,
+            limit=limit,
+            parsing_model_path=parsing_model_path,
+            arcface_model_path=arcface_model_path,
+            checkpoints_dir=checkpoints_dir,
+            opt_crop_size=crop_size,
+            head_pose=head_pose,
+        )
+    except:  # noqa
+        print(traceback.format_exc())
 
 
 @click.command()
@@ -130,7 +134,7 @@ def run(
 @click.option(
     "--gpen_path",
     "gpen_path",
-    default="./saved_models/gpen",
+    default="saved_models/gpen",
     help="Path to gpen models.",
 )
 @click.option("--crop_size", "crop_size", type=int, default=224)
@@ -185,7 +189,7 @@ def main(
     arcface_model_path: str = None,
     checkpoints_dir: str = None,
     gpen_type: str = None,
-    gpen_path: str = "./saved_models/gpen",
+    gpen_path: str = "saved_models/gpen",
     crop_size: int = 224,
     save_folder: str = None,
     show_fps: bool = False,

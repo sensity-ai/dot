@@ -5,7 +5,10 @@ licensed under the BSD 3-Clause "New" or "Revised" License.
 """
 
 import os
+import sys
 import tkinter
+import traceback
+from pathlib import Path
 
 import click
 import customtkinter
@@ -78,7 +81,7 @@ class ToplevelUsageWindow(customtkinter.CTkToplevel):
             config_file (str): Path to the configuration file for the deepfake.\n
             swap_type (str): The type of swap to run.\n
             gpen_type (str, optional): The type of gpen model to use. Defaults to None.\n
-            gpen_path (str, optional): The path to the gpen models. Defaults to "./saved_models/gpen".\n
+            gpen_path (str, optional): The path to the gpen models. Defaults to "saved_models/gpen".\n
             show_fps (bool, optional): Pass flag to show fps value. Defaults to False.\n
             use_gpu (bool, optional): Pass flag to use GPU else use CPU. Defaults to False.\n
             head_pose (bool): Estimates head pose before swap. Used by fomm.\n
@@ -113,10 +116,10 @@ class ToplevelAboutWindow(customtkinter.CTkToplevel):
         self.textbox.insert(
             "0.0",
             """
-            dot (aka Deepfake Offensive Toolkit) makes real-time, controllable deepfakes ready for virtual cameras injection. \n
-            dot is created for performing penetration testing against e.g. identity verification and video conferencing systems, \n
-            for the use by security analysts, Red Team members, and biometrics researchers. \n
-            dot is developed for research and demonstration purposes. \n
+            DOT (aka Deepfake Offensive Toolkit) makes real-time, controllable deepfakes ready for virtual \n
+            cameras injection. DOT is created for performing penetration testing against e.g. identity \n
+            verification and video conferencing systems, for the use by security analysts, \n
+            Red Team members, and biometrics researchers. DOT is developed for research and demonstration purposes. \n
             As an end user, you have the responsibility to obey all applicable laws when using this program. \n
             Authors and contributing developers assume no liability and are not responsible for any misuse \n
             or damage caused by the use of this program.
@@ -615,6 +618,16 @@ class App(customtkinter.CTk):
             row=3, column=0, columnspan=3, padx=(180, 0), pady=(0, 20), sticky="nsew"
         )
 
+        self.resources_path = ""
+
+        # MacOS bundle has different resource directory structure
+        if sys.platform == "darwin":
+            if getattr(sys, "frozen", False):
+                self.resources_path = os.path.join(
+                    str(Path(sys.executable).resolve().parents[0]).replace("MacOS", ""),
+                    "Resources",
+                )
+
     def CreateToolTip(self, widget, text):
         toolTip = ToolTip(widget)
 
@@ -740,19 +753,18 @@ class App(customtkinter.CTk):
             choice (str): The type of swap to run.
         """
 
-        entry_list = [
-            "source",
-            "target",
+        entry_list = ["source", "target", "crop_size"]
+        radio_list = ["swap_type", "gpen_type"]
+        model_list = [
             "model_path",
             "parsing_model_path",
             "arcface_model_path",
             "checkpoints_dir",
             "gpen_path",
-            "crop_size",
         ]
-        radio_list = ["swap_type"]
 
-        config_file = f"./configs/{choice}.yaml"
+        config_file = os.path.join(self.resources_path, f"configs/{choice}.yaml")
+
         if os.path.isfile(config_file):
             config = {}
             with open(config_file) as f:
@@ -762,8 +774,16 @@ class App(customtkinter.CTk):
                 if key in entry_list:
                     self.modify_entry(eval(f"self.{key}"), config[key])
                 elif key in radio_list:
-                    self.swap_type_radio_var = tkinter.StringVar(value=config[key])
+                    if key == "swap_type":
+                        self.swap_type_radio_var = tkinter.StringVar(value=config[key])
+                    elif key == "gpen_type":
+                        self.gpen_type_radio_var = tkinter.StringVar(value=config[key])
                     eval(f"self.{config[key]}_radio_button").invoke()
+                elif key in model_list:
+                    self.modify_entry(
+                        eval(f"self.{key}"),
+                        os.path.join(self.resources_path, config[key]),
+                    )
 
             for entry in entry_list:
                 if entry not in ["source", "target"]:
@@ -802,7 +822,7 @@ class App(customtkinter.CTk):
                 ),
                 gpen_type=config.get("gpen_type", self.gpen_type_radio_var.get()),
                 gpen_path=config.get(
-                    "gpen_path", self.gpen_path.get() or "./saved_models/gpen"
+                    "gpen_path", self.gpen_path.get() or "saved_models/gpen"
                 ),
                 crop_size=config.get(
                     "crop_size",
@@ -833,6 +853,7 @@ class App(customtkinter.CTk):
             )
         except Exception as e:
             print(e)
+            print(traceback.format_exc())
             error_label.configure(text=e)
 
 
