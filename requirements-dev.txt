@@ -162,7 +162,7 @@ pefile==2023.2.7
     # via pyinstaller
 pickleshare==0.7.5
     # via ipython
-pillow==10.0.1
+pillow==10.3.0
     # via
     #   dot (setup.cfg)
     #   imageio
