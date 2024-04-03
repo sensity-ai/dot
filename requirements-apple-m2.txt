@@ -74,7 +74,7 @@ packaging==21.3
     #   kornia
     #   matplotlib
     #   scikit-image
-pillow==10.0.1
+pillow==10.3.0
     # via
     #   dot (setup.cfg)
     #   imageio
