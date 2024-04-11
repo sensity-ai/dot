@@ -41,7 +41,7 @@ flatbuffers==2.0
     #   onnxruntime
 fonttools==4.43.0
     # via matplotlib
-idna==2.10
+idna==3.7
     # via requests
 imageio==2.19.3
     # via scikit-image
