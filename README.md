@@ -50,11 +50,16 @@ Supported methods:
 Download and run the dot executable for your OS:
 
 - Windows (Tested on Windows 10 and 11):
-  - Download `dot.zip` from [here](https://drive.google.com/file/d/10fdnSszaEbpGdCKxxeBFXQrkagxe3-RT/view), unzip it and then run `dot.exe`
+  - Download `dot.zip` from [here](https://drive.google.com/file/d/10LXgtE721YPXdHfzcDUp6ba-9klueocR/view), unzip it and then run `dot.exe`
 - Ubuntu:
   - ToDo
-- Mac:
-  - ToDo
+- Mac (Tested on Apple M2 Sonoma 14.0):
+
+  - Download `dot-m2.zip` from [here](https://drive.google.com/file/d/1KTRzQrl_AVpiFIxUxW_k2F5EsosJJ_1Y/view?usp=sharing) and unzip it
+  - Open terminal and run `xattr -cr dot-executable.app` to remove any extended attributes
+  - In case of camera reading error:
+    - Right click and choose `Show Package Contents`
+    - Execute `dot-executable` from `Contents/MacOS` folder
 
 #### GUI Usage
 
@@ -118,6 +123,15 @@ Install the `torch` and `torchvision` dependencies based on the CUDA version ins
 
 To check that `torch` and `torchvision` are installed correctly, run the following command: `python -c "import torch; print(torch.cuda.is_available())"`. If the output is `True`, the dependencies are installed with CUDA support.
 
+###### With MPS Support(Apple Silicon)
+
+```bash
+conda env create -f envs/environment-apple-m2.yaml
+conda activate dot
+```
+
+To check that `torch` and `torchvision` are installed correctly, run the following command: `python -c "import torch; print(torch.backends.mps.is_available())"`. If the output is `True`, the dependencies are installed with Metal programming framework support.
+
 ###### With CPU Support (slow, not recommended)
 
 ```bash
@@ -133,7 +147,7 @@ pip install -e .
 
 ##### Download Models
 
-- Download dot model checkpoints from [here](https://drive.google.com/file/d/1Qaf9hE62XSvgmxR43dfiwEPWWS_dXSCE/view?usp=sharing)
+- Download dot model checkpoints from [here](https://drive.google.com/file/d/1nL3WkntTrVBZVQvOF2i7clY8eFRqSr8L/view)
 - Unzip the downloaded file in the root of this project
 
 #### CLI Usage
@@ -184,6 +198,102 @@ Watch the following demo video for better understanding of the control options:
 <p align="center">
 <img src="./assets/dot_demo.gif" width="480"/>
 </p>
+
+## Docker
+
+### Setting up docker
+
+- Build the container
+
+    ```
+    docker-compose up --build -d
+    ```
+
+- Access the container
+
+    ```
+    docker-compose exec dot "/bin/bash"
+    ```
+
+### Connect docker to the webcam
+
+#### Ubuntu
+
+1. Build the container
+
+    ```
+    docker build -t dot -f Dockerfile .
+    ```
+
+2. Run the container
+
+    ```
+    xhost +
+    docker run -ti --gpus all \
+    -e NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+    -e NVIDIA_VISIBLE_DEVICES=all \
+    -e PYTHONUNBUFFERED=1 \
+    -e DISPLAY \
+    -v .:/dot \
+    -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+    --runtime nvidia \
+    --entrypoint /bin/bash \
+    -p 8080:8080 \
+    --device=/dev/video0:/dev/video0 \
+    dot
+    ```
+
+#### Windows
+
+1. Follow the instructions [here](https://medium.com/@jijupax/connect-the-webcam-to-docker-on-mac-or-windows-51d894c44468) under Windows to set up the webcam with docker.
+
+2. Build the container
+
+    ```
+    docker build -t dot -f Dockerfile .
+    ```
+3. Run the container
+
+    ```
+    docker run -ti --gpus all \
+    -e NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+    -e NVIDIA_VISIBLE_DEVICES=all \
+    -e PYTHONUNBUFFERED=1 \
+    -e DISPLAY=192.168.99.1:0 \
+    -v .:/dot \
+    --runtime nvidia \
+    --entrypoint /bin/bash \
+    -p 8080:8080 \
+    --device=/dev/video0:/dev/video0 \
+    -v /tmp/.X11-unix:/tmp/.X11-unix \
+    dot
+    ```
+
+#### macOS
+
+1. Follow the instructions [here](https://github.com/gzupark/boot2docker-webcam-mac/blob/master/README.md) to set up the webcam with docker.
+
+2. Build the container
+
+    ```
+    docker build -t dot -f Dockerfile .
+    ```
+3. Run the container
+
+    ```
+    docker run -ti --gpus all \
+    -e NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+    -e NVIDIA_VISIBLE_DEVICES=all \
+    -e PYTHONUNBUFFERED=1 \
+    -e DISPLAY=$IP:0 \
+    -v .:/dot \
+    -v /tmp/.X11-unix:/tmp/.X11-unix \
+    --runtime nvidia \
+    --entrypoint /bin/bash \
+    -p 8080:8080 \
+    --device=/dev/video0:/dev/video0 \
+    dot
+    ```
 
 ## Virtual Camera Injection
 
@@ -270,6 +380,9 @@ If you are performing a test against a mobile app, virtual cameras are much hard
 
 ## Speed
 
+### With GPU
+
+
 Tested on a AMD Ryzen 5 2600 Six-Core Processor with one NVIDIA GeForce RTX 2070
 
 ```example
@@ -277,6 +390,17 @@ Simswap: FPS 13.0
 Simswap + gpen 256: FPS 7.0
 SimswapHQ: FPS 11.0
 FOMM: FPS 31.0
+```
+
+### With Apple Silicon
+
+
+Tested on Macbook Air M2 2022 16GB
+```example
+Simswap: FPS 3.2
+Simswap + gpen 256: FPS 1.8
+SimswapHQ: FPS 2.7
+FOMM: FPS 2.0
 ```
 
 ## License

@@ -128,33 +128,42 @@ class ToplevelAboutWindow(customtkinter.CTkToplevel):
         self.textbox.configure(state=tkinter.DISABLED)
 
 
-class TabView:
+class App(customtkinter.CTk):
     """
-    A class to handle the layout and functionality for each tab.
+    The main class of the ui interface
     """
 
-    def __init__(self, tab_view, target_tip_text, use_image=False, use_video=False):
-        self.tab_view = tab_view
-        self.target_tip_text = target_tip_text
-        self.use_image = use_image
-        self.use_video = use_video
-        self.save_folder = None
+    def __init__(self):
+        super().__init__()
 
-        self.resources_path = ""
+        # configure window
+        self.title("Deepfake Offensive Toolkit")
+        self.geometry(f"{835}x{600}")
+        self.resizable(False, False)
 
-        # MacOS bundle has different resource directory structure
-        if sys.platform == "darwin":
-            if getattr(sys, "frozen", False):
-                self.resources_path = os.path.join(
-                    str(Path(sys.executable).resolve().parents[0]).replace("MacOS", ""),
-                    "Resources",
-                )
+        self.grid_columnconfigure((0, 1), weight=1)
+        self.grid_rowconfigure((0, 1, 2, 3), weight=1)
 
-        self.setup_ui()
+        # create menubar
+        menubar = tkinter.Menu(self)
 
-    def setup_ui(self):
+        filemenu = tkinter.Menu(menubar, tearoff=0)
+        filemenu.add_command(label="Exit", command=self.quit)
+        menubar.add_cascade(label="File", menu=filemenu)
+
+        helpmenu = tkinter.Menu(menubar, tearoff=0)
+        helpmenu.add_command(label="Usage", command=self.usage_window)
+        helpmenu.add_separator()
+        helpmenu.add_command(label="About DOT", command=self.about_window)
+        menubar.add_cascade(label="Help", menu=helpmenu)
+
+        self.config(menu=menubar)
+
+        self.toplevel_usage_window = None
+        self.toplevel_about_window = None
+
         # create entry text for source, target and config
-        self.source_target_config_frame = customtkinter.CTkFrame(self.tab_view)
+        self.source_target_config_frame = customtkinter.CTkFrame(self)
         self.source_target_config_frame.grid(
             row=0, column=0, padx=(20, 20), pady=(20, 0), sticky="nsew"
         )
@@ -173,7 +182,7 @@ class TabView:
             fg_color="gray",
             text_color="white",
             text="Open",
-            command=lambda: self.upload_file_action(self.source),
+            command=lambda: self.UploadAction(self.source),
             width=10,
         )
 
@@ -183,32 +192,6 @@ class TabView:
         self.target_label = customtkinter.CTkLabel(
             master=self.source_target_config_frame, text="target"
         )
-        if (self.use_image) or (self.use_video):
-            self.target_button = customtkinter.CTkButton(
-                master=self.source_target_config_frame,
-                fg_color="gray",
-                text_color="white",
-                text="Open",
-                command=lambda: self.upload_file_action(self.target),
-                width=10,
-            )
-
-            self.save_folder = customtkinter.CTkEntry(
-                master=self.source_target_config_frame,
-                placeholder_text="save_folder",
-                width=85,
-            )
-            self.save_folder_label = customtkinter.CTkLabel(
-                master=self.source_target_config_frame, text="save_folder"
-            )
-            self.save_folder_button = customtkinter.CTkButton(
-                master=self.source_target_config_frame,
-                fg_color="gray",
-                text_color="white",
-                text="Open",
-                command=lambda: self.upload_folder_action(self.save_folder),
-                width=10,
-            )
 
         self.config_file_var = customtkinter.StringVar(
             value="Select"
@@ -258,41 +241,19 @@ class TabView:
         )
 
         self.target.grid(row=2, column=0, pady=10, padx=(80, 20), sticky="w")
-        if (self.use_image) or (self.use_video):
-            self.target_button.grid(
-                row=2,
-                column=0,
-                pady=(10, 10),
-                padx=(175, 20),
-                sticky="w",
-            )
         self.target_label.grid(row=2, column=0, pady=10, padx=(35, 20), sticky="w")
-        if (not self.use_image) and (not self.use_video):
-            self.target.insert(0, 0)
-
-        self.CreateToolTip(self.target, text=self.target_tip_text)
-
-        if (self.use_image) or (self.use_video):
-            self.save_folder.grid(row=3, column=0, pady=10, padx=(80, 20), sticky="w")
-
-            self.save_folder_button.grid(
-                row=3,
-                column=0,
-                pady=(10, 10),
-                padx=(175, 20),
-                sticky="w",
-            )
-            self.save_folder_label.grid(row=3, column=0, pady=10, padx=5, sticky="w")
-
-            self.CreateToolTip(self.save_folder, text="The path to the save folder")
+        self.target.insert(0, 0)
+        self.CreateToolTip(
+            self.target, text="The camera id. Usually 0 is the correct id"
+        )
 
         self.config_file_combobox.grid(
-            row=4, column=0, pady=10, padx=(80, 20), sticky="w"
+            row=3, column=0, pady=10, padx=(80, 20), sticky="w"
         )
-        self.config_file_label.grid(row=4, column=0, pady=10, padx=10, sticky="w")
+        self.config_file_label.grid(row=3, column=0, pady=10, padx=10, sticky="w")
 
         self.config_file_button.grid(
-            row=4,
+            row=3,
             column=0,
             pady=10,
             padx=(175, 20),
@@ -303,7 +264,7 @@ class TabView:
         )
 
         # create entry text for dot options
-        self.option_entry_frame = customtkinter.CTkFrame(self.tab_view)
+        self.option_entry_frame = customtkinter.CTkFrame(self)
         self.option_entry_frame.grid(
             row=1, column=0, columnspan=4, padx=(20, 20), pady=(20, 0), sticky="nsew"
         )
@@ -363,7 +324,7 @@ class TabView:
             fg_color="gray",
             text_color="white",
             text="Open",
-            command=lambda: self.upload_file_action(self.model_path),
+            command=lambda: self.UploadAction(self.model_path),
             width=10,
         )
         self.parsing_model_path_button = customtkinter.CTkButton(
@@ -371,7 +332,7 @@ class TabView:
             fg_color="gray",
             text_color="white",
             text="Open",
-            command=lambda: self.upload_file_action(self.parsing_model_path),
+            command=lambda: self.UploadAction(self.parsing_model_path),
             width=10,
         )
         self.arcface_model_path_button = customtkinter.CTkButton(
@@ -379,7 +340,7 @@ class TabView:
             fg_color="gray",
             text_color="white",
             text="Open",
-            command=lambda: self.upload_file_action(self.arcface_model_path),
+            command=lambda: self.UploadAction(self.arcface_model_path),
             width=10,
         )
         self.checkpoints_dir_button = customtkinter.CTkButton(
@@ -387,7 +348,7 @@ class TabView:
             fg_color="gray",
             text_color="white",
             text="Open",
-            command=lambda: self.upload_file_action(self.checkpoints_dir),
+            command=lambda: self.UploadAction(self.checkpoints_dir),
             width=10,
         )
         self.gpen_path_button = customtkinter.CTkButton(
@@ -395,7 +356,7 @@ class TabView:
             fg_color="gray",
             text_color="white",
             text="Open",
-            command=lambda: self.upload_file_action(self.gpen_path),
+            command=lambda: self.UploadAction(self.gpen_path),
             width=10,
         )
 
@@ -483,7 +444,7 @@ class TabView:
         )
 
         # create radiobutton frame for swap_type
-        self.swap_type_frame = customtkinter.CTkFrame(self.tab_view)
+        self.swap_type_frame = customtkinter.CTkFrame(self)
         self.swap_type_frame.grid(
             row=0, column=1, padx=(20, 20), pady=(20, 0), sticky="nsew"
         )
@@ -528,7 +489,7 @@ class TabView:
         )
 
         # create radiobutton frame for gpen_type
-        self.gpen_type_frame = customtkinter.CTkFrame(self.tab_view)
+        self.gpen_type_frame = customtkinter.CTkFrame(self)
         self.gpen_type_frame.grid(
             row=0, column=2, padx=(20, 20), pady=(20, 0), sticky="nsew"
         )
@@ -567,7 +528,7 @@ class TabView:
         )
 
         # create checkbox and switch frame
-        self.checkbox_slider_frame = customtkinter.CTkFrame(self.tab_view)
+        self.checkbox_slider_frame = customtkinter.CTkFrame(self)
         self.checkbox_slider_frame.grid(
             row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew"
         )
@@ -608,19 +569,18 @@ class TabView:
 
         # create run button
         self.error_label = customtkinter.CTkLabel(
-            master=self.tab_view, text_color="red", text=""
+            master=self, text_color="red", text=""
         )
         self.error_label.grid(
             row=4, column=0, columnspan=4, padx=(20, 20), pady=(0, 20), sticky="nsew"
         )
 
         self.run_button = customtkinter.CTkButton(
-            master=self.tab_view,
+            master=self,
             fg_color="white",
             border_width=2,
             text_color="black",
             text="RUN",
-            height=40,
             command=lambda: self.start_button_event(self.error_label),
         )
         self.run_button.grid(
@@ -629,13 +589,74 @@ class TabView:
         self.CreateToolTip(self.run_button, text="Start running the deepfake")
 
         self.run_label = customtkinter.CTkLabel(
-            master=self.tab_view,
+            master=self,
             text="The initial execution of dot may require a few minutes to complete.",
             text_color="gray",
         )
         self.run_label.grid(
             row=3, column=0, columnspan=3, padx=(180, 0), pady=(0, 20), sticky="nsew"
         )
+
+        self.resources_path = ""
+
+        # MacOS bundle has different resource directory structure
+        if sys.platform == "darwin":
+            if getattr(sys, "frozen", False):
+                self.resources_path = os.path.join(
+                    str(Path(sys.executable).resolve().parents[0]).replace("MacOS", ""),
+                    "Resources",
+                )
+
+    def CreateToolTip(self, widget, text):
+        toolTip = ToolTip(widget)
+
+        def enter(event):
+            toolTip.showtip(text)
+
+        def leave(event):
+            toolTip.hidetip()
+
+        widget.bind("<Enter>", enter)
+        widget.bind("<Leave>", leave)
+
+    def usage_window(self):
+        """
+        Open the usage window
+        """
+
+        if (
+            self.toplevel_usage_window is None
+            or not self.toplevel_usage_window.winfo_exists()
+        ):
+            self.toplevel_usage_window = ToplevelUsageWindow(
+                self
+            )  # create window if its None or destroyed
+        self.toplevel_usage_window.focus()
+
+    def about_window(self):
+        """
+        Open the about window
+        """
+
+        if (
+            self.toplevel_about_window is None
+            or not self.toplevel_about_window.winfo_exists()
+        ):
+            self.toplevel_about_window = ToplevelAboutWindow(
+                self
+            )  # create window if its None or destroyed
+        self.toplevel_about_window.focus()
+
+    def UploadAction(self, entry_element: customtkinter.CTkOptionMenu):
+        """
+        Action for the upload buttons to update the value of a CTkEntry
+
+        Args:
+            entry_element (customtkinter.CTkOptionMenu): The CTkEntry element.
+        """
+
+        filename = tkinter.filedialog.askopenfilename()
+        self.modify_entry(entry_element, filename)
 
     def modify_entry(self, entry_element: customtkinter.CTkEntry, text: str):
         """
@@ -691,109 +712,17 @@ class TabView:
 
         element.set(config_file_var)
 
-        for key, value in config.items():
+        for key in config.keys():
             if key in entry_list:
-                self.modify_entry(getattr(self, key), value)
+                self.modify_entry(eval(f"self.{key}"), config[key])
             elif key in radio_list:
-                self.swap_type_radio_var = tkinter.StringVar(value=value)
-                radio_button = getattr(self, f"{value}_radio_button")
-                radio_button.invoke()
+                self.swap_type_radio_var = tkinter.StringVar(value=config[key])
+                eval(f"self.{config[key]}_radio_button").invoke()
 
         for entry in entry_list:
-            if (entry not in ["source", "target"]) and (entry not in config):
-                self.modify_entry(getattr(self, entry), "")
-
-    def CreateToolTip(self, widget, text):
-        toolTip = ToolTip(widget)
-
-        def enter(event):
-            toolTip.showtip(text)
-
-        def leave(event):
-            toolTip.hidetip()
-
-        widget.bind("<Enter>", enter)
-        widget.bind("<Leave>", leave)
-
-    def start_button_event(self, error_label):
-        """
-        Start running the deepfake
-        """
-        try:
-            error_label.configure(text="")
-
-            # load config, if provided
-            config = {}
-            if len(self.config_file.get()) > 0:
-                with open(self.config_file.get()) as f:
-                    config = yaml.safe_load(f)
-
-            # run dot
-            run(
-                swap_type=config.get(
-                    "swap_type", self.swap_type_radio_var.get() or None
-                ),
-                source=config.get("source", self.source.get() or None),
-                target=config.get("target", self.target.get() or None),
-                model_path=config.get("model_path", self.model_path.get() or None),
-                parsing_model_path=config.get(
-                    "parsing_model_path", self.parsing_model_path.get() or None
-                ),
-                arcface_model_path=config.get(
-                    "arcface_model_path", self.arcface_model_path.get() or None
-                ),
-                checkpoints_dir=config.get(
-                    "checkpoints_dir", self.checkpoints_dir.get() or None
-                ),
-                gpen_type=config.get("gpen_type", self.gpen_type_radio_var.get()),
-                gpen_path=config.get(
-                    "gpen_path", self.gpen_path.get() or "saved_models/gpen"
-                ),
-                crop_size=config.get(
-                    "crop_size",
-                    (
-                        int(self.crop_size.get())
-                        if len(self.crop_size.get()) > 0
-                        else None
-                    )
-                    or 224,
-                ),
-                head_pose=config.get("head_pose", int(self.head_pose_checkbox.get())),
-                save_folder=self.save_folder.get()
-                if self.save_folder is not None
-                else None,
-                show_fps=config.get("show_fps", int(self.show_fps_checkbox.get())),
-                use_gpu=config.get("use_gpu", int(self.use_gpu_checkbox.get())),
-                use_video=self.use_video,
-                use_image=self.use_image,
-                limit=None,
-            )
-        except Exception as e:
-            print(e)
-            print(traceback.format_exc())
-            error_label.configure(text=e)
-
-    def upload_folder_action(self, entry_element: customtkinter.CTkOptionMenu):
-        """
-        Action for the upload folder buttons to update the value of a CTkEntry
-
-        Args:
-            entry_element (customtkinter.CTkOptionMenu): The CTkEntry element.
-        """
-
-        foldername = tkinter.filedialog.askdirectory()
-        self.modify_entry(entry_element, foldername)
-
-    def upload_file_action(self, entry_element: customtkinter.CTkOptionMenu):
-        """
-        Action for the upload file buttons to update the value of a CTkEntry
-
-        Args:
-            entry_element (customtkinter.CTkOptionMenu): The CTkEntry element.
-        """
-
-        filename = tkinter.filedialog.askopenfilename()
-        self.modify_entry(entry_element, filename)
+            if entry not in ["source", "target"]:
+                if entry not in config.keys():
+                    self.modify_entry(eval(f"self.{entry}"), "")
 
     def optionmenu_callback(self, choice: str):
         """
@@ -840,88 +769,61 @@ class TabView:
                     if entry not in config.keys():
                         self.modify_entry(eval(f"self.{entry}"), "")
 
-
-class App(customtkinter.CTk):
-    """
-    The main class of the ui interface
-    """
-
-    def __init__(self):
-        super().__init__()
-
-        # configure window
-        self.title("Deepfake Offensive Toolkit")
-        self.geometry(f"{835}x{600}")
-        self.resizable(False, False)
-
-        self.grid_columnconfigure((0, 1), weight=1)
-        self.grid_rowconfigure((0, 1, 2, 3), weight=1)
-
-        # create menubar
-        menubar = tkinter.Menu(self)
-
-        filemenu = tkinter.Menu(menubar, tearoff=0)
-        filemenu.add_command(label="Exit", command=self.quit)
-        menubar.add_cascade(label="File", menu=filemenu)
-
-        helpmenu = tkinter.Menu(menubar, tearoff=0)
-        helpmenu.add_command(label="Usage", command=self.usage_window)
-        helpmenu.add_separator()
-        helpmenu.add_command(label="About DOT", command=self.about_window)
-        menubar.add_cascade(label="Help", menu=helpmenu)
-
-        self.config(menu=menubar)
-
-        self.toplevel_usage_window = None
-        self.toplevel_about_window = None
-
-        tabview = customtkinter.CTkTabview(self)
-        tabview.pack(padx=0, pady=0)
-        live_tab = tabview.add("Live")
-        image_tab = tabview.add("Image")
-        video_tab = tabview.add("Video")
-
-        self.live_tab_view = TabView(
-            live_tab, target_tip_text="The camera id. Usually 0 is the correct id"
-        )
-        self.image_tab_view = TabView(
-            image_tab,
-            target_tip_text="target images folder or certain image file",
-            use_image=True,
-        )
-        self.video_tab_view = TabView(
-            video_tab,
-            target_tip_text="target videos folder or certain video file",
-            use_video=True,
-        )
-
-    def usage_window(self):
+    def start_button_event(self, error_label):
         """
-        Open the usage window
+        Start running the deepfake
         """
+        try:
+            error_label.configure(text="")
 
-        if (
-            self.toplevel_usage_window is None
-            or not self.toplevel_usage_window.winfo_exists()
-        ):
-            self.toplevel_usage_window = ToplevelUsageWindow(
-                self
-            )  # create window if its None or destroyed
-        self.toplevel_usage_window.focus()
+            # load config, if provided
+            config = {}
+            if len(self.config_file.get()) > 0:
+                with open(self.config_file.get()) as f:
+                    config = yaml.safe_load(f)
 
-    def about_window(self):
-        """
-        Open the about window
-        """
-
-        if (
-            self.toplevel_about_window is None
-            or not self.toplevel_about_window.winfo_exists()
-        ):
-            self.toplevel_about_window = ToplevelAboutWindow(
-                self
-            )  # create window if its None or destroyed
-        self.toplevel_about_window.focus()
+            # run dot
+            run(
+                swap_type=config.get(
+                    "swap_type", self.swap_type_radio_var.get() or None
+                ),
+                source=config.get("source", self.source.get() or None),
+                target=config.get("target", self.target.get() or None),
+                model_path=config.get("model_path", self.model_path.get() or None),
+                parsing_model_path=config.get(
+                    "parsing_model_path", self.parsing_model_path.get() or None
+                ),
+                arcface_model_path=config.get(
+                    "arcface_model_path", self.arcface_model_path.get() or None
+                ),
+                checkpoints_dir=config.get(
+                    "checkpoints_dir", self.checkpoints_dir.get() or None
+                ),
+                gpen_type=config.get("gpen_type", self.gpen_type_radio_var.get()),
+                gpen_path=config.get(
+                    "gpen_path", self.gpen_path.get() or "saved_models/gpen"
+                ),
+                crop_size=config.get(
+                    "crop_size",
+                    (
+                        int(self.crop_size.get())
+                        if len(self.crop_size.get()) > 0
+                        else None
+                    )
+                    or 224,
+                ),
+                head_pose=config.get("head_pose", int(self.head_pose_checkbox.get())),
+                save_folder=None,
+                show_fps=config.get("show_fps", int(self.show_fps_checkbox.get())),
+                use_gpu=config.get("use_gpu", int(self.use_gpu_checkbox.get())),
+                use_video=False,
+                use_image=False,
+                limit=None,
+            )
+        except Exception as e:
+            print(e)
+            print(traceback.format_exc())
+            error_label.configure(text=e)
 
 
 @click.command()

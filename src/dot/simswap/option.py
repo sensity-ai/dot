@@ -82,8 +82,11 @@ class SimswapOption(ModelOption):
             n_classes = 19
             self.net = BiSeNet(n_classes=n_classes)
             if self.use_gpu:
-                self.net.cuda()
-                self.net.load_state_dict(torch.load(parsing_model_path))
+                device = "mps" if torch.backends.mps.is_available() else "cuda"
+                self.net.to(device)
+                self.net.load_state_dict(
+                    torch.load(parsing_model_path, map_location=device)
+                )
             else:
                 self.net.cpu()
                 self.net.load_state_dict(
@@ -127,7 +130,14 @@ class SimswapOption(ModelOption):
         img_id = img_a.view(-1, img_a.shape[0], img_a.shape[1], img_a.shape[2])
 
         # convert numpy to tensor
-        img_id = img_id.cuda() if self.use_gpu else img_id.cpu()
+        if self.use_gpu:
+            img_id = (
+                img_id.to("mps")
+                if torch.backends.mps.is_available()
+                else img_id.to("cuda")
+            )
+        else:
+            img_id = img_id.cpu()
 
         # create latent id
         img_id_downsample = F.interpolate(img_id, size=(112, 112))
@@ -138,7 +148,9 @@ class SimswapOption(ModelOption):
         )
 
         source_image = (
-            source_image.to("cuda") if self.use_gpu else source_image.to("cpu")
+            source_image.to("mps" if torch.backends.mps.is_available() else "cuda")
+            if self.use_gpu
+            else source_image.to("cpu")
         )
         self.source_image = source_image
 
@@ -165,7 +177,9 @@ class SimswapOption(ModelOption):
                 if self.use_gpu:
                     frame_align_crop_tenor = _totensor(
                         cv2.cvtColor(frame_align_crop, cv2.COLOR_BGR2RGB)
-                    )[None, ...].cuda()
+                    )[None, ...].to(
+                        "mps" if torch.backends.mps.is_available() else "cuda"
+                    )
                 else:
                     frame_align_crop_tenor = _totensor(
                         cv2.cvtColor(frame_align_crop, cv2.COLOR_BGR2RGB)

@@ -23,14 +23,14 @@ class RetinaFaceDetection(object):
         cudnn.benchmark = True
         self.pretrained_path = os.path.join(base_dir, "weights", network + ".pth")
         if use_gpu:
-            self.device = torch.cuda.current_device()
+            self.device = "mps" if torch.backends.mps.is_available() else "cuda"
         else:
             self.device = "cpu"
         self.cfg = cfg_re50
         self.net = RetinaFace(cfg=self.cfg, phase="test")
         if use_gpu:
             self.load_model()
-            self.net = self.net.cuda()
+            self.net = self.net.to(self.device)
         else:
             self.load_model(load_to_cpu=True)
             self.net = self.net.cpu()
@@ -57,9 +57,10 @@ class RetinaFaceDetection(object):
                 self.pretrained_path, map_location=lambda storage, loc: storage
             )
         else:
-            pretrained_dict = torch.load(
-                self.pretrained_path, map_location=lambda storage, loc: storage.cuda()
-            )
+            # pretrained_dict = torch.load(
+            #     self.pretrained_path, map_location=lambda storage, loc: storage.to("mps")#.cuda()
+            # )
+            pretrained_dict = torch.load(self.pretrained_path, map_location=self.device)
         if "state_dict" in pretrained_dict.keys():
             pretrained_dict = self.remove_prefix(
                 pretrained_dict["state_dict"], "module."
@@ -89,8 +90,8 @@ class RetinaFaceDetection(object):
         img = img.transpose(2, 0, 1)
         img = torch.from_numpy(img).unsqueeze(0)
         if use_gpu:
-            img = img.cuda()
-            scale = scale.cuda()
+            img = img.to(self.device)
+            scale = scale.to(self.device)
         else:
             img = img.cpu()
             scale = scale.cpu()
@@ -100,7 +101,7 @@ class RetinaFaceDetection(object):
         priorbox = PriorBox(self.cfg, image_size=(im_height, im_width))
         priors = priorbox.forward()
         if use_gpu:
-            priors = priors.cuda()
+            priors = priors.to(self.device)
         else:
             priors = priors.cpu()
 
@@ -125,7 +126,7 @@ class RetinaFaceDetection(object):
             ]
         )
         if use_gpu:
-            scale1 = scale1.cuda()
+            scale1 = scale1.to(self.device)
         else:
             scale1 = scale1.cpu()
 
