@@ -94,12 +94,14 @@ class MultiBoxLoss(nn.Module):
                 landm_t,
                 idx,
             )
+        device = "cpu"
         if GPU:
-            loc_t = loc_t.cuda()
-            conf_t = conf_t.cuda()
-            landm_t = landm_t.cuda()
+            device = "mps" if torch.backends.mps.is_available() else "cuda"
+            loc_t = loc_t.to(device)
+            conf_t = conf_t.to(device)
+            landm_t = landm_t.to(device)
 
-        zeros = torch.tensor(0).cuda()
+        zeros = torch.tensor(0).to(device)
         # landm Loss (Smooth L1)
         # Shape: [batch,num_priors,10]
         pos1 = conf_t > zeros

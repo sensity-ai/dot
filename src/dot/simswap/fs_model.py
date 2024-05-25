@@ -55,7 +55,9 @@ class fsModel(BaseModel):
         torch.backends.cudnn.benchmark = True
 
         if use_gpu:
-            device = torch.device("cuda:0")
+            device = torch.device(
+                "mps" if torch.backends.mps.is_available() else "cuda"
+            )
         else:
             device = torch.device("cpu")
 

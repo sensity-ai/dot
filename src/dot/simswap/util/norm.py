@@ -14,7 +14,11 @@ class SpecificNorm(nn.Module):
         super(SpecificNorm, self).__init__()
         self.mean = np.array([0.485, 0.456, 0.406])
         if use_gpu:
-            self.mean = torch.from_numpy(self.mean).float().cuda()
+            self.mean = (
+                torch.from_numpy(self.mean)
+                .float()
+                .to("mps" if torch.backends.mps.is_available() else "cuda")
+            )
         else:
             self.mean = torch.from_numpy(self.mean).float().cpu()
 
@@ -22,7 +26,11 @@ class SpecificNorm(nn.Module):
 
         self.std = np.array([0.229, 0.224, 0.225])
         if use_gpu:
-            self.std = torch.from_numpy(self.std).float().cuda()
+            self.std = (
+                torch.from_numpy(self.std)
+                .float()
+                .to("mps" if torch.backends.mps.is_available() else "cuda")
+            )
         else:
             self.std = torch.from_numpy(self.std).float().cpu()
 
