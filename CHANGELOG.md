@@ -5,12 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.3.0] - 2024-02-19
 
 ## What's Changed
-* Add video and image swap to the GUI by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/116
+* Trace error in CLI and UI by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/137
+* Update Windows executable by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/133
+* Update colab notebook by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/128
+* Add a Docker container for dot by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/95
 * Fix of cusolver error on GPU by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/110
 * Update the GUI, PyTorch and the documentation by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/107
+
+**Full Changelog**: https://github.com/sensity-ai/dot/compare/1.2.0...1.3.0
 
 ## [1.2.0] - 2023-07-20
 
