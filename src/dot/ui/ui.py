@@ -5,7 +5,10 @@ licensed under the BSD 3-Clause "New" or "Revised" License.
 """
 
 import os
+import sys
 import tkinter
+import traceback
+from pathlib import Path
 
 import click
 import customtkinter
@@ -78,7 +81,7 @@ class ToplevelUsageWindow(customtkinter.CTkToplevel):
             config_file (str): Path to the configuration file for the deepfake.\n
             swap_type (str): The type of swap to run.\n
             gpen_type (str, optional): The type of gpen model to use. Defaults to None.\n
-            gpen_path (str, optional): The path to the gpen models. Defaults to "./saved_models/gpen".\n
+            gpen_path (str, optional): The path to the gpen models. Defaults to "saved_models/gpen".\n
             show_fps (bool, optional): Pass flag to show fps value. Defaults to False.\n
             use_gpu (bool, optional): Pass flag to use GPU else use CPU. Defaults to False.\n
             head_pose (bool): Estimates head pose before swap. Used by fomm.\n
@@ -113,10 +116,10 @@ class ToplevelAboutWindow(customtkinter.CTkToplevel):
         self.textbox.insert(
             "0.0",
             """
-            dot (aka Deepfake Offensive Toolkit) makes real-time, controllable deepfakes ready for virtual cameras injection. \n
-            dot is created for performing penetration testing against e.g. identity verification and video conferencing systems, \n
-            for the use by security analysts, Red Team members, and biometrics researchers. \n
-            dot is developed for research and demonstration purposes. \n
+            DOT (aka Deepfake Offensive Toolkit) makes real-time, controllable deepfakes ready for virtual \n
+            cameras injection. DOT is created for performing penetration testing against e.g. identity \n
+            verification and video conferencing systems, for the use by security analysts, \n
+            Red Team members, and biometrics researchers. DOT is developed for research and demonstration purposes. \n
             As an end user, you have the responsibility to obey all applicable laws when using this program. \n
             Authors and contributing developers assume no liability and are not responsible for any misuse \n
             or damage caused by the use of this program.
@@ -135,7 +138,7 @@ class App(customtkinter.CTk):
 
         # configure window
         self.title("Deepfake Offensive Toolkit")
-        self.geometry(f"{835}x{700}")
+        self.geometry(f"{835}x{600}")
         self.resizable(False, False)
 
         self.grid_columnconfigure((0, 1), weight=1)
@@ -222,12 +225,12 @@ class App(customtkinter.CTk):
             width=10,
         )
 
-        self.source_label.grid(row=1, column=0, pady=(57, 10), padx=30, sticky="w")
-        self.source.grid(row=1, column=0, pady=(57, 10), padx=(80, 20), sticky="w")
+        self.source_label.grid(row=1, column=0, pady=(32, 10), padx=30, sticky="w")
+        self.source.grid(row=1, column=0, pady=(32, 10), padx=(80, 20), sticky="w")
         self.source_button.grid(
             row=1,
             column=0,
-            pady=(57, 10),
+            pady=(32, 10),
             padx=(175, 20),
             sticky="w",
         )
@@ -241,10 +244,7 @@ class App(customtkinter.CTk):
         self.target_label.grid(row=2, column=0, pady=10, padx=(35, 20), sticky="w")
         self.target.insert(0, 0)
         self.CreateToolTip(
-            self.target,
-            text="The camera id. Usually 0 is the correct id.\n"
-            "To use image or video swaps, type the path to an image or a video "
-            "and check the option use_image or use_video.",
+            self.target, text="The camera id. Usually 0 is the correct id"
         )
 
         self.config_file_combobox.grid(
@@ -533,20 +533,6 @@ class App(customtkinter.CTk):
             row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew"
         )
 
-        self.use_video_checkbox_var = tkinter.IntVar()
-        self.use_video_checkbox = customtkinter.CTkCheckBox(
-            master=self.checkbox_slider_frame,
-            text="use_video",
-            variable=self.use_video_checkbox_var,
-        )
-
-        self.use_image_checkbox_var = tkinter.IntVar()
-        self.use_image_checkbox = customtkinter.CTkCheckBox(
-            master=self.checkbox_slider_frame,
-            text="use_image",
-            variable=self.use_image_checkbox_var,
-        )
-
         self.show_fps_checkbox_var = tkinter.IntVar()
         self.show_fps_checkbox = customtkinter.CTkCheckBox(
             master=self.checkbox_slider_frame,
@@ -568,13 +554,9 @@ class App(customtkinter.CTk):
             variable=self.head_pose_checkbox_var,
         )
 
-        self.use_image_checkbox.grid(row=1, column=3, pady=(25, 0), padx=20, sticky="w")
-        self.use_video_checkbox.grid(row=2, column=3, pady=(20, 0), padx=20, sticky="w")
-        self.show_fps_checkbox.grid(row=3, column=3, pady=(20, 0), padx=20, sticky="w")
-        self.use_gpu_checkbox.grid(row=4, column=3, pady=(20, 0), padx=20, sticky="w")
+        self.show_fps_checkbox.grid(row=1, column=3, pady=(39, 0), padx=20, sticky="w")
+        self.use_gpu_checkbox.grid(row=2, column=3, pady=(20, 0), padx=20, sticky="w")
         self.head_pose_checkbox.grid(row=5, column=3, pady=(20, 0), padx=20, sticky="w")
-        self.CreateToolTip(self.use_image_checkbox, text="Use image swap pipeline")
-        self.CreateToolTip(self.use_video_checkbox, text="Use video swap pipeline")
         self.CreateToolTip(self.show_fps_checkbox, text="Show the fps value")
         self.CreateToolTip(
             self.use_gpu_checkbox,
@@ -602,7 +584,7 @@ class App(customtkinter.CTk):
             command=lambda: self.start_button_event(self.error_label),
         )
         self.run_button.grid(
-            row=2, column=1, columnspan=2, padx=(50, 150), pady=(30, 0), sticky="nsew"
+            row=2, column=1, columnspan=2, padx=(50, 150), pady=(20, 0), sticky="nsew"
         )
         self.CreateToolTip(self.run_button, text="Start running the deepfake")
 
@@ -614,6 +596,16 @@ class App(customtkinter.CTk):
         self.run_label.grid(
             row=3, column=0, columnspan=3, padx=(180, 0), pady=(0, 20), sticky="nsew"
         )
+
+        self.resources_path = ""
+
+        # MacOS bundle has different resource directory structure
+        if sys.platform == "darwin":
+            if getattr(sys, "frozen", False):
+                self.resources_path = os.path.join(
+                    str(Path(sys.executable).resolve().parents[0]).replace("MacOS", ""),
+                    "Resources",
+                )
 
     def CreateToolTip(self, widget, text):
         toolTip = ToolTip(widget)
@@ -740,19 +732,18 @@ class App(customtkinter.CTk):
             choice (str): The type of swap to run.
         """
 
-        entry_list = [
-            "source",
-            "target",
+        entry_list = ["source", "target", "crop_size"]
+        radio_list = ["swap_type", "gpen_type"]
+        model_list = [
             "model_path",
             "parsing_model_path",
             "arcface_model_path",
             "checkpoints_dir",
             "gpen_path",
-            "crop_size",
         ]
-        radio_list = ["swap_type"]
 
-        config_file = f"./configs/{choice}.yaml"
+        config_file = os.path.join(self.resources_path, f"configs/{choice}.yaml")
+
         if os.path.isfile(config_file):
             config = {}
             with open(config_file) as f:
@@ -762,8 +753,16 @@ class App(customtkinter.CTk):
                 if key in entry_list:
                     self.modify_entry(eval(f"self.{key}"), config[key])
                 elif key in radio_list:
-                    self.swap_type_radio_var = tkinter.StringVar(value=config[key])
+                    if key == "swap_type":
+                        self.swap_type_radio_var = tkinter.StringVar(value=config[key])
+                    elif key == "gpen_type":
+                        self.gpen_type_radio_var = tkinter.StringVar(value=config[key])
                     eval(f"self.{config[key]}_radio_button").invoke()
+                elif key in model_list:
+                    self.modify_entry(
+                        eval(f"self.{key}"),
+                        os.path.join(self.resources_path, config[key]),
+                    )
 
             for entry in entry_list:
                 if entry not in ["source", "target"]:
@@ -802,7 +801,7 @@ class App(customtkinter.CTk):
                 ),
                 gpen_type=config.get("gpen_type", self.gpen_type_radio_var.get()),
                 gpen_path=config.get(
-                    "gpen_path", self.gpen_path.get() or "./saved_models/gpen"
+                    "gpen_path", self.gpen_path.get() or "saved_models/gpen"
                 ),
                 crop_size=config.get(
                     "crop_size",
@@ -814,25 +813,16 @@ class App(customtkinter.CTk):
                     or 224,
                 ),
                 head_pose=config.get("head_pose", int(self.head_pose_checkbox.get())),
+                save_folder=None,
                 show_fps=config.get("show_fps", int(self.show_fps_checkbox.get())),
                 use_gpu=config.get("use_gpu", int(self.use_gpu_checkbox.get())),
-                use_video=config.get(
-                    "use_video",
-                    int(self.use_video_checkbox.get())
-                    if not int(self.use_image_checkbox.get())
-                    else 0,
-                ),
-                use_image=config.get(
-                    "use_image",
-                    int(self.use_image_checkbox.get())
-                    if not int(self.use_video_checkbox.get())
-                    else 0,
-                ),
+                use_video=False,
+                use_image=False,
                 limit=None,
-                save_folder="output",
             )
         except Exception as e:
             print(e)
+            print(traceback.format_exc())
             error_label.configure(text=e)
 
 
