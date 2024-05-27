@@ -12,7 +12,6 @@ import cv2
 import mediapipe as mp
 import numpy as np
 from mediapipe.python.solutions.drawing_utils import _normalized_to_pixel_coordinates
-from tqdm import tqdm
 
 from ..pose.head_pose import pose_estimation
 from ..utils import expand_bbox, find_files_from_path
@@ -120,7 +119,7 @@ def video_pipeline(
     print("Total number of face-swaps: ", len(swaps_combination))
 
     # iterate on each source-target pair
-    for (source, target) in tqdm(swaps_combination):
+    for (source, target) in swaps_combination:
         img_a_whole = cv2.imread(source)
         img_a_whole = _crop_and_pose(img_a_whole, estimate_pose=head_pose)
         if isinstance(img_a_whole, int):
@@ -138,11 +137,9 @@ def video_pipeline(
         cap = cv2.VideoCapture(target)
 
         fps = int(cap.get(cv2.CAP_PROP_FPS))
-        if crop_size == 256:  # fomm
-            frame_width = frame_height = crop_size
-        else:
-            frame_width = int(cap.get(3))
-            frame_height = int(cap.get(4))
+
+        frame_width = int(cap.get(3))
+        frame_height = int(cap.get(4))
 
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         # trim original video length
@@ -164,7 +161,7 @@ def video_pipeline(
         )
 
         # process each frame individually
-        for _ in tqdm(range(total_frames)):
+        for _ in range(total_frames):
             ret, frame = cap.read()
             if ret is True:
                 frame = cv2.flip(frame, 1)
