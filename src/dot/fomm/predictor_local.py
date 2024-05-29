@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
-import face_alignment
 import numpy as np
 import torch
 import yaml
 from scipy.spatial import ConvexHull
 
+from . import face_alignment
 from .modules.generator_optim import OcclusionAwareGenerator
 from .modules.keypoint_detector import KPDetector
 
@@ -69,7 +69,12 @@ class PredictorLocal:
         self.checkpoint_path = checkpoint_path
         self.generator, self.kp_detector = self.load_checkpoints()
         self.fa = face_alignment.FaceAlignment(
-            face_alignment.LandmarksType._2D, flip_input=True, device=self.device
+            face_alignment.LandmarksType.TWO_D,
+            flip_input=True,
+            device=self.device,
+            face_detector_kwargs={
+                "path_to_detector": "saved_models/face_alignment/s3fd-619a316812.pth"
+            },
         )
         self.source = None
         self.kp_source = None
