@@ -52,12 +52,14 @@ class FaceGAN(object):
         self.model.load_state_dict(pretrained_dict)
         self.model.eval()
 
+        self.model = self.model.half()
+
     def process(self, img, use_gpu=True):
         img = cv2.resize(img, (self.resolution, self.resolution))
         img_t = self.img2tensor(img, use_gpu)
 
         with torch.no_grad():
-            out, __ = self.model(img_t)
+            out, __ = self.model(img_t.half())
 
         out = self.tensor2img(out)
 

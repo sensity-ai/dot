@@ -83,9 +83,11 @@ class fsModel(BaseModel):
         self.netArc = netArc_checkpoint
         self.netArc = self.netArc.to(device)
         self.netArc.eval()
+        self.netArc = self.netArc.half()
 
         pretrained_path = ""
         self.load_network(self.netG, "G", opt_which_epoch, pretrained_path)
+        self.netG = self.netG.half()
         return
 
     def forward(self, img_id, img_att, latent_id, latent_att, for_G=False):

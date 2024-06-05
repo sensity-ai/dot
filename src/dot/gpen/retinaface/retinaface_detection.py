@@ -35,6 +35,8 @@ class RetinaFaceDetection(object):
             self.load_model(load_to_cpu=True)
             self.net = self.net.cpu()
 
+        self.net = self.net.half()
+
     def check_keys(self, pretrained_state_dict):
         ckpt_keys = set(pretrained_state_dict.keys())
         model_keys = set(self.net.state_dict().keys())
@@ -71,6 +73,8 @@ class RetinaFaceDetection(object):
         self.net.load_state_dict(pretrained_dict, strict=False)
         self.net.eval()
 
+        self.net = self.net.half()
+
     def detect(
         self,
         img_raw,
@@ -96,7 +100,7 @@ class RetinaFaceDetection(object):
             img = img.cpu()
             scale = scale.cpu()
 
-        loc, conf, landms = self.net(img)  # forward pass
+        loc, conf, landms = self.net(img.half())  # forward pass
 
         priorbox = PriorBox(self.cfg, image_size=(im_height, im_width))
         priors = priorbox.forward()

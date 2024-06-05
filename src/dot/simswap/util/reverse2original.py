@@ -143,7 +143,7 @@ def reverse2wholeimage(
         if use_mask:
             source_img_norm = norm(source_img, use_gpu=use_gpu)
             source_img_512 = F.interpolate(source_img_norm, size=(512, 512))
-            out = pasring_model(source_img_512)[0]
+            out = pasring_model(source_img_512.half())[0]
             parsing = out.squeeze(0).argmax(0)
 
             tgt_mask = encode_segmentation_rgb(parsing, device)
