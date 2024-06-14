@@ -4,7 +4,7 @@ from enum import IntEnum
 import numpy as np
 import torch
 from face_alignment.folder_data import FolderData
-from face_alignment.utils import *  # noqa
+from face_alignment.utils import crop, draw_gaussian, flip, get_image, get_preds_fromhm
 from packaging import version
 from tqdm import tqdm
 
