@@ -50,7 +50,7 @@ Supported methods:
 Download and run the dot executable for your OS:
 
 - Windows (Tested on Windows 10 and 11):
-  - Download `dot.zip` from [here](https://drive.google.com/file/d/1IgMaaKzFw4lBKa8MWnsH7nKwBQtrtLGJ/view), unzip it and then run `dot.exe`
+  - Download `dot.zip` from [here](https://drive.google.com/file/d/1_duaEs2SAUGfAvr5oC4V3XR-ZzBtWQXo/view), unzip it and then run `dot.exe`
 - Ubuntu:
   - ToDo
 - Mac (Tested on Apple M2 Sonoma 14.0):
@@ -147,7 +147,7 @@ pip install -e .
 
 ##### Download Models
 
-- Download dot model checkpoints from [here](https://drive.google.com/file/d/1nL3WkntTrVBZVQvOF2i7clY8eFRqSr8L/view)
+- Download dot model checkpoints from [here](https://drive.google.com/file/d/1Y_11R66DL4N1WY8cNlXVNR3RkHnGDGWX/view)
 - Unzip the downloaded file in the root of this project
 
 #### CLI Usage
@@ -302,10 +302,6 @@ Instructions vary depending on your operating system.
 ### Windows
 
 - Install [OBS Studio](https://obsproject.com/).
-
-- Install [VirtualCam plugin](https://obsproject.com/forum/resources/obs-virtualcam.539/).
-
-Choose `Install and register only 1 virtual camera`.
 
 - Run OBS Studio.
 

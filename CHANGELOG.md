@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+* Fix fomm model download by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/160
 * Add video and image swap to the GUI by @Ghassen-Chaabouni in https://github.com/sensity-ai/dot/pull/116
 
 ## [1.3.0] - 2024-02-19

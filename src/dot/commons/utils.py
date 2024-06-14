@@ -15,9 +15,9 @@ SEED = 42
 np.random.seed(SEED)
 
 
-def log(*args, file=sys.stderr, **kwargs):
+def log(*args, **kwargs):
     time_str = f"{time.time():.6f}"
-    print(f"[{time_str}]", *args, file=file, **kwargs)
+    print(f"[{time_str}]", *args, **kwargs)
 
 
 def info(*args, file=sys.stdout, **kwargs):
