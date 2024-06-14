@@ -303,10 +303,6 @@ Instructions vary depending on your operating system.
 
 - Install [OBS Studio](https://obsproject.com/).
 
-- Install [VirtualCam plugin](https://obsproject.com/forum/resources/obs-virtualcam.539/).
-
-Choose `Install and register only 1 virtual camera`.
-
 - Run OBS Studio.
 
 - In the Sources section, press on Add button ("+" sign),
