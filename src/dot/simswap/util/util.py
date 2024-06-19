@@ -149,6 +149,7 @@ def load_parsing_model(path, use_mask, use_gpu):
             net.load_state_dict(torch.load(path, map_location=torch.device("cpu")))
 
         net.eval()
+        net = net.half()
         return net
     else:
         return None
@@ -180,7 +181,7 @@ def crop_align(
 
     # create latent id
     img_id_downsample = F.interpolate(img_id, size=(112, 112))
-    id_vector = swap_model.netArc(img_id_downsample)
+    id_vector = swap_model.netArc(img_id_downsample.half())
     id_vector = id_vector.detach().to("cpu")
     id_vector = id_vector / np.linalg.norm(id_vector, axis=1, keepdims=True)
 

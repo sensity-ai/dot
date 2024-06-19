@@ -94,6 +94,7 @@ class SimswapOption(ModelOption):
                 )
 
             self.net.eval()
+            self.net = self.net.half()
         else:
             self.net = None
 
@@ -141,7 +142,7 @@ class SimswapOption(ModelOption):
 
         # create latent id
         img_id_downsample = F.interpolate(img_id, size=(112, 112))
-        source_image = self.model.netArc(img_id_downsample)
+        source_image = self.model.netArc(img_id_downsample.half())
         source_image = source_image.detach().to("cpu")
         source_image = source_image / np.linalg.norm(
             source_image, axis=1, keepdims=True
@@ -186,7 +187,11 @@ class SimswapOption(ModelOption):
                     )[None, ...].cpu()
 
                 swap_result = self.model(
-                    None, frame_align_crop_tenor, self.source_image, None, True
+                    None,
+                    frame_align_crop_tenor.half(),
+                    self.source_image.half(),
+                    None,
+                    True,
                 )[0]
                 swap_result_list.append(swap_result)
                 frame_align_crop_tenor_list.append(frame_align_crop_tenor)
