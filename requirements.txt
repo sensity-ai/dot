@@ -106,7 +106,7 @@ packaging==21.3
     #   onnxruntime-gpu
     #   pytest
     #   scikit-image
-pillow==10.0.1
+pillow==10.3.0
     # via
     #   dot (setup.cfg)
     #   imageio
