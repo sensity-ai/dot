@@ -47,7 +47,7 @@ def main(
     with open(config) as f:
         config = yaml.safe_load(f)
 
-    _dot = dot.DOT(use_cam=False, use_video=False, save_folder=save_folder)
+    _dot = dot.DOT(use_video=False, use_image=True, save_folder=save_folder)
 
     analysis_config = config["analysis"]["simswap"]
     option = _dot.simswap(

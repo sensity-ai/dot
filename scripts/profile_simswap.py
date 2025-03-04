@@ -38,7 +38,7 @@ def main(
         config = yaml.safe_load(f)
 
     analysis_config = config["analysis"]["simswap"]
-    _dot = dot.DOT(use_cam=False, use_video=False, save_folder=save_folder)
+    _dot = dot.DOT(use_video=False, use_image=True, save_folder=save_folder)
     option = _dot.simswap(
         use_gpu=config["analysis"]["simswap"]["use_gpu"],
         gpen_type=config["analysis"]["simswap"]["gpen"],
