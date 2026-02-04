@@ -1,0 +1,8 @@
+---
+swap_type: ipadapter_face
+num_inference_steps: 20
+guidance_scale: 7.5
+ip_adapter_scale: 0.6
+use_sdxl: false
+use_lcm: false
+crop_size: 512

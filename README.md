@@ -4,7 +4,7 @@
 
 [![stars](https://img.shields.io/github/stars/sensity-ai/dot)](https://github.com/sensity-ai/dot/stargazers)
 [![license](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://github.com/sensity-ai/dot/blob/main/LICENSE)
-[![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)](https://www.python.org/downloads/release/python-3812/)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
 [![build-dot](https://github.com/sensity-ai/dot/actions/workflows/build_dot.yaml/badge.svg)](https://github.com/sensity-ai/dot/actions/workflows/build_dot.yaml)
 [![code-check](https://github.com/sensity-ai/dot/actions/workflows/code_check.yaml/badge.svg)](https://github.com/sensity-ai/dot/actions/workflows/code_check.yaml)
 
@@ -36,10 +36,16 @@ All deepfakes supported by *dot* do not require additional training. They can be
 in real-time on the fly on a photo that becomes the target of face impersonation.
 Supported methods:
 
+**Classic Methods:**
 - face swap (via [SimSwap](https://github.com/neuralchen/SimSwap)), at resolutions `224` and `512`
   - with the option of face superresolution (via [GPen](https://github.com/yangxy/GPEN)) at resolutions `256` and `512`
 - lower quality face swap (via OpenCV)
 - [FOMM](https://github.com/AliaksandrSiarohin/first-order-model), First Order Motion Model for image animation
+
+**Diffusion-Based Methods (Optional):**
+- [ReActor](https://github.com/Gourieff/sd-webui-reactor) - Fast face swap using InsightFace's inswapper model (near real-time)
+- [IP-Adapter Face](https://github.com/tencent-ailab/IP-Adapter) - Identity-preserving generation using Stable Diffusion
+- [InstantID](https://github.com/InstantID/InstantID) - High-quality face swap using ControlNet + IP-Adapter with SDXL
 
 ## Running dot
 
@@ -108,6 +114,8 @@ Watch the following demo video for better understanding of the interface
 
 ###### With GPU Support
 
+**Option A: Conda**
+
 ```bash
 conda env create -f envs/environment-gpu.yaml
 conda activate dot
@@ -121,16 +129,44 @@ Install the `torch` and `torchvision` dependencies based on the CUDA version ins
 
   Note: `torch1.9.0+cu111` can also be used.
 
-To check that `torch` and `torchvision` are installed correctly, run the following command: `python -c "import torch; print(torch.cuda.is_available())"`. If the output is `True`, the dependencies are installed with CUDA support.
+**Option B: uv and .venv (no conda)**
 
-###### With MPS Support(Apple Silicon)
+```bash
+uv venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+uv pip install -r requirements.txt
+# Optional: install PyTorch with CUDA (replace cu118 with your CUDA version)
+uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+uv pip install -e .   # installs the project and registers the `dot` command
+```
+
+Use the CUDA index that matches your system (e.g. `cu118` for CUDA 11.8). Then run e.g. `python -m dot -c ./configs/simswap.yaml --target 0 --source "./data" --use_gpu`.
+
+To check that `torch` and `torchvision` are installed correctly, run: `python -c "import torch; print(torch.cuda.is_available())"`. If the output is `True`, the dependencies are installed with CUDA support.
+
+###### With MPS Support (Apple Silicon: M1/M2/M3/M4)
+
+**Do not use the PyTorch CUDA index on Mac** — it only provides Linux/Windows wheels. Use default PyPI so you get macOS ARM wheels with MPS support.
+
+**Option A: Conda**
 
 ```bash
 conda env create -f envs/environment-apple-m2.yaml
 conda activate dot
 ```
 
-To check that `torch` and `torchvision` are installed correctly, run the following command: `python -c "import torch; print(torch.backends.mps.is_available())"`. If the output is `True`, the dependencies are installed with Metal programming framework support.
+**Option B: uv (recommended on Apple Silicon)**
+
+```bash
+uv sync
+# or: uv venv && source .venv/bin/activate && uv pip install -e .
+```
+
+If you see errors about `torch+cu118` or missing `macosx_26_0_arm64` wheels, ensure no CUDA index is in use: unset `UV_EXTRA_INDEX_URL` and `PIP_EXTRA_INDEX_URL`, then run `uv lock` and `uv sync` again.
+
+Then run e.g. `python -m dot -c ./configs/simswap.yaml --target 0 --source "./data" --use_gpu`, or with uv (no need to activate): `uv run python -m dot -c ./configs/simswap.yaml --target 0 --source "./data" --use_gpu`.
+
+To check that `torch` and `torchvision` are installed correctly, run: `python -c "import torch; print(torch.backends.mps.is_available())"`. If the output is `True`, the dependencies are installed with Metal (MPS) support.
 
 ###### With CPU Support (slow, not recommended)
 
@@ -145,6 +181,34 @@ conda activate dot
 pip install -e .
 ```
 
+##### Install Diffusion Models (Optional)
+
+The diffusion-based face swap models (ReActor, IP-Adapter Face, InstantID) require additional dependencies. Install them based on which models you want to use:
+
+```bash
+# Install ReActor (fastest diffusion option)
+pip install -e ".[reactor]"
+
+# Install IP-Adapter Face
+pip install -e ".[ipadapter]"
+
+# Install InstantID (highest quality)
+pip install -e ".[instantid]"
+
+# Install all diffusion models
+pip install -e ".[all-diffusion]"
+```
+
+Note: Diffusion models require more VRAM than classic methods. A GPU with at least 8GB VRAM is recommended for IP-Adapter and InstantID.
+
+You can run dot either as the `dot` command (when the env is activated) or with Python:
+
+```bash
+python -m dot -c ./configs/simswap.yaml --target 0 --source "./data" --use_gpu
+# or with uv (no need to activate):
+uv run python -m dot -c ./configs/simswap.yaml --target 0 --source "./data" --use_gpu
+```
+
 ##### Download Models
 
 - Download dot model checkpoints from [here](https://drive.google.com/file/d/1Y_11R66DL4N1WY8cNlXVNR3RkHnGDGWX/view)
@@ -152,34 +216,91 @@ pip install -e .
 
 #### CLI Usage
 
-Run `dot --help` to get a full list of available options.
+Run `python -m dot --help` (or `dot --help` if the env is activated) for a full list of options.
 
 1. Simswap
 
     ```bash
-    dot -c ./configs/simswap.yaml --target 0 --source "./data" --use_gpu
+    python -m dot -c ./configs/simswap.yaml --target 0 --source "./data" --use_gpu
     ```
 
 2. SimSwapHQ
 
     ```bash
-    dot -c ./configs/simswaphq.yaml --target 0 --source "./data" --use_gpu
+    python -m dot -c ./configs/simswaphq.yaml --target 0 --source "./data" --use_gpu
     ```
 
 3. FOMM
 
     ```bash
-    dot -c ./configs/fomm.yaml --target 0 --source "./data" --use_gpu
+    python -m dot -c ./configs/fomm.yaml --target 0 --source "./data" --use_gpu
     ```
 
 4. FaceSwap CV2
 
     ```bash
-    dot -c ./configs/faceswap_cv2.yaml --target 0 --source "./data" --use_gpu
-
+    python -m dot -c ./configs/faceswap_cv2.yaml --target 0 --source "./data" --use_gpu
     ```
 
 **Note**: To enable face superresolution, use the flag `--gpen_type gpen_256` or `--gpen_type gpen_512`. To use *dot* on CPU (not recommended), do not pass the `--use_gpu` flag.
+
+#### Diffusion-Based Models (Optional)
+
+These models require the optional diffusion dependencies to be installed (see [Install Diffusion Models](#install-diffusion-models-optional)).
+
+5. ReActor (Fast Face Swap)
+
+    ```bash
+    python -m dot -c ./configs/reactor.yaml --target 0 --source "./data" --use_gpu
+    ```
+
+    ReActor is the fastest diffusion-based option, achieving near real-time performance. It uses InsightFace's inswapper model.
+
+6. IP-Adapter Face
+
+    ```bash
+    python -m dot -c ./configs/ipadapter_face.yaml --target 0 --source "./data" --use_gpu
+    ```
+
+    IP-Adapter Face uses Stable Diffusion with a face embedding adapter. For higher quality (but slower), use SDXL:
+
+    ```bash
+    python -m dot --swap_type ipadapter_face --target 0 --source "./data" --use_gpu --use_sdxl
+    ```
+
+7. InstantID
+
+    ```bash
+    python -m dot -c ./configs/instantid.yaml --target 0 --source "./data" --use_gpu
+    ```
+
+    InstantID provides the highest quality results using ControlNet with SDXL. For faster inference, use the LCM variant:
+
+    ```bash
+    python -m dot -c ./configs/instantid_lcm.yaml --target 0 --source "./data" --use_gpu
+    ```
+
+#### Diffusion Model CLI Options
+
+The diffusion models support additional CLI options:
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--num_inference_steps` | Number of diffusion steps (more = higher quality, slower) | 20 |
+| `--guidance_scale` | Classifier-free guidance scale | 7.5 |
+| `--use_lcm` | Use LCM scheduler for faster inference | False |
+| `--controlnet_scale` | ControlNet conditioning scale (InstantID only) | 0.8 |
+| `--ip_adapter_scale` | IP-Adapter influence scale | 0.8 |
+| `--use_sdxl` | Use SDXL model (IP-Adapter Face only) | False |
+| `--use_face_restore` | Apply face restoration (ReActor only) | True |
+| `--face_restore_model` | Face restoration model: `codeformer` or `gfpgan` | codeformer |
+
+Example with custom options:
+
+```bash
+python -m dot --swap_type instantid --target 0 --source "./data" --use_gpu \
+    --num_inference_steps 30 --guidance_scale 5.0 --ip_adapter_scale 0.9
+```
 
 #### Controlling dot with CLI
 
@@ -376,8 +497,9 @@ If you are performing a test against a mobile app, virtual cameras are much hard
 
 ## Speed
 
-### With GPU
+### Classic Methods
 
+#### With GPU
 
 Tested on a AMD Ryzen 5 2600 Six-Core Processor with one NVIDIA GeForce RTX 2070
 
@@ -388,8 +510,7 @@ SimswapHQ: FPS 11.0
 FOMM: FPS 31.0
 ```
 
-### With Apple Silicon
-
+#### With Apple Silicon
 
 Tested on Macbook Air M2 2022 16GB
 ```example
@@ -398,6 +519,24 @@ Simswap + gpen 256: FPS 1.8
 SimswapHQ: FPS 2.7
 FOMM: FPS 2.0
 ```
+
+### Diffusion-Based Methods
+
+Performance expectations for diffusion models (GPU required):
+
+| Model | Inference Steps | Time/Frame | Real-time Capable? |
+|-------|-----------------|------------|-------------------|
+| ReActor | 1-4 | 0.5-1s | Near real-time |
+| IP-Adapter Face (SD1.5) | 20 | 1-3s | No |
+| IP-Adapter Face (SDXL) | 20 | 3-5s | No |
+| InstantID | 20 | 2-5s | No |
+| InstantID + LCM | 4 | 1-2s | Marginal |
+
+**Notes:**
+- ReActor is recommended for real-time applications
+- InstantID provides the highest quality but is slower
+- Use `--use_lcm` with InstantID to reduce inference time
+- Reduce `--num_inference_steps` for faster (but lower quality) results
 
 ## License
 
@@ -411,6 +550,10 @@ licenses too. In particular, this codebase is built on top of the following rese
 - <https://github.com/alievk/avatarify-python>
 - <https://github.com/neuralchen/SimSwap>
 - <https://github.com/yangxy/GPEN>
+- <https://github.com/deepinsight/insightface>
+- <https://github.com/Gourieff/sd-webui-reactor>
+- <https://github.com/tencent-ailab/IP-Adapter>
+- <https://github.com/InstantID/InstantID>
 
 ## Contributing
 

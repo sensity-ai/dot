@@ -61,10 +61,10 @@ class BaseModel(torch.nn.Module):
                 raise ("Generator must exist!")
         else:
             try:
-                network.load_state_dict(torch.load(save_path), strict=False)
+                network.load_state_dict(torch.load(save_path, weights_only=False), strict=False)
             except Exception as e:
                 print(e)
-                pretrained_dict = torch.load(save_path)
+                pretrained_dict = torch.load(save_path, weights_only=False)
                 model_dict = network.state_dict()
                 try:
                     pretrained_dict = {

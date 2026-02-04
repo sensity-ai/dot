@@ -1,16 +1,32 @@
 #!/usr/bin/env python3
 
-from typing import List, Optional, Tuple
+import os
+import urllib.request
+from typing import Any, List, Optional, Tuple
 
 import cv2
 import mediapipe as mp
 import numpy as np
-from mediapipe.framework.formats.landmark_pb2 import NormalizedLandmark
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
 
 from .utils import face_align_ffhqandnewarc as face_align
 from .utils import mediapipe_landmarks
 
-mp_face_mesh = mp.solutions.face_mesh
+# Model file path and download URL
+_MODEL_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "saved_models", "mediapipe")
+_MODEL_PATH = os.path.join(_MODEL_DIR, "face_landmarker.task")
+_MODEL_URL = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task"
+
+
+def _ensure_model_downloaded():
+    """Download the face landmarker model if not present."""
+    if os.path.exists(_MODEL_PATH):
+        return
+    os.makedirs(_MODEL_DIR, exist_ok=True)
+    print(f"Downloading face landmarker model to {_MODEL_PATH}...")
+    urllib.request.urlretrieve(_MODEL_URL, _MODEL_PATH)
+    print("Download complete.")
 
 
 class FaceMesh:
@@ -45,11 +61,11 @@ class FaceMesh:
         self.min_detection_confidence = min_detection_confidence
         self.mode = mode
 
-    def _get_centroid(self, landmarks: List[NormalizedLandmark]) -> Tuple[float, float]:
+    def _get_centroid(self, landmarks: List[Any]) -> Tuple[float, float]:
         """Given a set of normalized landmarks/points finds centroid point
 
         Args:
-            landmarks (List[NormalizedLandmark]): List of relative points that form a polygon
+            landmarks (List[Any]): List of relative points that form a polygon
 
         Returns:
             Tuple[float, float]: x,y coordinates of polygon centroid
@@ -58,6 +74,21 @@ class FaceMesh:
         y_li = [landmark.y for landmark in landmarks]
         _len = len(landmarks)
         return sum(x_li) / _len, sum(y_li) / _len
+
+    def _create_face_landmarker(self) -> vision.FaceLandmarker:
+        """Create and return a FaceLandmarker instance."""
+        _ensure_model_downloaded()
+        base_options = python.BaseOptions(model_asset_path=_MODEL_PATH)
+        options = vision.FaceLandmarkerOptions(
+            base_options=base_options,
+            output_face_blendshapes=False,
+            output_facial_transformation_matrixes=False,
+            num_faces=self.max_num_faces,
+            min_face_detection_confidence=self.min_detection_confidence,
+            min_face_presence_confidence=self.min_detection_confidence,
+            min_tracking_confidence=0.5,
+        )
+        return vision.FaceLandmarker.create_from_options(options)
 
     def get_face_landmarks(self, image: np.ndarray) -> Optional[np.array]:
         """Calls FaceMesh module from Mediapipe and retrieves related landmarks.
@@ -88,67 +119,67 @@ class FaceMesh:
         """
         # keypoints for all detected faces
         detection_kpss = []
-        with mp_face_mesh.FaceMesh(
-            static_image_mode=self.static_image_mode,
-            max_num_faces=self.max_num_faces,
-            refine_landmarks=self.refine_landmarks,
-            min_detection_confidence=self.min_detection_confidence,
-        ) as face_mesh:
 
-            # convert BGR image to RGB before processing.
-            detection = face_mesh.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-            if not detection.multi_face_landmarks:
-                return None
+        # Create landmarker instance
+        landmarker = self._create_face_landmarker()
 
-            # get width/height to de-normalize relative points
-            height, width, _ = image.shape
-            for face_landmarks in detection.multi_face_landmarks:
-                landmark_arr = np.empty((5, 2))
-                # left eye: gets landmarks(polygon) and calculates center point
-                left_eye = [
-                    face_landmarks.landmark[pt]
-                    for pt in self.MediaPipeIds.LEFT_EYE_OUTER
-                ]
-                centroid_left_eye = self._get_centroid(left_eye)
-                landmark_arr[0] = np.array(
-                    (centroid_left_eye[0] * width, centroid_left_eye[1] * height)
-                )
+        # convert BGR image to RGB before processing.
+        rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_image)
 
-                # right eye: gets landmarks(polygon) and calculates center point
-                right_eye = [
-                    face_landmarks.landmark[pt]
-                    for pt in self.MediaPipeIds.RIGHT_EYE_OUTER
-                ]
-                centroid_right_eye = self._get_centroid(right_eye)
-                landmark_arr[1] = np.array(
-                    (centroid_right_eye[0] * width, centroid_right_eye[1] * height)
-                )
+        detection = landmarker.detect(mp_image)
+        if not detection.face_landmarks:
+            return None
 
-                # nose tip
-                nose_landmark = face_landmarks.landmark[self.MediaPipeIds.NOSE_TIP]
-                landmark_arr[2] = np.array(
-                    (nose_landmark.x * width, nose_landmark.y * height)
-                )
+        # get width/height to de-normalize relative points
+        height, width, _ = image.shape
+        for face_landmarks in detection.face_landmarks:
+            landmark_arr = np.empty((5, 2))
+            # left eye: gets landmarks(polygon) and calculates center point
+            left_eye = [
+                face_landmarks[pt]
+                for pt in self.MediaPipeIds.LEFT_EYE_OUTER
+            ]
+            centroid_left_eye = self._get_centroid(left_eye)
+            landmark_arr[0] = np.array(
+                (centroid_left_eye[0] * width, centroid_left_eye[1] * height)
+            )
 
-                # mouth region: finds the most left and most right point of outer lips region
-                lips_outer_landmarks = [
-                    face_landmarks.landmark[pt] for pt in self.MediaPipeIds.LIPS_OUTER
-                ]
-                mouth_most_left_point = min(lips_outer_landmarks, key=lambda x: x.x)
-                mouth_most_right_point = max(lips_outer_landmarks, key=lambda x: x.x)
-                landmark_arr[3] = np.array(
-                    (
-                        mouth_most_left_point.x * width,
-                        mouth_most_left_point.y * height,
-                    )
+            # right eye: gets landmarks(polygon) and calculates center point
+            right_eye = [
+                face_landmarks[pt]
+                for pt in self.MediaPipeIds.RIGHT_EYE_OUTER
+            ]
+            centroid_right_eye = self._get_centroid(right_eye)
+            landmark_arr[1] = np.array(
+                (centroid_right_eye[0] * width, centroid_right_eye[1] * height)
+            )
+
+            # nose tip
+            nose_landmark = face_landmarks[self.MediaPipeIds.NOSE_TIP]
+            landmark_arr[2] = np.array(
+                (nose_landmark.x * width, nose_landmark.y * height)
+            )
+
+            # mouth region: finds the most left and most right point of outer lips region
+            lips_outer_landmarks = [
+                face_landmarks[pt] for pt in self.MediaPipeIds.LIPS_OUTER
+            ]
+            mouth_most_left_point = min(lips_outer_landmarks, key=lambda x: x.x)
+            mouth_most_right_point = max(lips_outer_landmarks, key=lambda x: x.x)
+            landmark_arr[3] = np.array(
+                (
+                    mouth_most_left_point.x * width,
+                    mouth_most_left_point.y * height,
                 )
-                landmark_arr[4] = np.array(
-                    (
-                        mouth_most_right_point.x * width,
-                        mouth_most_right_point.y * height,
-                    )
+            )
+            landmark_arr[4] = np.array(
+                (
+                    mouth_most_right_point.x * width,
+                    mouth_most_right_point.y * height,
                 )
-                detection_kpss.append(landmark_arr)
+            )
+            detection_kpss.append(landmark_arr)
 
         return np.array(detection_kpss)
 

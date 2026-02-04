@@ -96,7 +96,7 @@ class PredictorLocal:
         )
         kp_detector.to(self.device)
 
-        checkpoint = torch.load(self.checkpoint_path, map_location=self.device)
+        checkpoint = torch.load(self.checkpoint_path, map_location=self.device, weights_only=False)
         generator.load_state_dict(checkpoint["generator"])
         kp_detector.load_state_dict(checkpoint["kp_detector"])
 

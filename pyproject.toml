@@ -5,5 +5,58 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "dot"
+version = "1.4.0"
+description = "Deepfake Offensive Toolkit"
+readme = "README.md"
+requires-python = ">=3.9,<3.13"
+dependencies = [
+  "click",
+  "dlib",
+  "face_alignment>=1.4.1",
+  "kornia",
+  "mediapipe>=0.10.9",
+  "numpy",
+  "onnxruntime-gpu>=1.18.0; sys_platform == 'linux'",
+  "onnxruntime>=1.15.0; sys_platform != 'linux'",
+  "opencv-contrib-python",
+  "opencv-python",
+  "Pillow",
+  "protobuf",
+  "PyYAML",
+  "requests",
+  "scikit-image",
+  "scipy",
+  "torch>=2.0.1",
+  "torchvision>=0.15.2",
+  "customtkinter",
+  "pytest",
+]
+
+[project.optional-dependencies]
+diffusion = [
+  "diffusers>=0.25.0",
+  "transformers>=4.36.0",
+  "accelerate",
+  "insightface>=0.7.3",
+  "huggingface-hub",
+]
+instantid = [
+  "dot[diffusion]",
+  "controlnet-aux",
+]
+ipadapter = [
+  "dot[diffusion]",
+]
+reactor = [
+  "dot[diffusion]",
+]
+all-diffusion = [
+  "dot[instantid]",
+  "dot[ipadapter]",
+  "dot[reactor]",
+]
+
 [tool.pytest.ini_options]
 filterwarnings = ["ignore:.*"]

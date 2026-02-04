@@ -1,0 +1,5 @@
+---
+swap_type: reactor
+use_face_restore: true
+face_restore_model: codeformer
+crop_size: 512

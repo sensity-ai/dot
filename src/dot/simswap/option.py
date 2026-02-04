@@ -85,12 +85,12 @@ class SimswapOption(ModelOption):
                 device = "mps" if torch.backends.mps.is_available() else "cuda"
                 self.net.to(device)
                 self.net.load_state_dict(
-                    torch.load(parsing_model_path, map_location=device)
+                    torch.load(parsing_model_path, map_location=device, weights_only=False)
                 )
             else:
                 self.net.cpu()
                 self.net.load_state_dict(
-                    torch.load(parsing_model_path, map_location=torch.device("cpu"))
+                    torch.load(parsing_model_path, map_location=torch.device("cpu"), weights_only=False)
                 )
 
             self.net.eval()

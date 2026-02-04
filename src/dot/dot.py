@@ -12,7 +12,30 @@ from .faceswap_cv2 import FaceswapCVOption
 from .fomm import FOMMOption
 from .simswap import SimswapOption
 
+# Base swap types always available
 AVAILABLE_SWAP_TYPES = ["simswap", "fomm", "faceswap_cv2"]
+
+# Try to import diffusion-based models (optional dependencies)
+try:
+    from .reactor import ReActorOption
+    AVAILABLE_SWAP_TYPES.append("reactor")
+    REACTOR_AVAILABLE = True
+except ImportError:
+    REACTOR_AVAILABLE = False
+
+try:
+    from .ipadapter_face import IPAdapterFaceOption
+    AVAILABLE_SWAP_TYPES.append("ipadapter_face")
+    IPADAPTER_AVAILABLE = True
+except ImportError:
+    IPADAPTER_AVAILABLE = False
+
+try:
+    from .instantid import InstantIDOption
+    AVAILABLE_SWAP_TYPES.append("instantid")
+    INSTANTID_AVAILABLE = True
+except ImportError:
+    INSTANTID_AVAILABLE = False
 
 
 class DOT:
@@ -97,6 +120,30 @@ class DOT:
         elif swap_type == "faceswap_cv2":
             option = self.faceswap_cv2(
                 use_gpu=use_gpu, gpen_type=gpen_type, gpen_path=gpen_path
+            )
+        elif swap_type == "reactor":
+            option = self.reactor(
+                use_gpu=use_gpu,
+                gpen_type=gpen_type,
+                gpen_path=gpen_path,
+                crop_size=crop_size,
+                **kwargs,
+            )
+        elif swap_type == "ipadapter_face":
+            option = self.ipadapter_face(
+                use_gpu=use_gpu,
+                gpen_type=gpen_type,
+                gpen_path=gpen_path,
+                crop_size=crop_size,
+                **kwargs,
+            )
+        elif swap_type == "instantid":
+            option = self.instantid(
+                use_gpu=use_gpu,
+                gpen_type=gpen_type,
+                gpen_path=gpen_path,
+                crop_size=crop_size,
+                **kwargs,
             )
 
         return option
@@ -222,4 +269,133 @@ class DOT:
             gpen_path=gpen_path,
             crop_size=crop_size,
             offline=self.use_video,
+        )
+
+    def reactor(
+        self,
+        use_gpu: bool,
+        gpen_type: str,
+        gpen_path: str,
+        crop_size: int = 512,
+        use_face_restore: bool = True,
+        face_restore_model: str = "codeformer",
+        **kwargs,
+    ) -> "ReActorOption":
+        """Build ReActor Option.
+
+        Args:
+            use_gpu (bool): If True, use GPU.
+            gpen_type (str): GPEN type.
+            gpen_path (str): path to GPEN model checkpoint.
+            crop_size (int, optional): crop size. Defaults to 512.
+            use_face_restore (bool, optional): Whether to use face restoration. Defaults to True.
+            face_restore_model (str, optional): Face restore model. Defaults to "codeformer".
+
+        Returns:
+            ReActorOption: ReActor Option.
+        """
+        if not REACTOR_AVAILABLE:
+            raise ImportError(
+                "ReActor dependencies not installed. "
+                "Install with: pip install dot[reactor]"
+            )
+        return ReActorOption(
+            use_gpu=use_gpu,
+            gpen_type=gpen_type,
+            gpen_path=gpen_path,
+            crop_size=crop_size,
+            use_face_restore=use_face_restore,
+            face_restore_model=face_restore_model,
+        )
+
+    def ipadapter_face(
+        self,
+        use_gpu: bool,
+        gpen_type: str,
+        gpen_path: str,
+        crop_size: int = 512,
+        num_inference_steps: int = 20,
+        guidance_scale: float = 7.5,
+        use_lcm: bool = False,
+        use_sdxl: bool = False,
+        ip_adapter_scale: float = 0.6,
+        **kwargs,
+    ) -> "IPAdapterFaceOption":
+        """Build IP-Adapter Face Option.
+
+        Args:
+            use_gpu (bool): If True, use GPU.
+            gpen_type (str): GPEN type.
+            gpen_path (str): path to GPEN model checkpoint.
+            crop_size (int, optional): crop size. Defaults to 512.
+            num_inference_steps (int, optional): Diffusion steps. Defaults to 20.
+            guidance_scale (float, optional): CFG scale. Defaults to 7.5.
+            use_lcm (bool, optional): Use LCM scheduler. Defaults to False.
+            use_sdxl (bool, optional): Use SDXL model. Defaults to False.
+            ip_adapter_scale (float, optional): IP-Adapter scale. Defaults to 0.6.
+
+        Returns:
+            IPAdapterFaceOption: IP-Adapter Face Option.
+        """
+        if not IPADAPTER_AVAILABLE:
+            raise ImportError(
+                "IP-Adapter dependencies not installed. "
+                "Install with: pip install dot[ipadapter]"
+            )
+        return IPAdapterFaceOption(
+            use_gpu=use_gpu,
+            gpen_type=gpen_type,
+            gpen_path=gpen_path,
+            crop_size=crop_size,
+            num_inference_steps=num_inference_steps,
+            guidance_scale=guidance_scale,
+            use_lcm=use_lcm,
+            use_sdxl=use_sdxl,
+            ip_adapter_scale=ip_adapter_scale,
+        )
+
+    def instantid(
+        self,
+        use_gpu: bool,
+        gpen_type: str,
+        gpen_path: str,
+        crop_size: int = 512,
+        num_inference_steps: int = 20,
+        guidance_scale: float = 7.5,
+        use_lcm: bool = False,
+        controlnet_conditioning_scale: float = 0.8,
+        ip_adapter_scale: float = 0.8,
+        **kwargs,
+    ) -> "InstantIDOption":
+        """Build InstantID Option.
+
+        Args:
+            use_gpu (bool): If True, use GPU.
+            gpen_type (str): GPEN type.
+            gpen_path (str): path to GPEN model checkpoint.
+            crop_size (int, optional): crop size. Defaults to 512.
+            num_inference_steps (int, optional): Diffusion steps. Defaults to 20.
+            guidance_scale (float, optional): CFG scale. Defaults to 7.5.
+            use_lcm (bool, optional): Use LCM scheduler. Defaults to False.
+            controlnet_conditioning_scale (float, optional): ControlNet scale. Defaults to 0.8.
+            ip_adapter_scale (float, optional): IP-Adapter scale. Defaults to 0.8.
+
+        Returns:
+            InstantIDOption: InstantID Option.
+        """
+        if not INSTANTID_AVAILABLE:
+            raise ImportError(
+                "InstantID dependencies not installed. "
+                "Install with: pip install dot[instantid]"
+            )
+        return InstantIDOption(
+            use_gpu=use_gpu,
+            gpen_type=gpen_type,
+            gpen_path=gpen_path,
+            crop_size=crop_size,
+            num_inference_steps=num_inference_steps,
+            guidance_scale=guidance_scale,
+            use_lcm=use_lcm,
+            controlnet_conditioning_scale=controlnet_conditioning_scale,
+            ip_adapter_scale=ip_adapter_scale,
         )

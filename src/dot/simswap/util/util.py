@@ -143,10 +143,10 @@ def load_parsing_model(path, use_mask, use_gpu):
         net = BiSeNet(n_classes=n_classes)
         if use_gpu:
             net.to("mps" if torch.backends.mps.is_available() else "cuda")
-            net.load_state_dict(torch.load(path))
+            net.load_state_dict(torch.load(path, weights_only=False))
         else:
             net.cpu()
-            net.load_state_dict(torch.load(path, map_location=torch.device("cpu")))
+            net.load_state_dict(torch.load(path, map_location=torch.device("cpu"), weights_only=False))
 
         net.eval()
         return net

@@ -4,22 +4,71 @@ Copyright (c) 2022, Sensity B.V. All rights reserved.
 licensed under the BSD 3-Clause "New" or "Revised" License.
 """
 
+import math
 import os
 import random
-from typing import Callable, Dict, Union
+import urllib.request
+from typing import Callable, Dict, Optional, Tuple, Union
 
 import cv2
 import mediapipe as mp
 import numpy as np
-from mediapipe.python.solutions.drawing_utils import _normalized_to_pixel_coordinates
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
 
 from ..pose.head_pose import pose_estimation
 from ..utils import expand_bbox, find_files_from_path
 
-mp_face = mp.solutions.face_detection.FaceDetection(
-    model_selection=0,  # model selection
-    min_detection_confidence=0.5,  # confidence threshold
-)
+# Model file path and download URL for face detection
+_MODEL_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "saved_models", "mediapipe")
+_FACE_DETECTOR_MODEL_PATH = os.path.join(_MODEL_DIR, "blaze_face_short_range.tflite")
+_FACE_DETECTOR_MODEL_URL = "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite"
+
+
+def _ensure_face_detector_model_downloaded():
+    """Download the face detector model if not present."""
+    if os.path.exists(_FACE_DETECTOR_MODEL_PATH):
+        return
+    os.makedirs(_MODEL_DIR, exist_ok=True)
+    print(f"Downloading face detector model to {_FACE_DETECTOR_MODEL_PATH}...")
+    urllib.request.urlretrieve(_FACE_DETECTOR_MODEL_URL, _FACE_DETECTOR_MODEL_PATH)
+    print("Download complete.")
+
+
+def _get_face_detector():
+    """Create and return a FaceDetector instance."""
+    _ensure_face_detector_model_downloaded()
+    base_options = python.BaseOptions(model_asset_path=_FACE_DETECTOR_MODEL_PATH)
+    options = vision.FaceDetectorOptions(
+        base_options=base_options,
+        min_detection_confidence=0.5,
+    )
+    return vision.FaceDetector.create_from_options(options)
+
+
+# Lazy initialization of face detector
+_face_detector = None
+
+
+def _get_detector():
+    global _face_detector
+    if _face_detector is None:
+        _face_detector = _get_face_detector()
+    return _face_detector
+
+
+def _normalized_to_pixel_coordinates(
+    normalized_x: float,
+    normalized_y: float,
+    image_width: int,
+    image_height: int,
+) -> Optional[Tuple[int, int]]:
+    """Converts normalized value pair to pixel coordinates (MediaPipe-compatible)."""
+    if not (0 <= normalized_x <= 1 and 0 <= normalized_y <= 1):
+        return None
+    x_px = min(math.floor(normalized_x * image_width), image_width - 1)
+    y_px = min(math.floor(normalized_y * image_height), image_height - 1)
+    return (x_px, y_px)
 
 
 def _crop_and_pose(
@@ -34,21 +83,34 @@ def _crop_and_pose(
     Returns:
         Union[np.array,int]: Cropped image or -1.
     """
+    detector = _get_detector()
 
     image_rows, image_cols, _ = image.shape
-    results = mp_face.process(image)
-    if results.detections is None:
+
+    # Convert BGR to RGB for mediapipe
+    rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_image)
+
+    results = detector.detect(mp_image)
+    if not results.detections:
         return -1
 
     detection = results.detections[0]
-    location = detection.location_data
-    relative_bounding_box = location.relative_bounding_box
+    bbox = detection.bounding_box
+
+    # Convert pixel coordinates to normalized, then back to pixel
+    # The new API returns pixel coordinates directly in bounding_box
+    xmin = bbox.origin_x / image_cols
+    ymin = bbox.origin_y / image_rows
+    width = bbox.width / image_cols
+    height = bbox.height / image_rows
+
     rect_start_point = _normalized_to_pixel_coordinates(
-        relative_bounding_box.xmin, relative_bounding_box.ymin, image_cols, image_rows
+        xmin, ymin, image_cols, image_rows
     )
     rect_end_point = _normalized_to_pixel_coordinates(
-        min(relative_bounding_box.xmin + relative_bounding_box.width, 1.0),
-        min(relative_bounding_box.ymin + relative_bounding_box.height, 1.0),
+        min(xmin + width, 1.0),
+        min(ymin + height, 1.0),
         image_cols,
         image_rows,
     )

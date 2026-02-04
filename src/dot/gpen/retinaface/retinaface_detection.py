@@ -54,13 +54,13 @@ class RetinaFaceDetection(object):
     def load_model(self, load_to_cpu=False):
         if load_to_cpu:
             pretrained_dict = torch.load(
-                self.pretrained_path, map_location=lambda storage, loc: storage
+                self.pretrained_path, map_location=lambda storage, loc: storage, weights_only=False
             )
         else:
             # pretrained_dict = torch.load(
             #     self.pretrained_path, map_location=lambda storage, loc: storage.to("mps")#.cuda()
             # )
-            pretrained_dict = torch.load(self.pretrained_path, map_location=self.device)
+            pretrained_dict = torch.load(self.pretrained_path, map_location=self.device, weights_only=False)
         if "state_dict" in pretrained_dict.keys():
             pretrained_dict = self.remove_prefix(
                 pretrained_dict["state_dict"], "module."

@@ -15,6 +15,7 @@ import customtkinter
 import yaml
 
 from dot.__main__ import run
+from dot.dot import AVAILABLE_SWAP_TYPES
 
 customtkinter.set_appearance_mode("Dark")
 customtkinter.set_default_color_theme("blue")
@@ -214,9 +215,19 @@ class TabView:
             value="Select"
         )  # set initial value
 
+        # Build config options from available swap types
+        config_options = ["fomm", "faceswap_cv2", "simswap", "simswaphq"]
+        # Add diffusion model configs if available
+        if "reactor" in AVAILABLE_SWAP_TYPES:
+            config_options.append("reactor")
+        if "ipadapter_face" in AVAILABLE_SWAP_TYPES:
+            config_options.append("ipadapter_face")
+        if "instantid" in AVAILABLE_SWAP_TYPES:
+            config_options.extend(["instantid", "instantid_lcm"])
+
         self.config_file_combobox = customtkinter.CTkOptionMenu(
             master=self.source_target_config_frame,
-            values=["fomm", "faceswap_cv2", "simswap", "simswaphq"],
+            values=config_options,
             command=self.optionmenu_callback,
             variable=self.config_file_var,
             width=85,
@@ -526,6 +537,46 @@ class TabView:
         self.CreateToolTip(
             self.simswap_radio_button, text="Use the deepfake from SimSwap"
         )
+
+        # Add diffusion model radio buttons if available
+        row_offset = 4
+        if "reactor" in AVAILABLE_SWAP_TYPES:
+            self.reactor_radio_button = customtkinter.CTkRadioButton(
+                master=self.swap_type_frame,
+                variable=self.swap_type_radio_var,
+                value="reactor",
+                text="reactor",
+            )
+            self.reactor_radio_button.grid(row=row_offset, column=2, pady=10, padx=20, sticky="w")
+            self.CreateToolTip(
+                self.reactor_radio_button, text="Use ReActor face swap (fast, high quality)"
+            )
+            row_offset += 1
+
+        if "ipadapter_face" in AVAILABLE_SWAP_TYPES:
+            self.ipadapter_face_radio_button = customtkinter.CTkRadioButton(
+                master=self.swap_type_frame,
+                variable=self.swap_type_radio_var,
+                value="ipadapter_face",
+                text="ipadapter_face",
+            )
+            self.ipadapter_face_radio_button.grid(row=row_offset, column=2, pady=10, padx=20, sticky="w")
+            self.CreateToolTip(
+                self.ipadapter_face_radio_button, text="Use IP-Adapter Face swap (diffusion-based)"
+            )
+            row_offset += 1
+
+        if "instantid" in AVAILABLE_SWAP_TYPES:
+            self.instantid_radio_button = customtkinter.CTkRadioButton(
+                master=self.swap_type_frame,
+                variable=self.swap_type_radio_var,
+                value="instantid",
+                text="instantid",
+            )
+            self.instantid_radio_button.grid(row=row_offset, column=2, pady=10, padx=20, sticky="w")
+            self.CreateToolTip(
+                self.instantid_radio_button, text="Use InstantID face swap (highest quality, slower)"
+            )
 
         # create radiobutton frame for gpen_type
         self.gpen_type_frame = customtkinter.CTkFrame(self.tab_view)

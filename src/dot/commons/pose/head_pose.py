@@ -1,13 +1,55 @@
 #!/usr/bin/env python3
+import os
+import urllib.request
+
 import cv2
 import mediapipe as mp
 import numpy as np
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
 
-mp_face_mesh = mp.solutions.face_mesh
-face_mesh = mp_face_mesh.FaceMesh(
-    min_detection_confidence=0.5, min_tracking_confidence=0.5
-)
-mp_drawing = mp.solutions.drawing_utils
+# Model file path and download URL
+MODEL_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "saved_models", "mediapipe")
+MODEL_PATH = os.path.join(MODEL_DIR, "face_landmarker.task")
+MODEL_URL = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task"
+
+
+def _ensure_model_downloaded():
+    """Download the face landmarker model if not present."""
+    if os.path.exists(MODEL_PATH):
+        return
+    os.makedirs(MODEL_DIR, exist_ok=True)
+    print(f"Downloading face landmarker model to {MODEL_PATH}...")
+    urllib.request.urlretrieve(MODEL_URL, MODEL_PATH)
+    print("Download complete.")
+
+
+def _get_face_landmarker():
+    """Create and return a FaceLandmarker instance."""
+    _ensure_model_downloaded()
+    base_options = python.BaseOptions(model_asset_path=MODEL_PATH)
+    options = vision.FaceLandmarkerOptions(
+        base_options=base_options,
+        output_face_blendshapes=False,
+        output_facial_transformation_matrixes=False,
+        num_faces=1,
+        min_face_detection_confidence=0.5,
+        min_face_presence_confidence=0.5,
+        min_tracking_confidence=0.5,
+    )
+    return vision.FaceLandmarker.create_from_options(options)
+
+
+# Lazy initialization of face landmarker
+_face_landmarker = None
+
+
+def _get_landmarker():
+    global _face_landmarker
+    if _face_landmarker is None:
+        _face_landmarker = _get_face_landmarker()
+    return _face_landmarker
+
 
 # https://github.com/google/mediapipe/issues/1615
 HEAD_POSE_LANDMARKS = [
@@ -37,14 +79,24 @@ def pose_estimation(
     Returns:
         int: Success(0) or Fail(-1).
     """
+    landmarker = _get_landmarker()
 
-    results = face_mesh.process(image)
+    # Convert BGR to RGB if needed (mediapipe expects RGB)
+    if len(image.shape) == 3 and image.shape[2] == 3:
+        rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    else:
+        rgb_image = image
+
+    # Create mediapipe Image from numpy array
+    mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_image)
+
+    results = landmarker.detect(mp_image)
     img_h, img_w, img_c = image.shape
     face_3d = []
     face_2d = []
-    if results.multi_face_landmarks:
-        for face_landmarks in results.multi_face_landmarks:
-            for idx, lm in enumerate(face_landmarks.landmark):
+    if results.face_landmarks:
+        for face_landmarks in results.face_landmarks:
+            for idx, lm in enumerate(face_landmarks):
                 if idx in HEAD_POSE_LANDMARKS:
                     x, y = int(lm.x * img_w), int(lm.y * img_h)
 

@@ -42,12 +42,12 @@ class FaceGAN(object):
             self.model = FullGenerator(
                 self.resolution, 512, self.n_mlp, channel_multiplier, narrow=narrow
             ).to(self.device)
-            pretrained_dict = torch.load(self.mfile, map_location=self.device)
+            pretrained_dict = torch.load(self.mfile, map_location=self.device, weights_only=False)
         else:
             self.model = FullGenerator(
                 self.resolution, 512, self.n_mlp, channel_multiplier, narrow=narrow
             ).cpu()
-            pretrained_dict = torch.load(self.mfile, map_location=torch.device("cpu"))
+            pretrained_dict = torch.load(self.mfile, map_location=torch.device("cpu"), weights_only=False)
 
         self.model.load_state_dict(pretrained_dict)
         self.model.eval()

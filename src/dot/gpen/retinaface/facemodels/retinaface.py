@@ -68,6 +68,7 @@ class RetinaFace(nn.Module):
                 checkpoint = torch.load(
                     "./weights/mobilenetV1X0.25_pretrain.tar",
                     map_location=torch.device("cpu"),
+                    weights_only=False,
                 )
                 from collections import OrderedDict
 

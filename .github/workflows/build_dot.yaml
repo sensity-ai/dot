@@ -20,9 +20,9 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: "3.11"
           cache: 'pip'
           cache-dependency-path: 'requirements*.txt'
 
@@ -30,7 +30,6 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y ffmpeg libsndfile1-dev
           pip install -r requirements.txt
-          pip install -e .
 
       - name: Unit Tests
         run: |

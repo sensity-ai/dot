@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # https://github.com/gilbertfrancois/video-capture-async
 
+import platform
 import threading
 import time
 
@@ -9,11 +10,20 @@ import cv2
 WARMUP_TIMEOUT = 10.0
 
 
+def _camera_backend():
+    """Use AVFoundation on macOS for reliable camera frames (avoids black screen)."""
+    if platform.system() == "Darwin":
+        api = getattr(cv2, "CAP_AVFOUNDATION", None)
+        if api is not None:
+            return api
+    return cv2.CAP_ANY
+
+
 class VideoCaptureAsync:
     def __init__(self, src=0, width=640, height=480):
         self.src = src
-
-        self.cap = cv2.VideoCapture(self.src)
+        backend = _camera_backend()
+        self.cap = cv2.VideoCapture(self.src, backend)
         if not self.cap.isOpened():
             raise RuntimeError("Cannot open camera")
 

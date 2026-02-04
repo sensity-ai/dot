@@ -74,10 +74,10 @@ class fsModel(BaseModel):
 
         # Id network
         if use_gpu:
-            netArc_checkpoint = torch.load(arcface_model_path)
+            netArc_checkpoint = torch.load(arcface_model_path, weights_only=False)
         else:
             netArc_checkpoint = torch.load(
-                arcface_model_path, map_location=torch.device("cpu")
+                arcface_model_path, map_location=torch.device("cpu"), weights_only=False
             )
 
         self.netArc = netArc_checkpoint

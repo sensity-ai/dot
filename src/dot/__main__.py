@@ -10,7 +10,7 @@ from typing import Union
 import click
 import yaml
 
-from .dot import DOT
+from .dot import DOT, AVAILABLE_SWAP_TYPES
 
 
 def run(
@@ -31,6 +31,15 @@ def run(
     use_video: bool = False,
     use_image: bool = False,
     limit: int = None,
+    # Diffusion model options
+    num_inference_steps: int = 20,
+    guidance_scale: float = 7.5,
+    use_lcm: bool = False,
+    controlnet_conditioning_scale: float = 0.8,
+    ip_adapter_scale: float = 0.8,
+    use_sdxl: bool = False,
+    use_face_restore: bool = True,
+    face_restore_model: str = "codeformer",
 ):
     """Builds a DOT object and runs it.
 
@@ -51,6 +60,14 @@ def run(
         use_video (bool, optional): Pass flag to use video-swap pipeline. Defaults to False.
         use_image (bool, optional): Pass flag to use image-swap pipeline. Defaults to False.
         limit (int, optional): The number of frames to process. Defaults to None.
+        num_inference_steps (int, optional): Diffusion inference steps. Defaults to 20.
+        guidance_scale (float, optional): Classifier-free guidance scale. Defaults to 7.5.
+        use_lcm (bool, optional): Use LCM scheduler for faster inference. Defaults to False.
+        controlnet_conditioning_scale (float, optional): ControlNet scale for InstantID. Defaults to 0.8.
+        ip_adapter_scale (float, optional): IP-Adapter scale. Defaults to 0.8.
+        use_sdxl (bool, optional): Use SDXL model for IP-Adapter. Defaults to False.
+        use_face_restore (bool, optional): Use face restoration for ReActor. Defaults to True.
+        face_restore_model (str, optional): Face restore model for ReActor. Defaults to "codeformer".
     """
     try:
         # initialize dot
@@ -63,6 +80,15 @@ def run(
             gpen_type=gpen_type,
             gpen_path=gpen_path,
             crop_size=crop_size,
+            # Diffusion options
+            num_inference_steps=num_inference_steps,
+            guidance_scale=guidance_scale,
+            use_lcm=use_lcm,
+            controlnet_conditioning_scale=controlnet_conditioning_scale,
+            ip_adapter_scale=ip_adapter_scale,
+            use_sdxl=use_sdxl,
+            use_face_restore=use_face_restore,
+            face_restore_model=face_restore_model,
         )
 
         # run dot
@@ -87,7 +113,8 @@ def run(
 @click.option(
     "--swap_type",
     "swap_type",
-    type=click.Choice(["fomm", "faceswap_cv2", "simswap"], case_sensitive=False),
+    type=click.Choice(AVAILABLE_SWAP_TYPES, case_sensitive=False),
+    help=f"Swap engine to use. Available: {', '.join(AVAILABLE_SWAP_TYPES)}",
 )
 @click.option(
     "--source",
@@ -180,6 +207,66 @@ def run(
     required=False,
     default=None,
 )
+# Diffusion model options
+@click.option(
+    "--num_inference_steps",
+    "num_inference_steps",
+    type=int,
+    default=20,
+    help="Number of diffusion inference steps (for diffusion models).",
+)
+@click.option(
+    "--guidance_scale",
+    "guidance_scale",
+    type=float,
+    default=7.5,
+    help="Classifier-free guidance scale (for diffusion models).",
+)
+@click.option(
+    "--use_lcm",
+    "use_lcm",
+    type=bool,
+    default=False,
+    is_flag=True,
+    help="Use LCM scheduler for faster inference (for diffusion models).",
+)
+@click.option(
+    "--controlnet_scale",
+    "controlnet_conditioning_scale",
+    type=float,
+    default=0.8,
+    help="ControlNet conditioning scale (for InstantID).",
+)
+@click.option(
+    "--ip_adapter_scale",
+    "ip_adapter_scale",
+    type=float,
+    default=0.8,
+    help="IP-Adapter scale (for InstantID and IP-Adapter Face).",
+)
+@click.option(
+    "--use_sdxl",
+    "use_sdxl",
+    type=bool,
+    default=False,
+    is_flag=True,
+    help="Use SDXL model (for IP-Adapter Face).",
+)
+@click.option(
+    "--use_face_restore",
+    "use_face_restore",
+    type=bool,
+    default=True,
+    is_flag=True,
+    help="Use face restoration (for ReActor).",
+)
+@click.option(
+    "--face_restore_model",
+    "face_restore_model",
+    type=click.Choice(["codeformer", "gfpgan"]),
+    default="codeformer",
+    help="Face restoration model (for ReActor).",
+)
 def main(
     swap_type: str,
     source: str,
@@ -198,6 +285,15 @@ def main(
     use_image: bool = False,
     limit: int = None,
     config_file: str = None,
+    # Diffusion model options
+    num_inference_steps: int = 20,
+    guidance_scale: float = 7.5,
+    use_lcm: bool = False,
+    controlnet_conditioning_scale: float = 0.8,
+    ip_adapter_scale: float = 0.8,
+    use_sdxl: bool = False,
+    use_face_restore: bool = True,
+    face_restore_model: str = "codeformer",
 ):
     """CLI entrypoint for dot."""
     # load config, if provided
@@ -225,6 +321,15 @@ def main(
         use_video=use_video,
         use_image=use_image,
         limit=limit,
+        # Diffusion options
+        num_inference_steps=config.get("num_inference_steps", num_inference_steps),
+        guidance_scale=config.get("guidance_scale", guidance_scale),
+        use_lcm=config.get("use_lcm", use_lcm),
+        controlnet_conditioning_scale=config.get("controlnet_conditioning_scale", controlnet_conditioning_scale),
+        ip_adapter_scale=config.get("ip_adapter_scale", ip_adapter_scale),
+        use_sdxl=config.get("use_sdxl", use_sdxl),
+        use_face_restore=config.get("use_face_restore", use_face_restore),
+        face_restore_model=config.get("face_restore_model", face_restore_model),
     )
 
 

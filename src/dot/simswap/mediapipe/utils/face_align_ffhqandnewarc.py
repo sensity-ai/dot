@@ -80,7 +80,6 @@ ffhq_src = np.expand_dims(ffhq_src, axis=0)
 # lmk is prediction; src is template
 def estimate_norm(lmk, image_size=112, mode="ffhq"):
     assert lmk.shape == (5, 2)
-    tform = trans.SimilarityTransform()
     lmk_tran = np.insert(lmk, 2, values=np.ones(5), axis=1)
     min_M = []
     min_index = []
@@ -90,7 +89,7 @@ def estimate_norm(lmk, image_size=112, mode="ffhq"):
     else:
         src = src_map * image_size / 112
     for i in np.arange(src.shape[0]):
-        tform.estimate(lmk, src[i])
+        tform = trans.SimilarityTransform.from_estimate(lmk, src[i])
         M = tform.params[0:2, :]
         results = np.dot(M, lmk_tran.T)
         results = results.T

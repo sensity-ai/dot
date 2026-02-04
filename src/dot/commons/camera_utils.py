@@ -75,6 +75,10 @@ def camera_pipeline(
     ret, frame = cap.read()
     cv2.namedWindow("cam", cv2.WINDOW_GUI_NORMAL)
     cv2.moveWindow("cam", 500, 250)
+    # Show first frame immediately so the window appears and is visible (e.g. on macOS)
+    if ret:
+        cv2.imshow("cam", cv2.flip(frame, 1))
+        cv2.waitKey(1)
 
     frame_index = -1
     fps_hist: List = []

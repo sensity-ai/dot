@@ -1,0 +1,8 @@
+---
+swap_type: instantid
+num_inference_steps: 20
+guidance_scale: 7.5
+controlnet_conditioning_scale: 0.8
+ip_adapter_scale: 0.8
+use_lcm: false
+crop_size: 512
