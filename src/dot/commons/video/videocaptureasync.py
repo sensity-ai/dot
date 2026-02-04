@@ -10,7 +10,7 @@ import cv2
 WARMUP_TIMEOUT = 10.0
 
 
-def _camera_backend():
+def camera_backend():
     """Use AVFoundation on macOS for reliable camera frames (avoids black screen)."""
     if platform.system() == "Darwin":
         api = getattr(cv2, "CAP_AVFOUNDATION", None)
@@ -19,10 +19,30 @@ def _camera_backend():
     return cv2.CAP_ANY
 
 
+def list_cameras(max_index=10):
+    """Probe for available camera indices. Returns list of (index, resolution_str or None)."""
+    backend = camera_backend()
+    result = []
+    for idx in range(max_index):
+        cap = cv2.VideoCapture(idx, backend)
+        if not cap.isOpened():
+            cap.release()
+            continue
+        # Try to read one frame to confirm the device delivers frames
+        ret, frame = cap.read()
+        res = None
+        if ret and frame is not None:
+            h, w = frame.shape[:2]
+            res = f"{w}x{h}"
+        cap.release()
+        result.append((idx, res))
+    return result
+
+
 class VideoCaptureAsync:
     def __init__(self, src=0, width=640, height=480):
         self.src = src
-        backend = _camera_backend()
+        backend = camera_backend()
         self.cap = cv2.VideoCapture(self.src, backend)
         if not self.cap.isOpened():
             raise RuntimeError("Cannot open camera")

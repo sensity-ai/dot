@@ -50,8 +50,9 @@ class IPAdapterFaceOption(DiffusionOption):
     DEFAULT_SD15_MODEL = "runwayml/stable-diffusion-v1-5"
     DEFAULT_SDXL_MODEL = "stabilityai/stable-diffusion-xl-base-1.0"
     IP_ADAPTER_REPO = "h94/IP-Adapter"
-    IP_ADAPTER_FACE_MODEL = "ip-adapter-full-face_sd15.safetensors"
-    IP_ADAPTER_FACEID_MODEL = "ip-adapter-faceid_sd15.safetensors"
+    IP_ADAPTER_FACE_MODEL = "ip-adapter-plus-face_sd15.safetensors"
+    IP_ADAPTER_FACEID_REPO = "h94/IP-Adapter-FaceID"
+    IP_ADAPTER_FACEID_MODEL = "ip-adapter-faceid_sd15.bin"
 
     def __init__(
         self,
@@ -167,11 +168,18 @@ class IPAdapterFaceOption(DiffusionOption):
         self._pipeline.to(self.device)
 
         # Load IP-Adapter
-        subfolder = "sdxl_models" if self.use_sdxl else "models"
-        model_name = "ip-adapter-faceid_sdxl.bin" if self.use_sdxl else self.IP_ADAPTER_FACEID_MODEL
+        # Use the plus-face model from the main repo (more widely available)
+        if self.use_sdxl:
+            repo = self.IP_ADAPTER_REPO
+            subfolder = "sdxl_models"
+            model_name = "ip-adapter-plus-face_sdxl_vit-h.safetensors"
+        else:
+            repo = self.IP_ADAPTER_REPO
+            subfolder = "models"
+            model_name = self.IP_ADAPTER_FACE_MODEL
 
         self._pipeline.load_ip_adapter(
-            self.IP_ADAPTER_REPO,
+            repo,
             subfolder=subfolder,
             weight_name=model_name,
         )
@@ -206,7 +214,7 @@ class IPAdapterFaceOption(DiffusionOption):
         if self._pipeline is None or not self._ip_adapter_loaded:
             raise ValueError("Model not initialized. Call create_model() first.")
 
-        if self.source_face_embedding is None:
+        if self.source_pil is None:
             raise ValueError("Source face not set. Call change_option() first.")
 
         # Detect target face to get position
@@ -214,30 +222,24 @@ class IPAdapterFaceOption(DiffusionOption):
         if target_face is None:
             return image
 
-        # Convert target to PIL
-        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        target_pil = Image.fromarray(image_rgb)
-
-        # Resize to model expected size
+        # Get image dimensions
         height, width = image.shape[:2]
         target_size = (width, height)
 
-        # Prepare face embedding as tensor
-        face_embed = torch.tensor(self.source_face_embedding).unsqueeze(0)
-        if self.device != "cpu":
-            face_embed = face_embed.to(self.device, dtype=self._get_torch_dtype())
+        # Ensure dimensions are multiples of 8 for diffusion
+        gen_width = width - (width % 8)
+        gen_height = height - (height % 8)
 
-        # Generate with IP-Adapter
+        # Generate with IP-Adapter using source face image
         with torch.no_grad():
             result = self._pipeline(
-                prompt="a person",
-                negative_prompt="blurry, low quality, distorted",
-                image=target_pil,
-                ip_adapter_image_embeds=[face_embed],
+                prompt="a person, high quality, detailed face",
+                negative_prompt="blurry, low quality, distorted, deformed",
+                ip_adapter_image=self.source_pil,
                 num_inference_steps=self.num_inference_steps,
                 guidance_scale=self.guidance_scale,
-                width=width - (width % 8),
-                height=height - (height % 8),
+                width=gen_width,
+                height=gen_height,
             ).images[0]
 
         # Resize back if needed

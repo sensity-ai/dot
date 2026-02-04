@@ -297,7 +297,7 @@ class DOT:
         if not REACTOR_AVAILABLE:
             raise ImportError(
                 "ReActor dependencies not installed. "
-                "Install with: pip install dot[reactor]"
+                'Install with: pip install "dot[reactor]"'
             )
         return ReActorOption(
             use_gpu=use_gpu,
@@ -340,7 +340,7 @@ class DOT:
         if not IPADAPTER_AVAILABLE:
             raise ImportError(
                 "IP-Adapter dependencies not installed. "
-                "Install with: pip install dot[ipadapter]"
+                'Install with: pip install "dot[ipadapter]"'
             )
         return IPAdapterFaceOption(
             use_gpu=use_gpu,
@@ -386,7 +386,7 @@ class DOT:
         if not INSTANTID_AVAILABLE:
             raise ImportError(
                 "InstantID dependencies not installed. "
-                "Install with: pip install dot[instantid]"
+                'Install with: pip install "dot[instantid]"'
             )
         return InstantIDOption(
             use_gpu=use_gpu,
