@@ -96,7 +96,8 @@ def camera_pipeline(
 
             tt.tic()
 
-            key = cv2.waitKey(1)
+            # Use & 0xFF so key codes are correct on macOS (waitKey can return 32-bit values)
+            key = cv2.waitKey(1) & 0xFF
             if 48 < key < 58:
                 show_self = False
                 source_image_i = min(key - 49, len(source) - 1)
@@ -105,7 +106,6 @@ def camera_pipeline(
                 change_option(img_a_whole, **kwargs)
             elif key == ord("y"):
                 show_self = True
-
             elif key == ord("q"):
                 break
             elif key == ord("i"):

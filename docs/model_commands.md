@@ -24,7 +24,7 @@ High-quality face swap using SimSwap architecture.
 **Camera (live feed):**
 ```bash
 python -m dot --swap_type simswap \
-    --target 0 \
+    --target 1 \
     --source "./data" \
     --use_gpu
 ```
@@ -32,7 +32,7 @@ python -m dot --swap_type simswap \
 **With config file:**
 ```bash
 python -m dot -c ./configs/simswap.yaml \
-    --target 0 \
+    --target 1 \
     --source "./data" \
     --use_gpu
 ```
@@ -60,7 +60,7 @@ python -m dot --swap_type simswap \
 **High quality (512px):**
 ```bash
 python -m dot -c ./configs/simswaphq.yaml \
-    --target 0 \
+    --target 1 \
     --source "./data" \
     --use_gpu \
     --crop_size 512
@@ -69,7 +69,7 @@ python -m dot -c ./configs/simswaphq.yaml \
 **With GPEN face enhancement:**
 ```bash
 python -m dot --swap_type simswap \
-    --target 0 \
+    --target 1 \
     --source "./data" \
     --use_gpu \
     --gpen_type gpen_256 \
@@ -93,7 +93,7 @@ Motion-based face reenactment that transfers expressions.
 **Camera (live feed):**
 ```bash
 python -m dot --swap_type fomm \
-    --target 0 \
+    --target 1 \
     --source "./data" \
     --use_gpu
 ```
@@ -101,7 +101,7 @@ python -m dot --swap_type fomm \
 **With config file:**
 ```bash
 python -m dot -c ./configs/fomm.yaml \
-    --target 0 \
+    --target 1 \
     --source "./data" \
     --use_gpu
 ```
@@ -149,7 +149,7 @@ Lightweight OpenCV-based face swap using dlib landmarks.
 **Camera (live feed):**
 ```bash
 python -m dot --swap_type faceswap_cv2 \
-    --target 0 \
+    --target 1 \
     --source "./data" \
     --use_gpu
 ```
@@ -157,7 +157,7 @@ python -m dot --swap_type faceswap_cv2 \
 **With config file:**
 ```bash
 python -m dot -c ./configs/faceswap_cv2.yaml \
-    --target 0 \
+    --target 1 \
     --source "./data" \
     --use_gpu
 ```
@@ -202,7 +202,7 @@ pip install "dot[reactor]"
 **Camera (live feed):**
 ```bash
 python -m dot --swap_type reactor \
-    --target 0 \
+    --target 1 \
     --source "./data" \
     --use_gpu
 ```
@@ -210,7 +210,7 @@ python -m dot --swap_type reactor \
 **With config file:**
 ```bash
 python -m dot -c ./configs/reactor.yaml \
-    --target 0 \
+    --target 1 \
     --source "./data" \
     --use_gpu
 ```
@@ -238,7 +238,7 @@ python -m dot --swap_type reactor \
 **With CodeFormer face restoration:**
 ```bash
 python -m dot --swap_type reactor \
-    --target 0 \
+    --target 1 \
     --source "./data" \
     --use_gpu \
     --use_face_restore \
@@ -248,7 +248,7 @@ python -m dot --swap_type reactor \
 **With GFPGAN face restoration:**
 ```bash
 python -m dot --swap_type reactor \
-    --target 0 \
+    --target 1 \
     --source "./data" \
     --use_gpu \
     --use_face_restore \
@@ -274,7 +274,7 @@ pip install "dot[ipadapter]"
 **Camera (live feed):**
 ```bash
 python -m dot --swap_type ipadapter_face \
-    --target 0 \
+    --target 1 \
     --source "./data" \
     --use_gpu
 ```
@@ -282,7 +282,7 @@ python -m dot --swap_type ipadapter_face \
 **With config file:**
 ```bash
 python -m dot -c ./configs/ipadapter_face.yaml \
-    --target 0 \
+    --target 1 \
     --source "./data" \
     --use_gpu
 ```
@@ -310,7 +310,7 @@ python -m dot --swap_type ipadapter_face \
 **With custom parameters:**
 ```bash
 python -m dot --swap_type ipadapter_face \
-    --target 0 \
+    --target 1 \
     --source "./data" \
     --use_gpu \
     --num_inference_steps 20 \
@@ -321,7 +321,7 @@ python -m dot --swap_type ipadapter_face \
 **With SDXL (higher quality):**
 ```bash
 python -m dot --swap_type ipadapter_face \
-    --target 0 \
+    --target 1 \
     --source "./data" \
     --use_gpu \
     --use_sdxl
@@ -330,7 +330,7 @@ python -m dot --swap_type ipadapter_face \
 **With LCM scheduler (faster):**
 ```bash
 python -m dot --swap_type ipadapter_face \
-    --target 0 \
+    --target 1 \
     --source "./data" \
     --use_gpu \
     --use_lcm \
@@ -359,7 +359,7 @@ pip install "dot[instantid]"
 **Camera (live feed):**
 ```bash
 python -m dot --swap_type instantid \
-    --target 0 \
+    --target 1 \
     --source "./data" \
     --use_gpu
 ```
@@ -367,7 +367,7 @@ python -m dot --swap_type instantid \
 **With config file:**
 ```bash
 python -m dot -c ./configs/instantid.yaml \
-    --target 0 \
+    --target 1 \
     --source "./data" \
     --use_gpu
 ```
@@ -395,7 +395,7 @@ python -m dot --swap_type instantid \
 **With custom parameters:**
 ```bash
 python -m dot --swap_type instantid \
-    --target 0 \
+    --target 1 \
     --source "./data" \
     --use_gpu \
     --num_inference_steps 20 \
@@ -407,7 +407,7 @@ python -m dot --swap_type instantid \
 **With LCM scheduler (faster):**
 ```bash
 python -m dot --swap_type instantid \
-    --target 0 \
+    --target 1 \
     --source "./data" \
     --use_gpu \
     --use_lcm \
@@ -418,7 +418,7 @@ python -m dot --swap_type instantid \
 **Using LCM config:**
 ```bash
 python -m dot -c ./configs/instantid_lcm.yaml \
-    --target 0 \
+    --target 1 \
     --source "./data" \
     --use_gpu
 ```
@@ -472,5 +472,5 @@ configs/
 
 Use with `-c` flag:
 ```bash
-python -m dot -c ./configs/simswap.yaml --target 0 --source "./data" --use_gpu
+python -m dot -c ./configs/simswap.yaml --target 1 --source "./data" --use_gpu
 ```

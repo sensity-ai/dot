@@ -6,6 +6,7 @@ licensed under the BSD 3-Clause "New" or "Revised" License.
 ReActor face swap implementation.
 """
 
+import sys
 from typing import Optional
 
 import cv2
@@ -110,9 +111,13 @@ class ReActorOption(DiffusionOption):
 
             model_path = self._get_swapper_model_path()
 
-            # Set up ONNX providers
+            # Set up ONNX providers (CUDA on Linux/Windows; CoreML on macOS when use_gpu)
             if self.use_gpu:
-                providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
+                if sys.platform == "darwin":
+                    providers = ["CoreMLExecutionProvider", "CPUExecutionProvider"]
+                    print("ReActor: using CoreML (GPU) for ONNX on macOS")
+                else:
+                    providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
             else:
                 providers = ["CPUExecutionProvider"]
 

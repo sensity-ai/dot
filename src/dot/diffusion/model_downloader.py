@@ -55,6 +55,8 @@ def download_model_file(
 
     if cache_dir is None:
         cache_dir = get_cache_dir()
+    if token is None:
+        token = os.environ.get("HF_TOKEN")
 
     return hf_hub_download(
         repo_id=repo_id,
@@ -93,6 +95,8 @@ def download_model_repo(
 
     if cache_dir is None:
         cache_dir = get_cache_dir()
+    if token is None:
+        token = os.environ.get("HF_TOKEN")
 
     return snapshot_download(
         repo_id=repo_id,

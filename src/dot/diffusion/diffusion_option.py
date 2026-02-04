@@ -6,6 +6,7 @@ licensed under the BSD 3-Clause "New" or "Revised" License.
 Base class for diffusion-based face swap models.
 """
 
+import sys
 from abc import abstractmethod
 from typing import Optional, Tuple
 
@@ -98,8 +99,12 @@ class DiffusionOption(ModelOption):
                     "Install with: pip install insightface"
                 )
 
-            providers = ["CUDAExecutionProvider"] if self.use_gpu else []
-            providers.append("CPUExecutionProvider")
+            if self.use_gpu and sys.platform == "darwin":
+                providers = ["CoreMLExecutionProvider", "CPUExecutionProvider"]
+            elif self.use_gpu:
+                providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
+            else:
+                providers = ["CPUExecutionProvider"]
 
             self._face_analyzer = FaceAnalysis(
                 name="buffalo_l",
