@@ -12,6 +12,7 @@ from typing import Optional
 import cv2
 import numpy as np
 
+from ..commons.model_option import _mask_from_bbox
 from ..diffusion import DiffusionOption
 from ..diffusion.model_downloader import download_model_file, get_cache_dir
 
@@ -50,6 +51,7 @@ class ReActorOption(DiffusionOption):
         gpen_path: Optional[str] = None,
         use_face_restore: bool = True,
         face_restore_model: str = "codeformer",
+        filter_type: Optional[str] = None,
         **kwargs,
     ):
         """
@@ -62,6 +64,7 @@ class ReActorOption(DiffusionOption):
             gpen_path: Path to GPEN models
             use_face_restore: Whether to apply face restoration after swap
             face_restore_model: Face restoration model to use (codeformer or gfpgan)
+            filter_type: Camera/film filter to apply
         """
         # ReActor doesn't use standard diffusion parameters
         super().__init__(
@@ -72,6 +75,7 @@ class ReActorOption(DiffusionOption):
             num_inference_steps=1,  # Not used, but required by parent
             guidance_scale=1.0,  # Not used, but required by parent
             use_lcm=False,
+            filter_type=filter_type,
         )
 
         self.use_face_restore = use_face_restore
@@ -181,6 +185,13 @@ class ReActorOption(DiffusionOption):
         if target_face is None:
             # No face in target, return original
             return image
+
+        # Share face region mask for face-only tint/effects (same region as swap)
+        face_mask_dict = kwargs.get("_face_mask")
+        if isinstance(face_mask_dict, dict) and hasattr(target_face, "bbox"):
+            face_mask_dict["mask"] = _mask_from_bbox(
+                image.shape, target_face.bbox, expand=1.15, blur=35
+            )
 
         # Convert to RGB for processing
         image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)

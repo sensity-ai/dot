@@ -11,6 +11,7 @@ from typing import Optional
 import cv2
 import numpy as np
 
+from ..commons.model_option import _mask_from_bbox
 from ..diffusion import DiffusionOption
 
 # Try to import required dependencies
@@ -65,6 +66,7 @@ class IPAdapterFaceOption(DiffusionOption):
         use_lcm: bool = False,
         use_sdxl: bool = False,
         ip_adapter_scale: float = 0.6,
+        filter_type: Optional[str] = None,
         **kwargs,
     ):
         """
@@ -80,6 +82,7 @@ class IPAdapterFaceOption(DiffusionOption):
             use_lcm: Whether to use LCM scheduler for faster inference
             use_sdxl: Whether to use SDXL model (higher quality, slower)
             ip_adapter_scale: Scale for IP-Adapter influence (0.0-1.0)
+            filter_type: Camera/film filter to apply
         """
         super().__init__(
             use_gpu=use_gpu,
@@ -89,6 +92,7 @@ class IPAdapterFaceOption(DiffusionOption):
             num_inference_steps=num_inference_steps,
             guidance_scale=guidance_scale,
             use_lcm=use_lcm,
+            filter_type=filter_type,
         )
 
         self.use_sdxl = use_sdxl
@@ -221,6 +225,13 @@ class IPAdapterFaceOption(DiffusionOption):
         target_face = self._detect_face(image)
         if target_face is None:
             return image
+
+        # Share face region mask for face-only tint/effects (same region as swap)
+        face_mask_dict = kwargs.get("_face_mask")
+        if isinstance(face_mask_dict, dict) and hasattr(target_face, "bbox"):
+            face_mask_dict["mask"] = _mask_from_bbox(
+                image.shape, target_face.bbox, expand=1.15, blur=35
+            )
 
         # Get image dimensions
         height, width = image.shape[:2]

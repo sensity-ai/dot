@@ -4,13 +4,25 @@ Copyright (c) 2022, Sensity B.V. All rights reserved.
 licensed under the BSD 3-Clause "New" or "Revised" License.
 """
 
+# Suppress diffusers CUDA autocast warning on macOS / non-CUDA systems.
+# The library uses device_type="cuda"; we use MPS or CPU when CUDA is unavailable.
+import warnings
+warnings.filterwarnings(
+    "ignore",
+    message="CUDA is not available or torch_xla is imported. Disabling autocast.",
+    category=UserWarning,
+    module="diffusers",
+)
+
 import traceback
 from typing import Union
 
 import click
 import yaml
 
+from .commons.paths import resolve_app_path
 from .dot import DOT, AVAILABLE_SWAP_TYPES
+from .filters import AVAILABLE_FILTERS
 
 
 def run(
@@ -31,6 +43,7 @@ def run(
     use_video: bool = False,
     use_image: bool = False,
     limit: int = None,
+    filter_type: str = None,
     # Diffusion model options
     num_inference_steps: int = 20,
     guidance_scale: float = 7.5,
@@ -40,6 +53,12 @@ def run(
     use_sdxl: bool = False,
     use_face_restore: bool = True,
     face_restore_model: str = "codeformer",
+    use_virtual_cam: bool = False,
+    virtual_cam_fps: int = 20,
+    cam_width: int = 1280,
+    cam_height: int = 720,
+    live_settings: dict = None,
+    gui_update_callback=None,
 ):
     """Builds a DOT object and runs it.
 
@@ -68,8 +87,20 @@ def run(
         use_sdxl (bool, optional): Use SDXL model for IP-Adapter. Defaults to False.
         use_face_restore (bool, optional): Use face restoration for ReActor. Defaults to True.
         face_restore_model (str, optional): Face restore model for ReActor. Defaults to "codeformer".
+        filter_type (str, optional): Camera/film filter to apply. Defaults to None.
     """
     try:
+        # Resolve relative paths when running as frozen app (PyInstaller)
+        gpen_path = resolve_app_path(gpen_path)
+        if model_path:
+            model_path = resolve_app_path(model_path)
+        if parsing_model_path:
+            parsing_model_path = resolve_app_path(parsing_model_path)
+        if arcface_model_path:
+            arcface_model_path = resolve_app_path(arcface_model_path)
+        if checkpoints_dir:
+            checkpoints_dir = resolve_app_path(checkpoints_dir)
+
         # initialize dot
         _dot = DOT(use_video=use_video, use_image=use_image, save_folder=save_folder)
 
@@ -80,6 +111,7 @@ def run(
             gpen_type=gpen_type,
             gpen_path=gpen_path,
             crop_size=crop_size,
+            filter_type=filter_type,
             # Diffusion options
             num_inference_steps=num_inference_steps,
             guidance_scale=guidance_scale,
@@ -104,6 +136,12 @@ def run(
             checkpoints_dir=checkpoints_dir,
             opt_crop_size=crop_size,
             head_pose=head_pose,
+            use_virtual_cam=use_virtual_cam,
+            virtual_cam_fps=virtual_cam_fps,
+            cam_width=cam_width,
+            cam_height=cam_height,
+            live_settings=live_settings,
+            gui_update_callback=gui_update_callback,
         )
     except:  # noqa
         print(traceback.format_exc())
@@ -111,21 +149,36 @@ def run(
 
 @click.command()
 @click.option(
+    "--gui",
+    "gui",
+    is_flag=True,
+    default=False,
+    help="Launch the graphical interface (tint and other settings).",
+)
+@click.option(
+    "--list-cameras",
+    "list_cameras",
+    is_flag=True,
+    default=False,
+    help="List available camera devices (indices and resolution) then exit.",
+)
+@click.option(
     "--swap_type",
     "swap_type",
     type=click.Choice(AVAILABLE_SWAP_TYPES, case_sensitive=False),
+    default=None,
     help=f"Swap engine to use. Available: {', '.join(AVAILABLE_SWAP_TYPES)}",
 )
 @click.option(
     "--source",
     "source",
-    required=True,
+    default=None,
     help="Images to swap with target",
 )
 @click.option(
     "--target",
     "target",
-    required=True,
+    default=None,
     help="Cam ID or target media",
 )
 @click.option(
@@ -200,6 +253,13 @@ def run(
 )
 @click.option("--limit", "limit", type=int, default=None)
 @click.option(
+    "--filter",
+    "filter_type",
+    type=click.Choice(AVAILABLE_FILTERS),
+    default=None,
+    help="Apply camera/film filter to make output more realistic.",
+)
+@click.option(
     "-c",
     "--config",
     "config_file",
@@ -267,7 +327,37 @@ def run(
     default="codeformer",
     help="Face restoration model (for ReActor).",
 )
+@click.option(
+    "--virtual_cam",
+    "use_virtual_cam",
+    is_flag=True,
+    default=False,
+    help="Send output to a virtual camera device (FaceTime/Zoom). Requires: pip install pyvirtualcam; on macOS also install OBS.",
+)
+@click.option(
+    "--virtual_cam_fps",
+    "virtual_cam_fps",
+    type=int,
+    default=20,
+    help="Virtual camera FPS when --virtual_cam is used (default 20).",
+)
+@click.option(
+    "--cam_width",
+    "cam_width",
+    type=int,
+    default=1280,
+    help="Camera capture width (default 1280).",
+)
+@click.option(
+    "--cam_height",
+    "cam_height",
+    type=int,
+    default=720,
+    help="Camera capture height (default 720).",
+)
 def main(
+    gui: bool,
+    list_cameras: bool,
     swap_type: str,
     source: str,
     target: Union[int, str],
@@ -284,6 +374,7 @@ def main(
     use_video: bool = False,
     use_image: bool = False,
     limit: int = None,
+    filter_type: str = None,
     config_file: str = None,
     # Diffusion model options
     num_inference_steps: int = 20,
@@ -294,17 +385,47 @@ def main(
     use_sdxl: bool = False,
     use_face_restore: bool = True,
     face_restore_model: str = "codeformer",
+    use_virtual_cam: bool = False,
+    virtual_cam_fps: int = 20,
+    cam_width: int = 1920,
+    cam_height: int = 1080,
 ):
     """CLI entrypoint for dot."""
+    if gui:
+        from dot.ui.ui import App
+        app = App()
+        app.mainloop()
+        return
+
+    if list_cameras:
+        from dot.commons.video.videocaptureasync import list_cameras as list_cameras_fn
+        cameras = list_cameras_fn(max_index=10)
+        if not cameras:
+            print("No cameras found (probed indices 0–9).")
+        else:
+            print("Camera devices (use --target <index> for camera mode):")
+            for idx, res in cameras:
+                print(f"  {idx}: {res or 'unknown resolution'}")
+        return
+
     # load config, if provided
     config = {}
     if config_file is not None:
-        with open(config_file) as f:
+        config_path = resolve_app_path(config_file)
+        with open(config_path) as f:
             config = yaml.safe_load(f)
+
+    swap_type = config.get("swap_type", swap_type)
+    source = config.get("source", source)
+    target = config.get("target", target)
+    if swap_type is None or source is None or target is None:
+        raise click.UsageError(
+            "Missing required options. Use --swap_type, --source, --target (or -c config.yaml). Use --gui to launch the graphical interface."
+        )
 
     # run dot
     run(
-        swap_type=config.get("swap_type", swap_type),
+        swap_type=swap_type,
         source=source,
         target=target,
         model_path=config.get("model_path", model_path),
@@ -321,6 +442,7 @@ def main(
         use_video=use_video,
         use_image=use_image,
         limit=limit,
+        filter_type=config.get("filter_type", filter_type),
         # Diffusion options
         num_inference_steps=config.get("num_inference_steps", num_inference_steps),
         guidance_scale=config.get("guidance_scale", guidance_scale),
@@ -330,6 +452,10 @@ def main(
         use_sdxl=config.get("use_sdxl", use_sdxl),
         use_face_restore=config.get("use_face_restore", use_face_restore),
         face_restore_model=config.get("face_restore_model", face_restore_model),
+        use_virtual_cam=config.get("use_virtual_cam", use_virtual_cam),
+        virtual_cam_fps=config.get("virtual_cam_fps", virtual_cam_fps),
+        cam_width=config.get("cam_width", cam_width),
+        cam_height=config.get("cam_height", cam_height),
     )
 
 

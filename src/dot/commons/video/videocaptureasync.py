@@ -40,7 +40,7 @@ def list_cameras(max_index=10):
 
 
 class VideoCaptureAsync:
-    def __init__(self, src=0, width=640, height=480):
+    def __init__(self, src=0, width=1920, height=1080):
         self.src = src
         backend = camera_backend()
         self.cap = cv2.VideoCapture(self.src, backend)

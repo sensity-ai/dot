@@ -6,6 +6,7 @@ licensed under the BSD 3-Clause "New" or "Revised" License.
 
 import os
 import sys
+import threading
 import tkinter
 import traceback
 from pathlib import Path
@@ -14,6 +15,7 @@ import click
 import customtkinter
 import yaml
 
+from dot.commons.paths import get_app_base_path
 from dot.__main__ import run
 from dot.dot import AVAILABLE_SWAP_TYPES
 
@@ -129,6 +131,103 @@ class ToplevelAboutWindow(customtkinter.CTkToplevel):
         self.textbox.configure(state=tkinter.DISABLED)
 
 
+def _default_live_settings():
+    """Default dict for live-adjustable tint and other settings (used by camera pipeline)."""
+    return {
+        "tint_r": 128,
+        "tint_g": 128,
+        "tint_b": 128,
+        "tint_intensity": 0.0,
+        "brightness": 1.0,
+        "saturation": 1.0,
+        "contrast": 1.0,
+        "effects_face_only": False,
+    }
+
+
+class LiveSettingsWindow(customtkinter.CTkToplevel):
+    """
+    Toplevel with sliders to adjust tint, brightness, saturation, contrast in real time.
+    Updates the shared live_settings dict so the camera pipeline reads new values each frame.
+    """
+
+    def __init__(self, live_settings: dict, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.live_settings = live_settings
+        self.title("Live settings — Tint & effects")
+        self.geometry("380x460")
+        self.resizable(True, False)
+
+        # Slider from 0–100 to value range (min_val, max_val)
+        def make_slider(row, label, key, min_val, max_val, default_val, resolution=0.01):
+            frame = customtkinter.CTkFrame(self, fg_color="transparent")
+            frame.grid(row=row, column=0, padx=20, pady=6, sticky="ew")
+            self.columnconfigure(0, weight=1)
+            lbl = customtkinter.CTkLabel(frame, text=label, width=100)
+            lbl.grid(row=0, column=0, sticky="w")
+            # map 0–100 to min_val..max_val
+            current = live_settings.get(key, default_val)
+            norm = (current - min_val) / (max_val - min_val) if max_val != min_val else 0
+            norm = max(0, min(1, norm))
+            sv = tkinter.DoubleVar(value=norm * 100)
+
+            val_lbl = customtkinter.CTkLabel(frame, text=f"{current}", width=50)
+            val_lbl.grid(row=0, column=2, sticky="e")
+
+            def on_slide(val):
+                n = float(val) / 100.0
+                v = min_val + n * (max_val - min_val)
+                if resolution >= 1:
+                    v = round(v)
+                else:
+                    v = round(v / resolution) * resolution
+                live_settings[key] = v
+                val_lbl.configure(text=f"{v}")
+
+            s = customtkinter.CTkSlider(
+                frame, from_=0, to=100, variable=sv, command=on_slide, width=200
+            )
+            s.grid(row=0, column=1, padx=10, sticky="ew")
+            frame.columnconfigure(1, weight=1)
+            return frame
+
+        # Tint color R, G, B (0–255)
+        customtkinter.CTkLabel(self, text="Tint color (R, G, B)", font=("", 12, "bold")).grid(
+            row=0, column=0, padx=20, pady=(14, 4), sticky="w"
+        )
+        make_slider(1, "Tint R", "tint_r", 0, 255, 128, resolution=1)
+        make_slider(2, "Tint G", "tint_g", 0, 255, 128, resolution=1)
+        make_slider(3, "Tint B", "tint_b", 0, 255, 128, resolution=1)
+        make_slider(4, "Tint intensity", "tint_intensity", 0.0, 1.0, 0.0)
+
+        customtkinter.CTkLabel(self, text="Brightness / Contrast / Saturation", font=("", 12, "bold")).grid(
+            row=5, column=0, padx=20, pady=(14, 4), sticky="w"
+        )
+        make_slider(6, "Brightness", "brightness", 0.5, 2.0, 1.0)
+        make_slider(7, "Contrast", "contrast", 0.5, 2.0, 1.0)
+        make_slider(8, "Saturation", "saturation", 0.0, 2.0, 1.0)
+
+        # Apply effects to face only (face detection + mask)
+        live_settings.setdefault("effects_face_only", False)
+        self.face_only_var = tkinter.BooleanVar(value=live_settings["effects_face_only"])
+
+        def toggle_face_only():
+            live_settings["effects_face_only"] = self.face_only_var.get()
+
+        self.face_only_cb = customtkinter.CTkCheckBox(
+            master=self,
+            text="Apply tint/effects to face only",
+            variable=self.face_only_var,
+            command=toggle_face_only,
+        )
+        self.face_only_cb.grid(row=9, column=0, padx=20, pady=(14, 4), sticky="w")
+
+        customtkinter.CTkLabel(
+            self, text="Adjust while the camera is running. Close this window to keep current values.",
+            text_color="gray", font=("", 10),
+        ).grid(row=10, column=0, padx=20, pady=(14, 10), sticky="w")
+
+
 class TabView:
     """
     A class to handle the layout and functionality for each tab.
@@ -141,19 +240,15 @@ class TabView:
         self.use_video = use_video
         self.save_folder = None
 
-        self.resources_path = ""
-
-        # MacOS bundle has different resource directory structure
-        if sys.platform == "darwin":
-            if getattr(sys, "frozen", False):
-                self.resources_path = os.path.join(
-                    str(Path(sys.executable).resolve().parents[0]).replace("MacOS", ""),
-                    "Resources",
-                )
+        # When frozen (PyInstaller), configs/data/saved_models live under app base path
+        self.resources_path = str(get_app_base_path()) if getattr(sys, "frozen", False) else ""
 
         self.setup_ui()
 
     def setup_ui(self):
+        # Ensure column 4 exists for the RUN button (top row)
+        self.tab_view.columnconfigure(4, minsize=110)
+
         # create entry text for source, target and config
         self.source_target_config_frame = customtkinter.CTkFrame(self.tab_view)
         self.source_target_config_frame.grid(
@@ -316,7 +411,7 @@ class TabView:
         # create entry text for dot options
         self.option_entry_frame = customtkinter.CTkFrame(self.tab_view)
         self.option_entry_frame.grid(
-            row=1, column=0, columnspan=4, padx=(20, 20), pady=(20, 0), sticky="nsew"
+            row=1, column=0, columnspan=5, padx=(20, 20), pady=(20, 0), sticky="nsew"
         )
 
         self.advanced_options = customtkinter.CTkLabel(
@@ -623,6 +718,23 @@ class TabView:
             row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew"
         )
 
+        # RUN button in top row so it's always visible (column 4)
+        self.run_button = customtkinter.CTkButton(
+            master=self.tab_view,
+            fg_color="white",
+            border_width=2,
+            text_color="black",
+            text="RUN",
+            height=44,
+            width=100,
+            font=("", 14, "bold"),
+            command=lambda: self.start_button_event(self.error_label),
+        )
+        self.run_button.grid(
+            row=0, column=4, padx=(20, 20), pady=(20, 0), sticky="nsew"
+        )
+        self.CreateToolTip(self.run_button, text="Start running the deepfake (live camera, image, or video)")
+
         self.show_fps_checkbox_var = tkinter.IntVar()
         self.show_fps_checkbox = customtkinter.CTkCheckBox(
             master=self.checkbox_slider_frame,
@@ -637,6 +749,13 @@ class TabView:
             variable=self.use_gpu_checkbox_var,
         )
 
+        self.use_virtual_cam_checkbox_var = tkinter.IntVar()
+        self.use_virtual_cam_checkbox = customtkinter.CTkCheckBox(
+            master=self.checkbox_slider_frame,
+            text="Virtual cam",
+            variable=self.use_virtual_cam_checkbox_var,
+        )
+
         self.head_pose_checkbox_var = tkinter.IntVar()
         self.head_pose_checkbox = customtkinter.CTkCheckBox(
             master=self.checkbox_slider_frame,
@@ -646,12 +765,17 @@ class TabView:
 
         self.show_fps_checkbox.grid(row=1, column=3, pady=(39, 0), padx=20, sticky="w")
         self.use_gpu_checkbox.grid(row=2, column=3, pady=(20, 0), padx=20, sticky="w")
+        self.use_virtual_cam_checkbox.grid(row=3, column=3, pady=(20, 0), padx=20, sticky="w")
         self.head_pose_checkbox.grid(row=5, column=3, pady=(20, 0), padx=20, sticky="w")
         self.CreateToolTip(self.show_fps_checkbox, text="Show the fps value")
         self.CreateToolTip(
             self.use_gpu_checkbox,
             text="If checked, the deepfake will use the GPU.\n"
             "If it's not checked, the deepfake will use the CPU",
+        )
+        self.CreateToolTip(
+            self.use_virtual_cam_checkbox,
+            text="Send output to a virtual camera (FaceTime/Zoom). In OBS use Window Capture on the 'cam' window.",
         )
         self.CreateToolTip(
             self.head_pose_checkbox, text="Estimate head pose before swap. Used by fomm"
@@ -662,22 +786,8 @@ class TabView:
             master=self.tab_view, text_color="red", text=""
         )
         self.error_label.grid(
-            row=4, column=0, columnspan=4, padx=(20, 20), pady=(0, 20), sticky="nsew"
+            row=4, column=0, columnspan=5, padx=(20, 20), pady=(0, 20), sticky="nsew"
         )
-
-        self.run_button = customtkinter.CTkButton(
-            master=self.tab_view,
-            fg_color="white",
-            border_width=2,
-            text_color="black",
-            text="RUN",
-            height=40,
-            command=lambda: self.start_button_event(self.error_label),
-        )
-        self.run_button.grid(
-            row=2, column=1, columnspan=2, padx=(50, 150), pady=(20, 0), sticky="nsew"
-        )
-        self.CreateToolTip(self.run_button, text="Start running the deepfake")
 
         self.run_label = customtkinter.CTkLabel(
             master=self.tab_view,
@@ -685,7 +795,7 @@ class TabView:
             text_color="gray",
         )
         self.run_label.grid(
-            row=3, column=0, columnspan=3, padx=(180, 0), pady=(0, 20), sticky="nsew"
+            row=3, column=0, columnspan=5, padx=(20, 0), pady=(0, 20), sticky="nsew"
         )
 
     def modify_entry(self, entry_element: customtkinter.CTkEntry, text: str):
@@ -768,7 +878,8 @@ class TabView:
 
     def start_button_event(self, error_label):
         """
-        Start running the deepfake
+        Start running the deepfake. In camera mode, runs in a thread and opens
+        the Live Settings window for tint and other adjustments.
         """
         try:
             error_label.configure(text="")
@@ -779,13 +890,26 @@ class TabView:
                 with open(self.config_file.get()) as f:
                     config = yaml.safe_load(f)
 
-            # run dot
-            run(
+            target = config.get("target", self.target.get() or None)
+            use_video = self.use_video
+            use_image = self.use_image
+            # Camera mode: target is a camera id (int or numeric string), not video/image
+            try:
+                camera_mode = (
+                    not use_video
+                    and not use_image
+                    and target is not None
+                    and str(target).strip().isdigit()
+                )
+            except Exception:
+                camera_mode = False
+
+            run_kwargs = dict(
                 swap_type=config.get(
                     "swap_type", self.swap_type_radio_var.get() or None
                 ),
                 source=config.get("source", self.source.get() or None),
-                target=config.get("target", self.target.get() or None),
+                target=target,
                 model_path=config.get("model_path", self.model_path.get() or None),
                 parsing_model_path=config.get(
                     "parsing_model_path", self.parsing_model_path.get() or None
@@ -815,10 +939,27 @@ class TabView:
                 else None,
                 show_fps=config.get("show_fps", int(self.show_fps_checkbox.get())),
                 use_gpu=config.get("use_gpu", int(self.use_gpu_checkbox.get())),
-                use_video=self.use_video,
-                use_image=self.use_image,
+                use_virtual_cam=config.get(
+                    "use_virtual_cam", bool(self.use_virtual_cam_checkbox_var.get())
+                ),
+                use_video=use_video,
+                use_image=use_image,
                 limit=None,
             )
+
+            if camera_mode:
+                # Run camera on the main thread so the OpenCV window appears reliably.
+                # Open Live Settings so user can adjust tint etc.; pipeline will call
+                # gui_update_callback each frame so the sliders stay responsive.
+                live_settings = _default_live_settings()
+                run_kwargs["live_settings"] = live_settings
+                root = self.tab_view.winfo_toplevel()
+                run_kwargs["gui_update_callback"] = lambda: root.update()
+                settings_win = LiveSettingsWindow(live_settings)
+                settings_win.focus()
+                run(**run_kwargs)
+            else:
+                run(**run_kwargs)
         except Exception as e:
             print(e)
             print(traceback.format_exc())
@@ -902,8 +1043,9 @@ class App(customtkinter.CTk):
 
         # configure window
         self.title("Deepfake Offensive Toolkit")
-        self.geometry(f"{835}x{600}")
-        self.resizable(False, False)
+        self.geometry("950x620")
+        self.minsize(900, 580)
+        self.resizable(True, True)
 
         self.grid_columnconfigure((0, 1), weight=1)
         self.grid_rowconfigure((0, 1, 2, 3), weight=1)

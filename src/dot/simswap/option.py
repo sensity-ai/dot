@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import os
+
 import cv2
 import numpy as np
 import torch
@@ -26,12 +28,14 @@ class SimswapOption(ModelOption):
         crop_size=224,
         gpen_type=None,
         gpen_path=None,
+        filter_type=None,
     ):
         super(SimswapOption, self).__init__(
             gpen_type=gpen_type,
             use_gpu=use_gpu,
             crop_size=crop_size,
             gpen_path=gpen_path,
+            filter_type=filter_type,
         )
         self.use_mask = use_mask
 
@@ -53,6 +57,21 @@ class SimswapOption(ModelOption):
         arcface_model_path="./arcface_model/arcface_checkpoint.tar",
         **kwargs
     ) -> None:
+        # Use defaults when not set (e.g. CLI without config)
+        if checkpoints_dir is None:
+            checkpoints_dir = "saved_models/simswap/checkpoints" if os.path.isdir("saved_models/simswap/checkpoints") else "./checkpoints"
+        if opt_name is None:
+            opt_name = "people"
+
+        _default_parsing = "./parsing_model/checkpoint/79999_iter.pth"
+        _fallback_parsing = "saved_models/simswap/parsing_model/checkpoint/79999_iter.pth"
+        _default_arcface = "./arcface_model/arcface_checkpoint.tar"
+        _fallback_arcface = "saved_models/simswap/arcface_model/arcface_checkpoint.tar"
+        if parsing_model_path is None:
+            parsing_model_path = _fallback_parsing if os.path.isfile(_fallback_parsing) else _default_parsing
+        if arcface_model_path is None:
+            arcface_model_path = _fallback_arcface if os.path.isfile(_fallback_arcface) else _default_arcface
+
         # preprocess_f
         self.transformer_Arcface = transforms.Compose(
             [
@@ -79,6 +98,11 @@ class SimswapOption(ModelOption):
         # Tod check if we need this
         self.spNorm = SpecificNorm(use_gpu=self.use_gpu)
         if self.use_mask:
+            if not os.path.isfile(parsing_model_path):
+                raise FileNotFoundError(
+                    f"Parsing model not found: {parsing_model_path!r}. "
+                    "Download it or run with config: -c configs/simswap.yaml"
+                )
             n_classes = 19
             self.net = BiSeNet(n_classes=n_classes)
             if self.use_gpu:
@@ -99,6 +123,11 @@ class SimswapOption(ModelOption):
 
         torch.nn.Module.dump_patches = False
 
+        if not os.path.isfile(arcface_model_path):
+            raise FileNotFoundError(
+                f"Arcface model not found: {arcface_model_path!r}. "
+                "Download it or run with config: -c configs/simswap.yaml"
+            )
         # Model
         self.model = create_model(
             opt_verbose,

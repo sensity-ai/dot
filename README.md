@@ -244,6 +244,36 @@ Run `python -m dot --help` (or `dot --help` if the env is activated) for a full 
 
 **Note**: To enable face superresolution, use the flag `--gpen_type gpen_256` or `--gpen_type gpen_512`. To use *dot* on CPU (not recommended), do not pass the `--use_gpu` flag.
 
+#### Camera/Film Filters
+
+Apply realistic camera degradation effects to make deepfakes look more natural:
+
+```bash
+# Apply webcam quality filter
+python -m dot -c ./configs/simswap.yaml --target 0 --source "./data" --use_gpu --filter webcam_720p
+
+# Apply security camera look
+python -m dot --swap_type reactor --target 0 --source "./data" --use_gpu --filter security_cam
+```
+
+**Available filters:**
+
+| Filter | Description |
+|--------|-------------|
+| `webcam_720p` | Typical webcam: slight blur, warm color cast, reduced dynamic range |
+| `webcam_480p` | Low-quality webcam: more blur, noise, compression artifacts |
+| `film_grain` | Film camera: grain noise, subtle color shifts, vignette |
+| `security_cam` | CCTV look: low contrast, noise, heavy compression |
+| `phone_front` | Front-facing phone: slight softness, warm tones |
+
+**Keyboard controls (camera mode):**
+
+| Key | Action |
+|-----|--------|
+| `f` | Next filter |
+| `d` | Previous filter |
+| `g` | Disable filter |
+
 #### Diffusion-Based Models (Optional)
 
 These models require the optional diffusion dependencies to be installed (see [Install Diffusion Models](#install-diffusion-models-optional)).
@@ -575,9 +605,11 @@ If you have ideas for improving *dot*, feel free to open relevant Issues and PRs
   <img src="https://contrib.rocks/image?repo=sensity-ai/dot" />
 </a>
 
-## Run `dot` on pre-recorded image and video files
+## Additional Documentation
 
 - [Run *dot* on image and video files instead of camera feed](docs/run_without_camera.md)
+- [Camera/Film Filters](docs/filters.md) - Make deepfakes look more realistic with camera effects
+- [Model Commands Reference](docs/model_commands.md) - Complete CLI reference for all models
 
 ## FAQ
 

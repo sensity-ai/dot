@@ -4,14 +4,26 @@ Complete command reference for all available face swap models in dot.
 
 ## Quick Reference
 
-| Model | Type | Install |
-|-------|------|---------|
-| `simswap` | Traditional | Built-in |
-| `fomm` | Traditional | Built-in |
-| `faceswap_cv2` | Traditional | Built-in |
-| `reactor` | Diffusion | `pip install "dot[reactor]"` |
-| `ipadapter_face` | Diffusion | `pip install "dot[ipadapter]"` |
-| `instantid` | Diffusion | `pip install "dot[instantid]"` |
+| Model | Type | Install | Best For |
+|-------|------|---------|----------|
+| `simswap` | Traditional | Built-in | General use |
+| `fomm` | Traditional | Built-in | Expression transfer |
+| `faceswap_cv2` | Traditional | Built-in | Lightweight/fast |
+| `reactor` | GAN-based | `pip install "dot[reactor]"` | **Live streaming (recommended)** |
+| `ipadapter_face` | Diffusion | `pip install "dot[ipadapter]"` | Image generation |
+| `instantid` | Diffusion | `pip install "dot[instantid]"` | High-quality image generation |
+
+## Recommended for Live Streaming
+
+**ReActor** is the recommended model for live camera streaming. It provides the best balance of quality and speed:
+
+```bash
+python -m dot --swap_type reactor --target 1 --source "./data/your_image.jpg" --use_gpu --use_face_restore --face_restore_model codeformer
+```
+
+- Uses GAN-based face swapping (not full diffusion per frame)
+- CodeFormer face restoration improves output quality
+- Reasonable download size (~500MB vs 5-12GB for other diffusion models)
 
 ---
 
@@ -190,16 +202,26 @@ python -m dot --swap_type faceswap_cv2 \
 
 ## Diffusion Models
 
-### ReActor
+### ReActor (Recommended for Live Streaming)
 
-Fast face swap with optional face restoration. Best balance of speed and quality.
+Fast GAN-based face swap with optional face restoration. Best balance of speed and quality for real-time use.
 
 **Install:**
 ```bash
 pip install "dot[reactor]"
 ```
 
-**Camera (live feed):**
+**Camera (live feed) - Recommended:**
+```bash
+python -m dot --swap_type reactor \
+    --target 1 \
+    --source "./data/your_image.jpg" \
+    --use_gpu \
+    --use_face_restore \
+    --face_restore_model codeformer
+```
+
+**Camera (basic):**
 ```bash
 python -m dot --swap_type reactor \
     --target 1 \
@@ -265,6 +287,8 @@ python -m dot --swap_type reactor \
 ### IP-Adapter Face
 
 Diffusion-based face transfer using IP-Adapter. Generates new images with source identity.
+
+> **Note:** This model runs full diffusion inference per frame. It's slow for live streaming - use ReActor instead for real-time use.
 
 **Install:**
 ```bash
@@ -350,6 +374,8 @@ python -m dot --swap_type ipadapter_face \
 ### InstantID
 
 Identity-preserving generation with ControlNet. Best identity preservation.
+
+> **Note:** This model downloads ~12GB of models and runs full diffusion inference per frame. It's slow for live streaming - use ReActor instead for real-time use.
 
 **Install:**
 ```bash
@@ -439,6 +465,7 @@ These options work with all models:
 
 | Option | Description | Default |
 |--------|-------------|---------|
+| `--list-cameras` | List available camera devices (index and resolution) then exit | — |
 | `--target` | Camera ID (int) or path to video/image | Required |
 | `--source` | Path to source image(s) | Required |
 | `--use_gpu` | Enable GPU acceleration | false |
@@ -446,11 +473,79 @@ These options work with all models:
 | `--use_image` | Image swap mode | false |
 | `--save_folder` | Output directory | None |
 | `--show_fps` | Display FPS in camera mode | false |
+| `--virtual_cam` | Send output to a virtual camera (FaceTime/Zoom). Requires pyvirtualcam; on macOS install OBS. To see output in OBS: add Source → Window Capture → select the **cam** window (OBS cannot use the virtual camera as an input) | false |
+| `--virtual_cam_fps` | Virtual camera FPS when `--virtual_cam` is used | 20 |
 | `--limit` | Limit number of frames to process | None |
 | `-c, --config` | Path to YAML config file | None |
 | `--crop_size` | Image crop size | Model-dependent |
 | `--gpen_type` | GPEN enhancement: `gpen_256` or `gpen_512` | None |
 | `--gpen_path` | Path to GPEN models | saved_models/gpen |
+| `--filter` | Camera/film filter (see below) | None |
+
+---
+
+## Camera/Film Filters
+
+Apply realistic camera degradation effects to make deepfakes look more natural. Filters simulate various camera qualities and add natural imperfections.
+
+### Available Filters
+
+| Filter | Description | Effects Applied |
+|--------|-------------|-----------------|
+| `webcam_720p` | Typical webcam quality | Slight blur, warm color cast, reduced dynamic range, light grain |
+| `webcam_480p` | Low-quality webcam | Downscale, blur, warm color, reduced range, grain, compression |
+| `film_grain` | Film camera look | Heavy grain, cool color cast, vignette |
+| `security_cam` | CCTV/security camera | Downscale, low contrast, grain, heavy compression |
+| `phone_front` | Front-facing phone camera | Light blur, warm tones, subtle grain |
+
+### Usage Examples
+
+**With any model:**
+```bash
+# SimSwap with webcam filter
+python -m dot --swap_type simswap \
+    --target 1 \
+    --source "./data" \
+    --use_gpu \
+    --filter webcam_720p
+
+# ReActor with security cam filter
+python -m dot --swap_type reactor \
+    --target 1 \
+    --source "./data" \
+    --use_gpu \
+    --filter security_cam
+
+# FOMM with film grain
+python -m dot --swap_type fomm \
+    --target 1 \
+    --source "./data" \
+    --use_gpu \
+    --filter film_grain
+```
+
+**Video/image swap with filter:**
+```bash
+python -m dot --swap_type reactor \
+    --target "./video.mp4" \
+    --source "./data" \
+    --use_gpu \
+    --use_video \
+    --save_folder ./output \
+    --filter webcam_480p
+```
+
+### Keyboard Controls (Camera Mode)
+
+Switch filters on-the-fly during live camera mode:
+
+| Key | Action |
+|-----|--------|
+| `f` | Cycle to next filter |
+| `d` | Cycle to previous filter |
+| `g` | Disable filter (no filter applied) |
+
+The current filter name is printed to the terminal when you switch.
 
 ---
 
@@ -474,3 +569,53 @@ Use with `-c` flag:
 ```bash
 python -m dot -c ./configs/simswap.yaml --target 1 --source "./data" --use_gpu
 ```
+
+---
+
+## Keyboard Controls (Camera Mode)
+
+All keyboard controls available during live camera mode:
+
+### General Controls
+
+| Key | Action |
+|-----|--------|
+| `c` | Next camera (cycle through camera indices 0–9) |
+| `C` (Shift+c) | Previous camera |
+| `Up Arrow` | Previous source image |
+| `Down Arrow` | Next source image |
+| `1-9` | Jump to source image 1-9 |
+| `y` | Show original camera feed (passthrough) |
+| `q` | Quit |
+| `i` | Toggle FPS display |
+
+### Filter Controls
+
+| Key | Action |
+|-----|--------|
+| `f` | Next filter |
+| `d` | Previous filter |
+| `g` | Disable filter |
+
+### Enhancement Controls
+
+| Key | Action |
+|-----|--------|
+| `t` | Toggle temporal smoothing (reduces flickering) |
+| `r` | Toggle trails (psychedelic ghosting effect) |
+| `b` | Toggle bilateral smoothing (beauty mode - edge-preserving blur) |
+| `s` | Toggle sharpening (enhance details) |
+| `u` | Toggle 2x upscale (higher resolution display) |
+| `o` | Toggle OSD (on-screen display with current settings) |
+
+### FOMM-Specific Controls
+
+| Key | Action |
+|-----|--------|
+| `w/s` | Adjust frame proportion |
+| `h/k` | Adjust horizontal offset |
+| `j/u` | Adjust vertical offset |
+| `x` | Calibrate/reset |
+| `r` | Toggle preview flip |
+| `t` | Toggle output flip |
+| `o` | Toggle landmarks display |

@@ -11,6 +11,7 @@ from typing import Optional, Tuple
 import cv2
 import numpy as np
 
+from ..commons.model_option import _mask_from_bbox
 from ..diffusion import DiffusionOption
 
 # Try to import required dependencies
@@ -27,6 +28,7 @@ try:
         LCMScheduler,
         DDIMScheduler,
     )
+    from transformers import CLIPVisionModelWithProjection
     DIFFUSERS_AVAILABLE = True
 except ImportError:
     DIFFUSERS_AVAILABLE = False
@@ -61,6 +63,7 @@ class InstantIDOption(DiffusionOption):
     CONTROLNET_MODEL = "ControlNetModel"
     SDXL_MODEL = "stabilityai/stable-diffusion-xl-base-1.0"
     ANTELOPEV2_REPO = "DIAMONIK7777/antelopev2"
+    CLIP_ENCODER_REPO = "laion/CLIP-ViT-H-14-laion2B-s32B-b79K"
 
     def __init__(
         self,
@@ -73,6 +76,7 @@ class InstantIDOption(DiffusionOption):
         use_lcm: bool = False,
         controlnet_conditioning_scale: float = 0.8,
         ip_adapter_scale: float = 0.8,
+        filter_type: Optional[str] = None,
         **kwargs,
     ):
         """
@@ -88,6 +92,7 @@ class InstantIDOption(DiffusionOption):
             use_lcm: Whether to use LCM scheduler for faster inference
             controlnet_conditioning_scale: Scale for ControlNet influence
             ip_adapter_scale: Scale for IP-Adapter influence
+            filter_type: Camera/film filter to apply
         """
         super().__init__(
             use_gpu=use_gpu,
@@ -97,6 +102,7 @@ class InstantIDOption(DiffusionOption):
             num_inference_steps=num_inference_steps,
             guidance_scale=guidance_scale,
             use_lcm=use_lcm,
+            filter_type=filter_type,
         )
 
         self.controlnet_conditioning_scale = controlnet_conditioning_scale
@@ -209,7 +215,18 @@ class InstantIDOption(DiffusionOption):
                 self._pipeline.scheduler.config
             )
 
+        # Load CLIP image encoder first (InstantID repo doesn't include it)
+        print("Loading CLIP image encoder...")
+        image_encoder = CLIPVisionModelWithProjection.from_pretrained(
+            self.CLIP_ENCODER_REPO,
+            torch_dtype=dtype,
+        ).to(self.device)
+
+        # Attach image encoder to pipeline
+        self._pipeline.image_encoder = image_encoder
+
         # Load IP-Adapter for face identity
+        print("Loading IP-Adapter weights...")
         self._pipeline.load_ip_adapter(
             self.INSTANTID_REPO,
             subfolder="",
@@ -262,6 +279,13 @@ class InstantIDOption(DiffusionOption):
         target_face = self._detect_face(image)
         if target_face is None:
             return image
+
+        # Share face region mask for face-only tint/effects (same region as swap)
+        face_mask_dict = kwargs.get("_face_mask")
+        if isinstance(face_mask_dict, dict) and hasattr(target_face, "bbox"):
+            face_mask_dict["mask"] = _mask_from_bbox(
+                image.shape, target_face.bbox, expand=1.15, blur=35
+            )
 
         # Get image dimensions
         height, width = image.shape[:2]

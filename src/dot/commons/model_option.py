@@ -9,12 +9,110 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Tuple, Union
 
 import cv2
+import numpy as np
 import torch
 
 from ..gpen.face_enhancement import FaceEnhancement
 from .camera_utils import camera_pipeline, fetch_camera
 from .utils import find_images_from_path, generate_random_file_idx, rand_idx_tuple
 from .video.video_utils import video_pipeline
+
+# Lazy-loaded face detector for "effects on face only" (OpenCV cascade)
+_face_cascade = None
+
+
+def _get_face_cascade():
+    global _face_cascade
+    if _face_cascade is None:
+        path = os.path.join(
+            os.path.dirname(cv2.__file__),
+            "data",
+            "haarcascade_frontalface_default.xml",
+        )
+        if not os.path.isfile(path):
+            path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+        _face_cascade = cv2.CascadeClassifier(path)
+    return _face_cascade
+
+
+def _get_face_only_mask(image: np.ndarray, expand: float = 1.15, blur: int = 35) -> Optional[np.ndarray]:
+    """
+    Detect face(s) and return a soft mask (0-1 float) that is 1 on the face region.
+    Used to apply tint/effects only to the face. Returns None if no face detected.
+
+    Args:
+        image: BGR image (H, W, 3).
+        expand: Scale factor for face bbox (slightly larger than detection).
+        blur: Kernel size for soft mask edges (odd integer).
+
+    Returns:
+        Mask (H, W, 1) float32 in [0, 1], or None if no face.
+    """
+    h, w = image.shape[:2]
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    cascade = _get_face_cascade()
+    faces = cascade.detectMultiScale(
+        gray,
+        scaleFactor=1.1,
+        minNeighbors=5,
+        minSize=(30, 30),
+        flags=cv2.CASCADE_SCALE_IMAGE,
+    )
+    if len(faces) == 0:
+        return None
+    mask = np.zeros((h, w), dtype=np.float32)
+    for (x, y, fw, fh) in faces:
+        cx, cy = x + fw / 2, y + fh / 2
+        ax = (fw / 2) * expand
+        ay = (fh / 2) * expand
+        cv2.ellipse(
+            mask,
+            (int(cx), int(cy)),
+            (int(ax), int(ay)),
+            0, 0, 360, 1.0, -1,
+        )
+    if blur > 0 and blur % 2 == 1:
+        mask = cv2.GaussianBlur(mask, (blur, blur), 0)
+    mask = np.clip(mask, 0, 1)
+    return mask[:, :, np.newaxis].astype(np.float32)
+
+
+def _mask_from_bbox(
+    image_shape: Tuple[int, ...],
+    bbox: Union[List[float], np.ndarray],
+    expand: float = 1.15,
+    blur: int = 35,
+) -> np.ndarray:
+    """
+    Build a soft face mask from a bounding box [x1, y1, x2, y2].
+    Used so tint/effects can follow the face region from the swap model.
+
+    Args:
+        image_shape: (H, W) or (H, W, C).
+        bbox: [x1, y1, x2, y2] in image coordinates.
+        expand: Scale factor for ellipse axes (slightly larger than bbox).
+        blur: Gaussian blur kernel size for soft edges (odd).
+
+    Returns:
+        Mask (H, W, 1) float32 in [0, 1].
+    """
+    h, w = image_shape[:2]
+    x1, y1, x2, y2 = float(bbox[0]), float(bbox[1]), float(bbox[2]), float(bbox[3])
+    cx = (x1 + x2) / 2
+    cy = (y1 + y2) / 2
+    ax = ((x2 - x1) / 2) * expand
+    ay = ((y2 - y1) / 2) * expand
+    mask = np.zeros((h, w), dtype=np.float32)
+    cv2.ellipse(
+        mask,
+        (int(round(cx)), int(round(cy))),
+        (max(1, int(round(ax))), max(1, int(round(ay)))),
+        0, 0, 360, 1.0, -1,
+    )
+    if blur > 0 and blur % 2 == 1:
+        mask = cv2.GaussianBlur(mask, (blur, blur), 0)
+    mask = np.clip(mask, 0, 1)
+    return mask[:, :, np.newaxis].astype(np.float32)
 
 
 class ModelOption(ABC):
@@ -24,11 +122,13 @@ class ModelOption(ABC):
         gpen_path="saved_models/gpen",
         use_gpu=True,
         crop_size=256,
+        filter_type=None,
     ):
 
         self.gpen_type = gpen_type
         self.use_gpu = use_gpu
         self.crop_size = crop_size
+        self.filter_type = filter_type
 
         if gpen_type:
             if gpen_type == "gpen_512":
@@ -180,7 +280,9 @@ class ModelOption(ABC):
             show_fps (bool, optional): Show FPS. Defaults to False.
         """
         with torch.no_grad():
-            cap = fetch_camera(target)
+            cam_width = kwargs.pop("cam_width", 1920)
+            cam_height = kwargs.pop("cam_height", 1080)
+            cap = fetch_camera(target, width=cam_width, height=cam_height)
             self.create_model(opt_crop_size=opt_crop_size, **kwargs)
             camera_pipeline(
                 cap,
@@ -191,6 +293,8 @@ class ModelOption(ABC):
                 self.post_process_image,
                 crop_size=opt_crop_size,
                 show_fps=show_fps,
+                model_option=self,
+                **kwargs,
             )
 
     def generate_from_video(
@@ -231,6 +335,55 @@ class ModelOption(ABC):
             image, orig_faces, enhanced_faces = self.face_enhancer.process(
                 img=image, use_gpu=self.use_gpu
             )
+
+        # Apply camera/film filter
+        if self.filter_type:
+            from ..filters import apply_filter
+
+            image = apply_filter(image, self.filter_type)
+
+        # Live settings (tint, brightness, saturation, contrast) from GUI
+        live = kwargs.get("live_settings")
+        if live:
+            from ..filters.effects import (
+                add_color_tint,
+                adjust_brightness,
+                adjust_contrast,
+                adjust_saturation,
+            )
+
+            effects_face_only = live.get("effects_face_only", False)
+            original = image.copy()
+
+            b = live.get("brightness", 1.0)
+            if b != 1.0:
+                image = adjust_brightness(image, factor=b)
+            c = live.get("contrast", 1.0)
+            if c != 1.0:
+                image = adjust_contrast(image, factor=c)
+            s = live.get("saturation", 1.0)
+            if s != 1.0:
+                image = adjust_saturation(image, factor=s)
+            ti = live.get("tint_intensity", 0.0)
+            if ti > 0:
+                color = (
+                    live.get("tint_b", 128),
+                    live.get("tint_g", 128),
+                    live.get("tint_r", 128),
+                )
+                image = add_color_tint(image, color=color, intensity=ti)
+
+            if effects_face_only:
+                # Prefer mask from the face-swap model (same region as the swap)
+                face_mask = kwargs.get("_face_mask", {}).get("mask")
+                if face_mask is None or face_mask.shape[:2] != image.shape[:2]:
+                    face_mask = _get_face_only_mask(image)
+                if face_mask is not None:
+                    image = (
+                        image.astype(np.float32) * face_mask
+                        + original.astype(np.float32) * (1.0 - face_mask)
+                    ).astype(np.uint8)
+                # If no face detected, keep full-frame effects
 
         return image
 

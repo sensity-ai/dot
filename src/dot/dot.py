@@ -88,6 +88,7 @@ class DOT:
         gpen_type: str,
         gpen_path: str,
         crop_size: int,
+        filter_type: str = None,
         **kwargs,
     ) -> ModelOption:
         """Build DOT option based on swap type.
@@ -112,14 +113,22 @@ class DOT:
                 gpen_type=gpen_type,
                 gpen_path=gpen_path,
                 crop_size=crop_size,
+                filter_type=filter_type,
             )
         elif swap_type == "fomm":
             option = self.fomm(
-                use_gpu=use_gpu, gpen_type=gpen_type, gpen_path=gpen_path, **kwargs
+                use_gpu=use_gpu,
+                gpen_type=gpen_type,
+                gpen_path=gpen_path,
+                filter_type=filter_type,
+                **kwargs,
             )
         elif swap_type == "faceswap_cv2":
             option = self.faceswap_cv2(
-                use_gpu=use_gpu, gpen_type=gpen_type, gpen_path=gpen_path
+                use_gpu=use_gpu,
+                gpen_type=gpen_type,
+                gpen_path=gpen_path,
+                filter_type=filter_type,
             )
         elif swap_type == "reactor":
             option = self.reactor(
@@ -127,6 +136,7 @@ class DOT:
                 gpen_type=gpen_type,
                 gpen_path=gpen_path,
                 crop_size=crop_size,
+                filter_type=filter_type,
                 **kwargs,
             )
         elif swap_type == "ipadapter_face":
@@ -135,6 +145,7 @@ class DOT:
                 gpen_type=gpen_type,
                 gpen_path=gpen_path,
                 crop_size=crop_size,
+                filter_type=filter_type,
                 **kwargs,
             )
         elif swap_type == "instantid":
@@ -143,6 +154,7 @@ class DOT:
                 gpen_type=gpen_type,
                 gpen_path=gpen_path,
                 crop_size=crop_size,
+                filter_type=filter_type,
                 **kwargs,
             )
 
@@ -202,6 +214,7 @@ class DOT:
         gpen_path: str,
         crop_size: int = 224,
         use_mask: bool = True,
+        filter_type: str = None,
     ) -> SimswapOption:
         """Build Simswap Option.
 
@@ -211,6 +224,7 @@ class DOT:
             gpen_path (str): path to GPEN model checkpoint.
             crop_size (int, optional): crop size. Defaults to 224.
             use_mask (bool, optional): If True, use mask. Defaults to True.
+            filter_type (str, optional): Camera/film filter to apply. Defaults to None.
 
         Returns:
             SimswapOption: Simswap Option.
@@ -221,10 +235,16 @@ class DOT:
             gpen_path=gpen_path,
             crop_size=crop_size,
             use_mask=use_mask,
+            filter_type=filter_type,
         )
 
     def faceswap_cv2(
-        self, use_gpu: bool, gpen_type: str, gpen_path: str, crop_size: int = 256
+        self,
+        use_gpu: bool,
+        gpen_type: str,
+        gpen_path: str,
+        crop_size: int = 256,
+        filter_type: str = None,
     ) -> FaceswapCVOption:
         """Build FaceswapCV Option.
 
@@ -233,6 +253,7 @@ class DOT:
             gpen_type (str): GPEN type.
             gpen_path (str): path to GPEN model checkpoint.
             crop_size (int, optional): crop size. Defaults to 256.
+            filter_type (str, optional): Camera/film filter to apply. Defaults to None.
 
         Returns:
             FaceswapCVOption: FaceswapCV Option.
@@ -242,6 +263,7 @@ class DOT:
             gpen_type=gpen_type,
             gpen_path=gpen_path,
             crop_size=crop_size,
+            filter_type=filter_type,
         )
 
     def fomm(
@@ -250,6 +272,7 @@ class DOT:
         gpen_type: str,
         gpen_path: str,
         crop_size: int = 256,
+        filter_type: str = None,
         **kwargs,
     ) -> FOMMOption:
         """Build FOMM Option.
@@ -259,6 +282,7 @@ class DOT:
             gpen_type (str): GPEN type.
             gpen_path (str): path to GPEN model checkpoint.
             crop_size (int, optional): crop size. Defaults to 256.
+            filter_type (str, optional): Camera/film filter to apply. Defaults to None.
 
         Returns:
             FOMMOption: FOMM Option.
@@ -269,6 +293,7 @@ class DOT:
             gpen_path=gpen_path,
             crop_size=crop_size,
             offline=self.use_video,
+            filter_type=filter_type,
         )
 
     def reactor(
@@ -279,6 +304,7 @@ class DOT:
         crop_size: int = 512,
         use_face_restore: bool = True,
         face_restore_model: str = "codeformer",
+        filter_type: str = None,
         **kwargs,
     ) -> "ReActorOption":
         """Build ReActor Option.
@@ -290,6 +316,7 @@ class DOT:
             crop_size (int, optional): crop size. Defaults to 512.
             use_face_restore (bool, optional): Whether to use face restoration. Defaults to True.
             face_restore_model (str, optional): Face restore model. Defaults to "codeformer".
+            filter_type (str, optional): Camera/film filter to apply. Defaults to None.
 
         Returns:
             ReActorOption: ReActor Option.
@@ -306,6 +333,7 @@ class DOT:
             crop_size=crop_size,
             use_face_restore=use_face_restore,
             face_restore_model=face_restore_model,
+            filter_type=filter_type,
         )
 
     def ipadapter_face(
@@ -319,6 +347,7 @@ class DOT:
         use_lcm: bool = False,
         use_sdxl: bool = False,
         ip_adapter_scale: float = 0.6,
+        filter_type: str = None,
         **kwargs,
     ) -> "IPAdapterFaceOption":
         """Build IP-Adapter Face Option.
@@ -333,6 +362,7 @@ class DOT:
             use_lcm (bool, optional): Use LCM scheduler. Defaults to False.
             use_sdxl (bool, optional): Use SDXL model. Defaults to False.
             ip_adapter_scale (float, optional): IP-Adapter scale. Defaults to 0.6.
+            filter_type (str, optional): Camera/film filter to apply. Defaults to None.
 
         Returns:
             IPAdapterFaceOption: IP-Adapter Face Option.
@@ -352,6 +382,7 @@ class DOT:
             use_lcm=use_lcm,
             use_sdxl=use_sdxl,
             ip_adapter_scale=ip_adapter_scale,
+            filter_type=filter_type,
         )
 
     def instantid(
@@ -365,6 +396,7 @@ class DOT:
         use_lcm: bool = False,
         controlnet_conditioning_scale: float = 0.8,
         ip_adapter_scale: float = 0.8,
+        filter_type: str = None,
         **kwargs,
     ) -> "InstantIDOption":
         """Build InstantID Option.
@@ -379,6 +411,7 @@ class DOT:
             use_lcm (bool, optional): Use LCM scheduler. Defaults to False.
             controlnet_conditioning_scale (float, optional): ControlNet scale. Defaults to 0.8.
             ip_adapter_scale (float, optional): IP-Adapter scale. Defaults to 0.8.
+            filter_type (str, optional): Camera/film filter to apply. Defaults to None.
 
         Returns:
             InstantIDOption: InstantID Option.
@@ -398,4 +431,5 @@ class DOT:
             use_lcm=use_lcm,
             controlnet_conditioning_scale=controlnet_conditioning_scale,
             ip_adapter_scale=ip_adapter_scale,
+            filter_type=filter_type,
         )

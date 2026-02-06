@@ -17,12 +17,14 @@ class FaceswapCVOption(ModelOption):
         crop_size=224,
         gpen_type=None,
         gpen_path=None,
+        filter_type=None,
     ):
         super(FaceswapCVOption, self).__init__(
             gpen_type=gpen_type,
             use_gpu=use_gpu,
             crop_size=crop_size,
             gpen_path=gpen_path,
+            filter_type=filter_type,
         )
         self.frame_proportion = 0.9
         self.frame_offset_x = 0

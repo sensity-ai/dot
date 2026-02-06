@@ -44,12 +44,14 @@ class FOMMOption(ModelOption):
         gpen_type: str = None,
         gpen_path: str = None,
         offline: bool = False,
+        filter_type: str = None,
     ):
         super(FOMMOption, self).__init__(
             gpen_type=gpen_type,
             use_gpu=use_gpu,
             crop_size=crop_size,
             gpen_path=gpen_path,
+            filter_type=filter_type,
         )
         # use FOMM offline, video or image file
         self.offline = offline
@@ -80,7 +82,13 @@ class FOMMOption(ModelOption):
 
     def create_model(self, model_path, **kwargs) -> None:  # type: ignore
         opt_config = determine_path() + "/config/vox-adv-256.yaml"
-        opt_checkpoint = model_path
+        _default_checkpoint = "saved_models/fomm/vox-adv-cpk.pth.tar"
+        opt_checkpoint = model_path if model_path else _default_checkpoint
+        if not os.path.isfile(opt_checkpoint):
+            raise FileNotFoundError(
+                f"FOMM checkpoint not found: {opt_checkpoint!r}. "
+                "Download it or run with config: -c configs/fomm.yaml"
+            )
 
         predictor_args = {
             "config_path": opt_config,

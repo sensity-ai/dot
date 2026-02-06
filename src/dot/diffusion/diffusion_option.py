@@ -43,6 +43,7 @@ class DiffusionOption(ModelOption):
         num_inference_steps: int = 20,
         guidance_scale: float = 7.5,
         use_lcm: bool = False,
+        filter_type: Optional[str] = None,
     ):
         """
         Initialize DiffusionOption.
@@ -55,12 +56,14 @@ class DiffusionOption(ModelOption):
             num_inference_steps: Number of diffusion inference steps
             guidance_scale: Classifier-free guidance scale
             use_lcm: Whether to use LCM scheduler for faster inference
+            filter_type: Camera/film filter to apply
         """
         super().__init__(
             gpen_type=gpen_type,
             use_gpu=use_gpu,
             crop_size=crop_size,
             gpen_path=gpen_path,
+            filter_type=filter_type,
         )
 
         self.num_inference_steps = num_inference_steps

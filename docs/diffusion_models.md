@@ -5,11 +5,13 @@ Dot supports several diffusion-based face swap models that provide higher qualit
 
 ## Available Diffusion Models
 
-| Swap Type | Description | Install Command |
-|-----------|-------------|-----------------|
-| `reactor` | Face swapping with face restoration | `pip install "dot[reactor]"` |
-| `ipadapter_face` | Diffusion-based face transfer using IP-Adapter | `pip install "dot[ipadapter]"` |
-| `instantid` | Identity-preserving generation with ControlNet | `pip install "dot[instantid]"` |
+| Swap Type | Description | Install Command | Live Streaming |
+|-----------|-------------|-----------------|----------------|
+| `reactor` | GAN-based face swap with face restoration | `pip install "dot[reactor]"` | **Recommended** |
+| `ipadapter_face` | Diffusion-based face transfer using IP-Adapter | `pip install "dot[ipadapter]"` | Slow |
+| `instantid` | Identity-preserving generation with ControlNet | `pip install "dot[instantid]"` | Slow |
+
+> **For live streaming, use ReActor.** IP-Adapter and InstantID run full diffusion inference per frame which is too slow for real-time use.
 
 ## ReActor
 
