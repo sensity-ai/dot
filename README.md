@@ -612,7 +612,6 @@ If you have ideas for improving *dot*, feel free to open relevant Issues and PRs
 - [Model Commands Reference](docs/model_commands.md) - Complete CLI reference for all models
 
 ## FAQ
-
 - **`dot` is very slow and I can't run it in real time**
 
 Make sure that you are running it on a GPU card by using the `--use_gpu` flag. CPU is not recommended.
@@ -621,3 +620,6 @@ If you still find it too slow it may be because you running it on an old GPU mod
 - **Does `dot` only work with a webcam feed or also with a pre-recorded video?**
 
 You can use `dot` on a pre-recorded video file by [these scripts](docs/run_without_camera.md) or try it directly on [Colab](https://colab.research.google.com/github/sensity-ai/dot/blob/main/notebooks/colab_demo.ipynb).
+
+
+python -m dot --swap_type reactor --source ./data --target 2 --virtual_cam --use_gpu
