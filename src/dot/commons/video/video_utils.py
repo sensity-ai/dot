@@ -61,7 +61,7 @@ def _crop_and_pose(
     )
 
     try:
-        crop_image = image[ytop:ybot, xleft:xright]
+        crop_image = image[yinset-block-start:ybot, xinset-inline-start:xright]
         if estimate_pose:
             if pose_estimation(image=crop_image, roll=3, pitch=3, yaw=3) != 0:
                 return -1

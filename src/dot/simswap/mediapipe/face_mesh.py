@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, TYPE_CHECKING
 
 import cv2
-import mediapipe as mp
 import numpy as np
-from mediapipe.framework.formats.landmark_pb2 import NormalizedLandmark
+
+if TYPE_CHECKING:
+    from mediapipe.framework.formats.landmark_pb2 import NormalizedLandmark
 
 from .utils import face_align_ffhqandnewarc as face_align
 from .utils import mediapipe_landmarks
-
-mp_face_mesh = mp.solutions.face_mesh
 
 
 class FaceMesh:
@@ -38,6 +37,14 @@ class FaceMesh:
         min_detection_confidence: float = 0.5,
         mode: str = "None",
     ):
+        # Deferred MediaPipe import
+        try:
+            import mediapipe as mp
+            from mediapipe.framework.formats.landmark_pb2 import NormalizedLandmark
+            self.mp_face_mesh = mp.solutions.face_mesh
+        except ImportError as e:
+            raise RuntimeError(f"MediaPipe import failed: {e}")
+        
         self.MediaPipeIds = mediapipe_landmarks.MediaPipeLandmarks
         self.static_image_mode = static_image_mode
         self.max_num_faces = max_num_faces
@@ -45,11 +52,11 @@ class FaceMesh:
         self.min_detection_confidence = min_detection_confidence
         self.mode = mode
 
-    def _get_centroid(self, landmarks: List[NormalizedLandmark]) -> Tuple[float, float]:
+    def _get_centroid(self, landmarks: List["NormalizedLandmark"]) -> Tuple[float, float]:
         """Given a set of normalized landmarks/points finds centroid point
 
         Args:
-            landmarks (List[NormalizedLandmark]): List of relative points that form a polygon
+            landmarks (List["NormalizedLandmark"]): List of relative points that form a polygon
 
         Returns:
             Tuple[float, float]: x,y coordinates of polygon centroid
@@ -88,7 +95,7 @@ class FaceMesh:
         """
         # keypoints for all detected faces
         detection_kpss = []
-        with mp_face_mesh.FaceMesh(
+        with self.mp_face_mesh.FaceMesh(
             static_image_mode=self.static_image_mode,
             max_num_faces=self.max_num_faces,
             refine_landmarks=self.refine_landmarks,

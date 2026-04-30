@@ -8,13 +8,19 @@ import os
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Tuple, Union
 
-import cv2
-import torch
+try:
+    import cv2
+except ModuleNotFoundError:
+    cv2 = None
+try:
+    import torch
+except ModuleNotFoundError:
+    torch = None
 
 from ..gpen.face_enhancement import FaceEnhancement
 from .camera_utils import camera_pipeline, fetch_camera
 from .utils import find_images_from_path, generate_random_file_idx, rand_idx_tuple
-from .video.video_utils import video_pipeline
+# from .video.video_utils import video_pipeline  # Deferred import
 
 
 class ModelOption(ABC):
@@ -211,6 +217,7 @@ class ModelOption(ABC):
             duration (int): Trim target video in seconds.
             limit (int, optional): Limit number of video-swaps. Defaults to None.
         """
+        from .video.video_utils import video_pipeline  # Deferred import
         with torch.no_grad():
             self.create_model(**kwargs)
             video_pipeline(

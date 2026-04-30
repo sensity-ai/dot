@@ -21,7 +21,11 @@ class RetinaFaceDetection(object):
     def __init__(self, base_dir, network="RetinaFace-R50", use_gpu=True):
         torch.set_grad_enabled(False)
         cudnn.benchmark = True
-        self.pretrained_path = os.path.join(base_dir, "weights", network + ".pth")
+        # If base_dir is empty or relative path, use saved_models/gpen/weights
+        if not base_dir or base_dir == "./":
+            self.pretrained_path = os.path.join("saved_models", "gpen", "weights", network + ".pth")
+        else:
+            self.pretrained_path = os.path.join(base_dir, "saved_models", "gpen", "weights", network + ".pth")
         if use_gpu:
             self.device = "mps" if torch.backends.mps.is_available() else "cuda"
         else:
