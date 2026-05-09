@@ -1,0 +1,35 @@
+---
+# M2 8GB Natural Live Configuration
+# Higher realism than fast mode: mask blending and target lighting match.
+
+swap_type: simswap
+parsing_model_path: saved_models/simswap/parsing_model/checkpoint/79999_iter.pth
+arcface_model_path: saved_models/simswap/arcface_model/arcface_checkpoint.tar
+checkpoints_dir: saved_models/simswap/checkpoints
+
+crop_size: 512
+use_fp16: false
+use_mask: true
+use_cam: true
+
+batch_size: 1
+cache_frames: false
+preload_models: false
+enable_memory_pooling: true
+
+detection_threshold: 0.6
+face_size_threshold: 20
+max_num_faces: 1
+
+# Natural rendering pass. Keeps the swap from looking pasted-on under webcam lighting.
+# Alpha blending is the live default; Poisson blending is available in natural-max.
+natural_color_match: true
+natural_color_match_strength: 0.95
+natural_detail_enhance: true
+natural_detail_enhance_strength: 0.08
+natural_preserve_occluders: true
+natural_occluder_threshold: 0.10
+natural_occluder_strength: 0.90
+natural_blend_mode: alpha
+natural_blend_strength: 0.86
+natural_mask_blur: 31

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOT Face Swap — Get API Key</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
+        .btn { background: #00a86b; color: white; padding: 14px 28px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; }
+        .btn:hover { background: #008c5a; }
+        .code { background: #f5f5f5; padding: 12px; border-radius: 6px; font-family: monospace; word-break: break-all; }
+        .pin-button { background: #00a86b; color: white; padding: 16px 32px; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; text-decoration: none; display: inline-block; }
+    </style>
+</head>
+<body>
+    <h1>🎭 DOT Face Swap</h1>
+    <p>Get your API key to download models for the DOT live face swap system.</p>
+
+    <h2>Step 1: Purchase Access</h2>
+    <p>AU$29.00 / year • Unlimited model downloads</p>
+
+    <!-- Pin Payments Checkout -->
+    <div id="pin-checkout"></div>
+    <script src="https://cdn.pin.net.au/pin.js" data-pin-publishable-key="YOUR_PIN_PUBLISHABLE_KEY"></script>
+    <script>
+        var pin = PinCheckout.configure({
+            key: 'YOUR_PIN_PUBLISHABLE_KEY',
+            amount: 2900,  <!-- $29.00 in cents -->
+            currency: 'AUD',
+            description: 'DOT Face Swap API Key - 1 Year',
+            locale: 'en',
+            onSuccess: function(response) {
+                alert('Payment successful! Your API key will be sent to your email.');
+            },
+            onError: function(response) {
+                alert('Payment failed. Please try again.');
+            }
+        });
+    </script>
+    <p><a href="#" onclick="pin.open(); return false;" class="pin-button">Pay with Pin Payments</a></p>
+
+    <h2>Step 2: Run the App</h2>
+    <pre class="code">./run.sh --key=YOUR_API_KEY</pre>
+
+    <h2>Step 3: Download Models</h2>
+    <pre class="code">python vps_downloader.py --key=YOUR_API_KEY</pre>
+
+    <hr>
+    <p><small>Questions? Support: support@dot.example.com</small></p>
+</body>
+</html>

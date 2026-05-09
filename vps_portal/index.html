@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Subscription Portal</title>
+<style>
+:root {
+  --page: #f3f4ef;
+  --surface: #ffffff;
+  --surface-2: #f8f7f1;
+  --ink: #171a18;
+  --muted: #67706a;
+  --line: #d9ddd5;
+  --line-strong: #aeb7ad;
+  --brand: #14594d;
+  --brand-dark: #0d4038;
+  --warn: #b85c24;
+  --bad: #9d2f2f;
+  --good: #14683f;
+  --shadow: 0 18px 50px rgba(25, 32, 27, .09);
+}
+* { box-sizing: border-box; }
+html { background: var(--page); }
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  background:
+    linear-gradient(90deg, rgba(20, 89, 77, .08) 0 1px, transparent 1px 100%),
+    linear-gradient(0deg, rgba(20, 89, 77, .06) 0 1px, transparent 1px 100%),
+    var(--page);
+  background-size: 44px 44px;
+  font-family: "Avenir Next", "Gill Sans", "Trebuchet MS", sans-serif;
+}
+.app {
+  display: grid;
+  grid-template-columns: 244px minmax(0, 1fr);
+  min-height: 100vh;
+}
+.rail {
+  background: #111513;
+  color: #f7f5ea;
+  padding: 26px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.brand {
+  display: grid;
+  gap: 8px;
+}
+.mark {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  background: #e9ddbd;
+  color: #111513;
+  border-radius: 6px;
+  font-weight: 900;
+}
+.brand h1 {
+  margin: 0;
+  font-size: 21px;
+  line-height: 1.1;
+}
+.brand p {
+  margin: 0;
+  color: #aeb6ae;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.nav {
+  display: grid;
+  gap: 8px;
+}
+.nav a {
+  color: #d6d1c2;
+  text-decoration: none;
+  padding: 10px 11px;
+  border-radius: 6px;
+  font-size: 14px;
+  border: 1px solid transparent;
+}
+.nav a.active {
+  color: #ffffff;
+  border-color: rgba(233, 221, 189, .24);
+  background: rgba(233, 221, 189, .08);
+}
+.rail-foot {
+  margin-top: auto;
+  color: #8d968f;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.main {
+  padding: 28px;
+}
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 20px;
+  margin-bottom: 18px;
+}
+.topbar h2 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.1;
+}
+.topbar p {
+  margin: 7px 0 0;
+  color: var(--muted);
+  max-width: 680px;
+}
+.badge {
+  border: 1px solid var(--line-strong);
+  background: rgba(255,255,255,.58);
+  border-radius: 999px;
+  padding: 8px 11px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(320px, .92fr);
+  gap: 18px;
+  align-items: start;
+}
+.stack {
+  display: grid;
+  gap: 18px;
+}
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-2);
+}
+.panel-head h3 {
+  margin: 0;
+  font-size: 16px;
+}
+.panel-head span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.panel-body {
+  padding: 18px;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.field.full {
+  grid-column: 1 / -1;
+}
+label {
+  display: block;
+  margin: 0 0 7px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+input, select {
+  width: 100%;
+  height: 44px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  padding: 0 12px;
+  font: 15px "Avenir Next", "Gill Sans", "Trebuchet MS", sans-serif;
+}
+input:focus, select:focus {
+  outline: 2px solid rgba(20, 89, 77, .22);
+  border-color: var(--brand);
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+button {
+  height: 42px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--brand);
+  color: #fff;
+  padding: 0 15px;
+  cursor: pointer;
+  font: 900 13px "Avenir Next", "Gill Sans", "Trebuchet MS", sans-serif;
+}
+button:hover { background: var(--brand-dark); }
+button.secondary {
+  background: #222824;
+}
+button.warning {
+  background: var(--warn);
+}
+.result {
+  display: none;
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fbfaf5;
+  color: var(--ink);
+  font: 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.result.ok {
+  display: block;
+  border-color: rgba(20, 104, 63, .34);
+  color: var(--good);
+}
+.result.err {
+  display: block;
+  border-color: rgba(157, 47, 47, .34);
+  color: var(--bad);
+}
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.metric {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 14px;
+}
+.metric b {
+  display: block;
+  font-size: 24px;
+  line-height: 1;
+}
+.metric span {
+  display: block;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.fineprint {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+@media (max-width: 920px) {
+  .app { grid-template-columns: 1fr; }
+  .rail { min-height: auto; }
+  .grid, .form-grid { grid-template-columns: 1fr; }
+  .field.full { grid-column: auto; }
+  .topbar { align-items: start; flex-direction: column; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="rail">
+    <div class="brand">
+      <div class="mark">SP</div>
+      <div>
+        <h1>Subscription Portal</h1>
+        <p>Checkout, manual bank review, and access-key lifecycle.</p>
+      </div>
+    </div>
+    <nav class="nav" aria-label="Portal sections">
+      <a class="active" href="#checkout">Checkout</a>
+      <a href="#payid">PayID Review</a>
+      <a href="#access">Access Key</a>
+      <a href="#status">Status</a>
+    </nav>
+    <div class="rail-foot">Secrets are configured on the server with environment variables.</div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h2>Paid Access Control</h2>
+        <p>Create subscriptions through BTCPay or PayID, approve manual bank payments, and verify issued access keys.</p>
+      </div>
+      <div class="badge">BTCPay + PayID</div>
+    </div>
+
+    <section class="grid">
+      <div class="stack">
+        <section class="panel" id="checkout">
+          <div class="panel-head">
+            <h3>Create Checkout</h3>
+            <span>Customer</span>
+          </div>
+          <div class="panel-body">
+            <div class="form-grid">
+              <div class="field full">
+                <label for="email">Email</label>
+                <input id="email" type="email" placeholder="customer@example.com" autocomplete="email">
+              </div>
+              <div class="field">
+                <label for="plan">Plan</label>
+                <select id="plan">
+                  <option value="monthly">Monthly</option>
+                  <option value="yearly">Yearly</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="provider">Payment Method</label>
+                <select id="provider">
+                  <option value="btcpay">BTCPay crypto</option>
+                  <option value="payid">PayID manual</option>
+                </select>
+              </div>
+            </div>
+            <div class="actions">
+              <button onclick="createCheckout()">Create checkout</button>
+              <button class="secondary" onclick="checkStatus()">Check status</button>
+            </div>
+            <div id="checkoutResult" class="result"></div>
+          </div>
+        </section>
+
+        <section class="panel" id="payid">
+          <div class="panel-head">
+            <h3>PayID Submission</h3>
+            <span>Manual review</span>
+          </div>
+          <div class="panel-body">
+            <div class="form-grid">
+              <div class="field">
+                <label for="invoiceId">Invoice ID</label>
+                <input id="invoiceId" placeholder="INV-...">
+              </div>
+              <div class="field">
+                <label for="payerName">Payer Name</label>
+                <input id="payerName" placeholder="Optional">
+              </div>
+              <div class="field full">
+                <label for="payRef">Bank Reference</label>
+                <input id="payRef" placeholder="Reference used in the bank transfer">
+              </div>
+            </div>
+            <div class="actions">
+              <button class="warning" onclick="submitPayId()">Submit reference</button>
+            </div>
+            <div id="payidResult" class="result"></div>
+          </div>
+        </section>
+      </div>
+
+      <aside class="stack">
+        <section class="panel" id="access">
+          <div class="panel-head">
+            <h3>Access Key</h3>
+            <span>Verify</span>
+          </div>
+          <div class="panel-body">
+            <label for="key">Key</label>
+            <input id="key" placeholder="PORTAL-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false">
+            <div class="actions">
+              <button onclick="verifyKey()">Verify key</button>
+              <button class="secondary" onclick="cancelSub()">Cancel subscription</button>
+            </div>
+            <div id="keyResult" class="result"></div>
+          </div>
+        </section>
+
+        <section class="panel" id="status">
+          <div class="panel-head">
+            <h3>Portal Status</h3>
+            <span>Live counts</span>
+          </div>
+          <div class="panel-body">
+            <div class="metrics" id="portalMeta">
+              <div class="metric"><b>0</b><span>Active keys</span></div>
+              <div class="metric"><b>0</b><span>Subscriptions</span></div>
+              <div class="metric"><b>0</b><span>Customers</span></div>
+              <div class="metric"><b>0</b><span>Invoices</span></div>
+            </div>
+            <div class="actions">
+              <button class="secondary" onclick="loadPortalStatus()">Refresh</button>
+            </div>
+            <p class="fineprint">Admin approval uses <code>POST /api/admin/payid/approve</code> with a bearer token.</p>
+          </div>
+        </section>
+      </aside>
+    </section>
+  </main>
+</div>
+
+<script>
+const API = location.origin + '/api';
+
+function setResult(id, ok, value) {
+  const el = document.getElementById(id);
+  el.className = 'result ' + (ok ? 'ok' : 'err');
+  el.textContent = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
+}
+
+async function request(path, options = {}) {
+  const res = await fetch(API + path, {
+    headers: {'Content-Type': 'application/json', ...(options.headers || {})},
+    ...options
+  });
+  const data = await res.json();
+  if (!res.ok) throw data;
+  return data;
+}
+
+async function createCheckout() {
+  const payload = {
+    email: document.getElementById('email').value.trim(),
+    plan: document.getElementById('plan').value,
+    provider: document.getElementById('provider').value
+  };
+  try {
+    const data = await request('/checkout/create', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    if (data.invoice_id) document.getElementById('invoiceId').value = data.invoice_id;
+    if (data.key) document.getElementById('key').value = data.key;
+    setResult('checkoutResult', true, data);
+    loadPortalStatus();
+  } catch (e) {
+    setResult('checkoutResult', false, e);
+  }
+}
+
+async function checkStatus() {
+  const email = encodeURIComponent(document.getElementById('email').value.trim());
+  try {
+    const data = await request('/subscription/status?email=' + email);
+    if (data.key) document.getElementById('key').value = data.key;
+    setResult('checkoutResult', true, data);
+  } catch (e) {
+    setResult('checkoutResult', false, e);
+  }
+}
+
+async function submitPayId() {
+  const payload = {
+    invoice_id: document.getElementById('invoiceId').value.trim(),
+    reference: document.getElementById('payRef').value.trim(),
+    payer_name: document.getElementById('payerName').value.trim()
+  };
+  try {
+    const data = await request('/payid/submit', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    setResult('payidResult', true, data);
+    loadPortalStatus();
+  } catch (e) {
+    setResult('payidResult', false, e);
+  }
+}
+
+async function verifyKey() {
+  const key = encodeURIComponent(document.getElementById('key').value.trim());
+  try {
+    const data = await request('/verify?key=' + key);
+    setResult('keyResult', true, data);
+  } catch (e) {
+    setResult('keyResult', false, e);
+  }
+}
+
+async function cancelSub() {
+  const payload = {
+    email: document.getElementById('email').value.trim(),
+    key: document.getElementById('key').value.trim()
+  };
+  try {
+    const data = await request('/subscription/cancel', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    setResult('keyResult', true, data);
+    loadPortalStatus();
+  } catch (e) {
+    setResult('keyResult', false, e);
+  }
+}
+
+async function loadPortalStatus() {
+  try {
+    const data = await request('/status');
+    document.getElementById('portalMeta').innerHTML = `
+      <div class="metric"><b>${data.active_keys}</b><span>Active keys</span></div>
+      <div class="metric"><b>${data.active_subscriptions}</b><span>Subscriptions</span></div>
+      <div class="metric"><b>${data.customers}</b><span>Customers</span></div>
+      <div class="metric"><b>${data.invoices}</b><span>Invoices</span></div>
+    `;
+  } catch (e) {
+    document.getElementById('portalMeta').innerHTML = '<div class="metric"><b>!</b><span>Status unavailable</span></div>';
+  }
+}
+
+loadPortalStatus();
+</script>
+</body>
+</html>

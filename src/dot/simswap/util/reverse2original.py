@@ -100,6 +100,74 @@ def postprocess(swapped_face, target, target_mask, smooth_mask, device):
     return result
 
 
+def preserve_dark_occluders(result, target, threshold=0.10, strength=0.90):
+    """Keep dark foreground objects from the target crop, such as microphones."""
+    threshold = float(np.clip(threshold, 0.0, 1.0))
+    strength = float(np.clip(strength, 0.0, 1.0))
+    if strength <= 0:
+        return result
+
+    luminance = target.mean(dim=0, keepdim=True)
+    occlusion = (luminance < threshold).float().unsqueeze(0)
+    occlusion = F.max_pool2d(occlusion, kernel_size=5, stride=1, padding=2)
+    occlusion = F.avg_pool2d(occlusion, kernel_size=7, stride=1, padding=3)
+    occlusion = (occlusion.squeeze(0) * strength).clamp(0.0, 1.0)
+    return (result * (1.0 - occlusion) + target * occlusion).clamp(0.0, 1.0)
+
+
+def match_color_statistics(swapped_face, target_face, strength=0.65):
+    """Match swapped face color statistics to the target crop for natural lighting."""
+    strength = float(np.clip(strength, 0.0, 1.0))
+    if strength <= 0:
+        return swapped_face
+
+    dims = (1, 2)
+    src_mean = swapped_face.mean(dim=dims, keepdim=True)
+    src_std = swapped_face.std(dim=dims, keepdim=True).clamp_min(1e-4)
+    tgt_mean = target_face.mean(dim=dims, keepdim=True)
+    tgt_std = target_face.std(dim=dims, keepdim=True).clamp_min(1e-4)
+
+    matched = (swapped_face - src_mean) / src_std
+    matched = (matched * tgt_std + tgt_mean).clamp(0.0, 1.0)
+    return (swapped_face * (1.0 - strength) + matched * strength).clamp(0.0, 1.0)
+
+
+def enhance_face_detail(swapped_face, strength=0.12):
+    """Apply a mild unsharp mask to reduce the plastic look of generator output."""
+    strength = float(np.clip(strength, 0.0, 1.0))
+    if strength <= 0:
+        return swapped_face
+
+    x = swapped_face.unsqueeze(0)
+    blur = F.avg_pool2d(x, kernel_size=3, stride=1, padding=1)
+    return (x + (x - blur) * strength).clamp(0.0, 1.0).squeeze(0)
+
+
+def poisson_blend(src_tensor, dst_tensor, mask_tensor):
+    """Blend the warped face into the frame with OpenCV seamlessClone."""
+    src = (K.utils.tensor_to_image(src_tensor) * 255).astype(np.uint8)
+    dst = (K.utils.tensor_to_image(dst_tensor) * 255).astype(np.uint8)
+    mask = K.utils.tensor_to_image(mask_tensor.max(dim=1, keepdim=True)[0])
+    mask = ((mask > 0.05).astype(np.uint8) * 255)
+
+    if mask.ndim == 3:
+        mask = mask[:, :, 0]
+
+    coords = cv2.findNonZero(mask)
+    if coords is None:
+        return dst_tensor
+
+    x, y, w, h = cv2.boundingRect(coords)
+    center = (x + w // 2, y + h // 2)
+
+    try:
+        blended = cv2.seamlessClone(src, dst, mask, center, cv2.NORMAL_CLONE)
+    except cv2.error:
+        return dst_tensor
+
+    return K.utils.image_to_tensor(blended).float().to(dst_tensor.device) / 255.0
+
+
 def reverse2wholeimage(
     b_align_crop_tenor_list,
     swaped_imgs,
@@ -111,6 +179,16 @@ def reverse2wholeimage(
     use_mask=True,
     use_gpu=True,
     use_cam=True,
+    color_match=False,
+    color_match_strength=0.65,
+    detail_enhance=False,
+    detail_enhance_strength=0.12,
+    preserve_occluders=False,
+    occluder_threshold=0.10,
+    occluder_strength=0.90,
+    blend_mode="alpha",
+    blend_strength=1.0,
+    mask_blur=0,
 ):
 
     device = torch.device(
@@ -129,6 +207,17 @@ def reverse2wholeimage(
     mat_rev_initial = np.ones([3, 3])
     mat_rev_initial[2, :] = np.array([0.0, 0.0, 1.0])
     for swaped_img, mat, source_img in zip(swaped_imgs, mats, b_align_crop_tenor_list):
+        if color_match:
+            swaped_img = match_color_statistics(
+                swaped_img,
+                source_img[0],
+                strength=color_match_strength,
+            )
+        if detail_enhance:
+            swaped_img = enhance_face_detail(
+                swaped_img,
+                strength=detail_enhance_strength,
+            )
 
         img_white = torch.full((1, 3, crop_size, crop_size), 1.0, dtype=torch.float).to(
             device
@@ -160,6 +249,13 @@ def reverse2wholeimage(
                     smooth_mask,
                     device=device,
                 )
+                if preserve_occluders:
+                    target_image_parsing = preserve_dark_occluders(
+                        target_image_parsing,
+                        source_img[0],
+                        threshold=occluder_threshold,
+                        strength=occluder_strength,
+                    )
 
                 target_image_parsing = target_image_parsing[None, ...]
                 swaped_img = swaped_img[None, ...]
@@ -195,9 +291,28 @@ def reverse2wholeimage(
             img_white = K.utils.image_to_tensor(img_white).to(device)
             img_white /= 255.0
 
+        if mask_blur:
+            blur_size = int(mask_blur)
+            if blur_size > 1:
+                if blur_size % 2 == 0:
+                    blur_size += 1
+                sigma = max(1.0, blur_size / 6.0)
+                img_white = K.filters.gaussian_blur2d(
+                    img_white,
+                    (blur_size, blur_size),
+                    (sigma, sigma),
+                ).clamp(0.0, 1.0)
+
+        blend_strength = float(np.clip(blend_strength, 0.0, 1.0))
+        if blend_strength < 1.0:
+            img_white = (img_white * blend_strength).clamp(0.0, 1.0)
+
         target_image = K.color.rgb_to_bgr(target_image)
 
-        img = img_white * target_image + (1 - img_white) * img
+        if blend_mode == "poisson":
+            img = poisson_blend(target_image, img, img_white)
+        else:
+            img = img_white * target_image + (1 - img_white) * img
 
     final_img = K.utils.tensor_to_image(img)
     final_img = (final_img * 255).astype(np.uint8)

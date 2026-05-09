@@ -1,0 +1,34 @@
+# ReActor motion-field warping preset for M2 8GB
+# Optimized for: real-world source photos, liveness detection, ~15-18 FPS
+# 
+# Key tuning:
+# - crop_size: 128 (small for speed; sufficient for motion transfer)
+# - smoothing_alpha: 0.4 (moderate EMA; reduces jitter without lag)
+# - blend_mode: alpha (fast, stable for real-time)
+# - blend_strength: 0.86 (weighted toward source for natural expression)
+
+swap_type: simswap  # (placeholder; reactor backend ignores this)
+crop_size: 128
+
+# EMA smoothing: 0.4 balances responsiveness and jitter reduction
+smoothing_alpha: 0.4
+
+# Blending mode: alpha is fast and stable for liveness
+blend_mode: alpha
+blend_strength: 0.86
+
+# Detection confidence (FaceMesh)
+detection_threshold: 0.55
+max_num_faces: 1
+
+# Optional: color matching and detail enhancement
+natural_color_match: true
+natural_color_match_strength: 0.8
+natural_detail_enhance: false
+natural_detail_enhance_strength: 0.0
+natural_preserve_occluders: false
+natural_occluder_threshold: 0.10
+natural_occluder_strength: 0.90
+natural_blend_mode: alpha
+natural_blend_strength: 0.86
+natural_mask_blur: 0

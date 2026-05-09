@@ -2,32 +2,26 @@
 
 import os
 import sys
+from contextlib import contextmanager
 
 import torch
 
+from dot.commons.utils import get_device
 from .models.base_model import BaseModel
 
 
-def determine_path():
-    """
-    Find the script path
-    """
+@contextmanager
+def legacy_simswap_import_path():
+    """Expose SimSwap's old top-level modules only while unpickling checkpoints."""
+    path = os.path.dirname(os.path.abspath(__file__))
+    sys.path.insert(0, path)
     try:
-        root = __file__
-        if os.path.islink(root):
-            root = os.path.realpath(root)
-
-        return os.path.dirname(os.path.abspath(root))
-    except Exception as e:
-        print(e)
-        print("I'm sorry, but something is wrong.")
-        print("There is no __file__ variable. Please contact the author.")
-        sys.exit()
-
-
-sys.path.insert(0, determine_path())
-
-# TODO: Move this class inside models
+        yield
+    finally:
+        try:
+            sys.path.remove(path)
+        except ValueError:
+            pass
 
 
 class fsModel(BaseModel):
@@ -54,12 +48,8 @@ class fsModel(BaseModel):
         )
         torch.backends.cudnn.benchmark = True
 
-        if use_gpu:
-            device = torch.device(
-                "mps" if torch.backends.mps.is_available() else "cuda"
-            )
-        else:
-            device = torch.device("cpu")
+        device_str = get_device() if use_gpu else "cpu"
+        device = torch.device(device_str)
 
         if opt_crop_size == 224:
             from .models.fs_networks import Generator_Adain_Upsample
@@ -73,11 +63,9 @@ class fsModel(BaseModel):
         self.netG.to(device)
 
         # Id network
-        if use_gpu:
-            netArc_checkpoint = torch.load(arcface_model_path)
-        else:
+        with legacy_simswap_import_path():
             netArc_checkpoint = torch.load(
-                arcface_model_path, map_location=torch.device("cpu")
+                arcface_model_path, weights_only=False, map_location=device
             )
 
         self.netArc = netArc_checkpoint

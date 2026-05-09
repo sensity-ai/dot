@@ -58,13 +58,14 @@ class BaseModel(torch.nn.Module):
         if not os.path.isfile(save_path):
             print("%s not exists yet!" % save_path)
             if network_label == "G":
-                raise ("Generator must exist!")
+                raise FileNotFoundError(f"Generator checkpoint must exist: {save_path}")
         else:
+            loaded_state = torch.load(save_path, weights_only=False, map_location="cpu")
             try:
-                network.load_state_dict(torch.load(save_path), strict=False)
+                network.load_state_dict(loaded_state, strict=False)
             except Exception as e:
                 print(e)
-                pretrained_dict = torch.load(save_path)
+                pretrained_dict = loaded_state
                 model_dict = network.state_dict()
                 try:
                     pretrained_dict = {

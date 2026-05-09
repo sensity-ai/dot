@@ -5,7 +5,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-resnet18_url = "saved_models/simswap/resnet18-5c106cde.pth"
+import os as _os
+resnet18_url = _os.path.normpath(_os.path.join(
+    _os.path.dirname(_os.path.abspath(__file__)),
+    "..", "..", "..", "..",
+    "saved_models", "simswap", "resnet18-5c106cde.pth"
+))
 
 
 def conv3x3(in_planes, out_planes, stride=1):

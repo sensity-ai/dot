@@ -1,16 +1,24 @@
 #!/usr/bin/env python3
 
-from typing import List, Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
 import cv2
-import mediapipe as mp
 import numpy as np
-from mediapipe.framework.formats.landmark_pb2 import NormalizedLandmark
+
+try:
+    from mediapipe.framework.formats.landmark_pb2 import NormalizedLandmark
+except ModuleNotFoundError:
+    NormalizedLandmark = Any
 
 from .utils import face_align_ffhqandnewarc as face_align
 from .utils import mediapipe_landmarks
 
-mp_face_mesh = mp.solutions.face_mesh
+try:
+    import mediapipe as mp
+
+    mp_face_mesh = mp.solutions.face_mesh
+except (AttributeError, ModuleNotFoundError):
+    mp_face_mesh = None
 
 
 class FaceMesh:
@@ -36,6 +44,7 @@ class FaceMesh:
         max_num_faces: int = 1,
         refine_landmarks: bool = True,
         min_detection_confidence: float = 0.5,
+        min_tracking_confidence: float = 0.5,
         mode: str = "None",
     ):
         self.MediaPipeIds = mediapipe_landmarks.MediaPipeLandmarks
@@ -43,6 +52,7 @@ class FaceMesh:
         self.max_num_faces = max_num_faces
         self.refine_landmarks = refine_landmarks
         self.min_detection_confidence = min_detection_confidence
+        self.min_tracking_confidence = min_tracking_confidence
         self.mode = mode
 
     def _get_centroid(self, landmarks: List[NormalizedLandmark]) -> Tuple[float, float]:
@@ -86,6 +96,14 @@ class FaceMesh:
         Returns:
             Optional[np.array]: [description]
         """
+        if mp_face_mesh is None:
+            raise RuntimeError(
+                "MediaPipe FaceMesh solutions API is unavailable in this Python "
+                "environment. Use the Apple M2 conda env from "
+                "envs/environment-apple-m2.yaml, or install a MediaPipe build "
+                "that includes mediapipe.solutions."
+            )
+
         # keypoints for all detected faces
         detection_kpss = []
         with mp_face_mesh.FaceMesh(
@@ -167,8 +185,7 @@ class FaceMesh:
         # gets facial landmarks using Face_Mesh model from MediaPipe
         landmarks = self.get_face_landmarks(image)
         if landmarks is None:
-            print("ERROR: No face detected!")
-            return None
+            return None   # silent pass-through when face not in frame
 
         align_img_list = []
         M_list = []
@@ -182,3 +199,38 @@ class FaceMesh:
             M_list.append(M)
 
         return align_img_list, M_list
+
+    def get_all_landmarks(self, image: np.ndarray) -> Optional[List[np.ndarray]]:
+        """Get all 468 MediaPipe face landmarks (not just the 5 key points).
+
+        Args:
+            image (np.ndarray): BGR image.
+
+        Returns:
+            Optional[List[np.ndarray]]: List of (468, 3) landmark arrays, one per face detected.
+                Each row is (x, y, z) in pixel coordinates (z is relative depth).
+                Returns None if no face detected.
+        """
+        if mp_face_mesh is None:
+            raise RuntimeError("MediaPipe FaceMesh is unavailable.")
+
+        with mp_face_mesh.FaceMesh(
+            static_image_mode=self.static_image_mode,
+            max_num_faces=self.max_num_faces,
+            refine_landmarks=self.refine_landmarks,
+            min_detection_confidence=self.min_detection_confidence,
+        ) as face_mesh:
+
+            detection = face_mesh.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+            if not detection.multi_face_landmarks:
+                return None
+
+            height, width, _ = image.shape
+            all_faces = []
+            for face_landmarks in detection.multi_face_landmarks:
+                landmarks = np.empty((len(face_landmarks.landmark), 3), dtype=np.float32)
+                for i, lm in enumerate(face_landmarks.landmark):
+                    landmarks[i] = [lm.x * width, lm.y * height, lm.z * max(width, height)]
+                all_faces.append(landmarks)
+
+            return all_faces

@@ -1,7 +1,59 @@
+import Playgrounds
 # repo ignores
 data/results/*
 saved_models/*
 *.patch
+
+# deployment artifacts
+Morphanus.zip
+Morphanus/
+deploy/
+/var/www/morphanus/
+
+# media artifacts
+recordings/
+captures/
+frames/
+*.mp4
+*.mov
+*.webm
+*.wav
+*.aiff
+*.flac
+*.yuv
+*.pcm
+
+# local runtime state
+uploads/
+out/
+vps_portal/keys.json
+vps_portal/subscriptions.json
+vps_portal/audit_log.jsonl
+
+# models and weights
+models/
+*.onnx
+*.tflite
+*.pt
+*.pth
+*.bin
+*.safetensors
+
+# build/cache/profiling
+.cache/
+.profiles/
+*.trace
+*.gpuvis
+
+# Xcode/Swift (in case we add a native helper later)
+DerivedData/
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+*.xcworkspace/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+.build/
+Package.resolved
 
 # Created by https://www.toptal.com/developers/gitignore/api/python,macos,windows,linux
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,macos,windows,linux

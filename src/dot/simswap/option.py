@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import cv2
 import numpy as np
 import torch
@@ -7,32 +8,27 @@ import torch.nn.functional as F
 from PIL import Image
 from torchvision import transforms
 
-from dot.commons import ModelOption
+from dot.commons.utils import get_device, get_model_base_path, VIDEO_EXTENSIONS
+from dot.commons.shared_detector import get_static_detector, get_live_detector
 from dot.simswap.fs_model import create_model
-from dot.simswap.mediapipe.face_mesh import FaceMesh
 from dot.simswap.parsing_model.model import BiSeNet
 from dot.simswap.util.norm import SpecificNorm
 from dot.simswap.util.reverse2original import reverse2wholeimage
 from dot.simswap.util.util import _totensor
 
 
-class SimswapOption(ModelOption):
-    """Extends `ModelOption` and initializes models."""
+
+class SimswapOption:
+    """SimSwap model wrapper for the live webcam path."""
 
     def __init__(
         self,
         use_gpu=True,
         use_mask=False,
         crop_size=224,
-        gpen_type=None,
-        gpen_path=None,
     ):
-        super(SimswapOption, self).__init__(
-            gpen_type=gpen_type,
-            use_gpu=use_gpu,
-            crop_size=crop_size,
-            gpen_path=gpen_path,
-        )
+        self.use_gpu = use_gpu
+        self.crop_size = crop_size
         self.use_mask = use_mask
 
     def create_model(  # type: ignore
@@ -43,16 +39,27 @@ class SimswapOption(ModelOption):
         opt_crop_size=224,
         opt_gpu_ids=[0],
         opt_fp16=False,
-        checkpoints_dir="./checkpoints",
+        checkpoints_dir=None,
         opt_name="people",
         opt_resize_or_crop="scale_width",
         opt_load_pretrain="",
         opt_which_epoch="latest",
         opt_continue_train="store_true",
-        parsing_model_path="./parsing_model/checkpoint/79999_iter.pth",
-        arcface_model_path="./arcface_model/arcface_checkpoint.tar",
+        parsing_model_path=None,
+        arcface_model_path=None,
+        max_num_faces=1,
+        min_detection_confidence=None,
+        min_tracking_confidence=0.5,
         **kwargs
     ) -> None:
+        model_base = get_model_base_path()
+        if parsing_model_path is None:
+            parsing_model_path = f"{model_base}/parsing_model/checkpoint/79999_iter.pth"
+        if arcface_model_path is None:
+            arcface_model_path = f"{model_base}/arcface_model/arcface_checkpoint.tar"
+        if checkpoints_dir is None:
+            checkpoints_dir = f"{model_base}/checkpoints"
+
         # preprocess_f
         self.transformer_Arcface = transforms.Compose(
             [
@@ -68,11 +75,22 @@ class SimswapOption(ModelOption):
         else:
             self.mode = "None"
 
-        self.detect_model = FaceMesh(
-            static_image_mode=True,
-            max_num_faces=2,
+        # For camera mode: use video-stream tracking. For batch: static mode is faster/lighter.
+        is_camera = not (hasattr(self, '_source_display_frame'))
+        detection_confidence = (
+            detection_threshold
+            if min_detection_confidence is None
+            else min_detection_confidence
+        )
+        self.detect_model = get_live_detector(
+            max_num_faces=max_num_faces,
             refine_landmarks=True,
-            min_detection_confidence=0.5,
+            min_detection_confidence=detection_confidence,
+            min_tracking_confidence=min_tracking_confidence,
+        ) if is_camera else get_static_detector(
+            max_num_faces=max_num_faces,
+            refine_landmarks=True,
+            min_detection_confidence=detection_confidence,
             mode=self.mode,
         )
 
@@ -82,15 +100,15 @@ class SimswapOption(ModelOption):
             n_classes = 19
             self.net = BiSeNet(n_classes=n_classes)
             if self.use_gpu:
-                device = "mps" if torch.backends.mps.is_available() else "cuda"
+                device = get_device()
                 self.net.to(device)
                 self.net.load_state_dict(
-                    torch.load(parsing_model_path, map_location=device)
+                    torch.load(parsing_model_path, weights_only=False, map_location=device)
                 )
             else:
                 self.net.cpu()
                 self.net.load_state_dict(
-                    torch.load(parsing_model_path, map_location=torch.device("cpu"))
+                    torch.load(parsing_model_path, weights_only=False, map_location="cpu")
                 )
 
             self.net.eval()
@@ -99,7 +117,6 @@ class SimswapOption(ModelOption):
 
         torch.nn.Module.dump_patches = False
 
-        # Model
         self.model = create_model(
             opt_verbose,
             opt_crop_size,
@@ -116,43 +133,128 @@ class SimswapOption(ModelOption):
         )
         self.model.eval()
 
-    def change_option(self, image: np.array, **kwargs) -> None:
-        """Sets the source image in source/target pair face-swap.
+    def _embed_single_frame(self, bgr_frame: np.ndarray):
+        """Compute ArcFace embedding for one BGR frame. Returns (embedding, crop) or None."""
+        result = self.detect_model.get(bgr_frame, self.crop_size)
+        if result is None:
+            return None
+        crop_bgr = result[0][0]
+        pil_img = Image.fromarray(cv2.cvtColor(crop_bgr, cv2.COLOR_BGR2RGB))
+        img_a = self.transformer_Arcface(pil_img)
+        img_id = img_a.view(-1, img_a.shape[0], img_a.shape[1], img_a.shape[2])
+        device = get_device() if self.use_gpu else "cpu"
+        img_id = img_id.to(device)
+        img_id_ds = F.interpolate(img_id, size=(112, 112))
+        emb = self.model.netArc(img_id_ds).detach().cpu()
+        emb = emb / np.linalg.norm(emb.numpy(), axis=1, keepdims=True)
+        return emb, crop_bgr
 
-        Args:
-            image (np.array): Source image.
+    def _set_embedding(self, embedding: "torch.Tensor") -> None:
+        """Normalise and store the final source embedding on the correct device."""
+        device = get_device() if self.use_gpu else "cpu"
+        self.source_image = embedding.to(device)
+
+    # ── public API ─────────────────────────────────────────────────────────────
+
+    def change_option(self, image, num_video_samples: int = 20, **kwargs) -> None:
+        """Sets the source identity.
+
+        Accepts:
+          • np.ndarray  – a single BGR image (existing behaviour)
+          • str         – path to an image OR a video file.
+                          When a video is given, embeddings are averaged across
+                          up to `num_video_samples` evenly-spaced frames for a
+                          much more robust identity representation.
         """
-        img_a_align_crop, _ = self.detect_model.get(image, self.crop_size)
+        if isinstance(image, str) and os.path.splitext(image)[1] in VIDEO_EXTENSIONS:
+            cap = cv2.VideoCapture(image)
+            if not cap.isOpened():
+                raise ValueError(f"Cannot open video: {image}")
+
+            total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            # WebM and some containers report -1 or garbage for frame count.
+            # Fall back to sequential read-and-sample in that case.
+            can_seek = total > 0 and total < 1_000_000
+
+            embeddings = []
+            display_crop = None
+            fname = os.path.basename(image)
+
+            if can_seek:
+                indices = np.linspace(0, total - 1,
+                                      min(num_video_samples, total), dtype=int)
+                print(f"[dot] Sampling {len(indices)} frames from {fname} …")
+                for idx in indices:
+                    cap.set(cv2.CAP_PROP_POS_FRAMES, int(idx))
+                    ret, frame = cap.read()
+                    if not ret or frame is None:
+                        continue
+                    out = self._embed_single_frame(frame)
+                    if out is None:
+                        continue
+                    emb, crop = out
+                    embeddings.append(emb)
+                    del frame, crop
+                    if display_crop is None:
+                        display_crop = crop
+            else:
+                # Sequential scan — sample every Nth frame until we have enough
+                print(f"[dot] Scanning {fname} sequentially (WebM/no seek) …")
+                frame_idx = 0
+                step = 3  # sample every 3rd frame for speed
+                while len(embeddings) < num_video_samples:
+                    ret, frame = cap.read()
+                    if not ret or frame is None:
+                        break
+                    if frame_idx % step == 0:
+                        out = self._embed_single_frame(frame)
+                        if out is not None:
+                            emb, crop = out
+                            embeddings.append(emb)
+                            if display_crop is None:
+                                display_crop = crop
+                    frame_idx += 1
+
+            cap.release()
+
+            if not embeddings:
+                raise ValueError(f"No faces detected in video: {image}")
+
+            print(f"[dot] Averaged {len(embeddings)} face embeddings from {fname} ✅")
+            avg = torch.stack(embeddings).mean(dim=0)
+            avg = avg / np.linalg.norm(avg.numpy(), axis=1, keepdims=True)
+            self._source_display_frame = display_crop
+            self._set_embedding(avg)
+            return
+
+        # ── image path ─────────────────────────────────────────────────────────
+        if isinstance(image, str):
+            image = cv2.imread(image)
+            if image is None:
+                raise ValueError(f"Cannot read image: {image}")
+
+        # ── numpy array (original single-image path) ───────────────────────────
+        result = self.detect_model.get(image, self.crop_size)
+        if result is None:
+            raise ValueError("No face detected in source image.")
+        img_a_align_crop = result[0]
         img_a_align_crop_pil = Image.fromarray(
             cv2.cvtColor(img_a_align_crop[0], cv2.COLOR_BGR2RGB)
         )
         img_a = self.transformer_Arcface(img_a_align_crop_pil)
         img_id = img_a.view(-1, img_a.shape[0], img_a.shape[1], img_a.shape[2])
 
-        # convert numpy to tensor
-        if self.use_gpu:
-            img_id = (
-                img_id.to("mps")
-                if torch.backends.mps.is_available()
-                else img_id.to("cuda")
-            )
-        else:
-            img_id = img_id.cpu()
+        device = get_device() if self.use_gpu else "cpu"
+        img_id = img_id.to(device)
 
-        # create latent id
         img_id_downsample = F.interpolate(img_id, size=(112, 112))
         source_image = self.model.netArc(img_id_downsample)
-        source_image = source_image.detach().to("cpu")
+        source_image = source_image.detach().cpu()
         source_image = source_image / np.linalg.norm(
-            source_image, axis=1, keepdims=True
+            source_image.numpy(), axis=1, keepdims=True
         )
-
-        source_image = (
-            source_image.to("mps" if torch.backends.mps.is_available() else "cuda")
-            if self.use_gpu
-            else source_image.to("cpu")
-        )
-        self.source_image = source_image
+        self._source_display_frame = None
+        self._set_embedding(source_image)
 
     def process_image(self, image: np.array, **kwargs) -> np.array:
         """Main process of simswap method. There are 3 main steps:
@@ -177,9 +279,7 @@ class SimswapOption(ModelOption):
                 if self.use_gpu:
                     frame_align_crop_tenor = _totensor(
                         cv2.cvtColor(frame_align_crop, cv2.COLOR_BGR2RGB)
-                    )[None, ...].to(
-                        "mps" if torch.backends.mps.is_available() else "cuda"
-                    )
+                    )[None, ...].to(get_device())
                 else:
                     frame_align_crop_tenor = _totensor(
                         cv2.cvtColor(frame_align_crop, cv2.COLOR_BGR2RGB)
@@ -202,6 +302,18 @@ class SimswapOption(ModelOption):
                 norm=self.spNorm,
                 use_gpu=self.use_gpu,
                 use_cam=kwargs.get("use_cam", True),
+                color_match=kwargs.get("natural_color_match", False),
+                color_match_strength=kwargs.get("natural_color_match_strength", 0.65),
+                detail_enhance=kwargs.get("natural_detail_enhance", False),
+                detail_enhance_strength=kwargs.get(
+                    "natural_detail_enhance_strength", 0.12
+                ),
+                preserve_occluders=kwargs.get("natural_preserve_occluders", False),
+                occluder_threshold=kwargs.get("natural_occluder_threshold", 0.10),
+                occluder_strength=kwargs.get("natural_occluder_strength", 0.90),
+                blend_mode=kwargs.get("natural_blend_mode", "alpha"),
+                blend_strength=kwargs.get("natural_blend_strength", 1.0),
+                mask_blur=kwargs.get("natural_mask_blur", 0),
             )
             return result_frame
         else:

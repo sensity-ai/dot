@@ -1,0 +1,34 @@
+---
+# M2 8GB Natural Max Live Configuration
+# Same as natural, but uses Poisson blending. This can look better on some
+# lighting but is slower, so it is not the default live preset.
+
+swap_type: simswap
+parsing_model_path: saved_models/simswap/parsing_model/checkpoint/79999_iter.pth
+arcface_model_path: saved_models/simswap/arcface_model/arcface_checkpoint.tar
+checkpoints_dir: saved_models/simswap/checkpoints
+
+crop_size: 512
+use_fp16: false
+use_mask: true
+use_cam: true
+
+batch_size: 1
+cache_frames: false
+preload_models: false
+enable_memory_pooling: true
+
+detection_threshold: 0.6
+face_size_threshold: 20
+max_num_faces: 1
+
+natural_color_match: true
+natural_color_match_strength: 0.95
+natural_detail_enhance: true
+natural_detail_enhance_strength: 0.08
+natural_preserve_occluders: true
+natural_occluder_threshold: 0.10
+natural_occluder_strength: 0.90
+natural_blend_mode: poisson
+natural_blend_strength: 0.92
+natural_mask_blur: 31

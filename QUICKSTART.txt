@@ -1,0 +1,42 @@
+// Morphanus — Quickstart (macOS Apple Silicon)
+//
+// Known-good one‑liner
+// ./run.sh --backend onnx --preset natural --output window
+// If you get a macOS camera permission error: quit Terminal, grant Camera access to Terminal in System Settings → Privacy & Security → Camera, then reopen Terminal.
+//
+// Requirements
+// - macOS 14+ on Apple Silicon (M1/M2). Tested on M2 (8GB).
+// - Conda (miniconda or Anaconda) installed and available in your shell.
+//
+// 1) Unzip and open the folder
+//    Unzip Morphanus.zip and open the Morphanus folder in Terminal.
+//
+// 2) Create and activate the environment
+//    conda env create -f envs/environment-apple-m2.yaml
+//    conda activate dot
+//    pip install -r requirements-apple-m2.txt
+//
+// 3) Download required models (not included in the zip)
+//    python download_models.py
+//    First run downloads models (may take 2–10 minutes depending on network)
+//    and uses ~1–2 GB disk in saved_models/.
+//
+// 4) Run a live preview (720p)
+//    python live.py --backend simswap --preset natural --source source_face.jpg --camera 1
+//
+// 5) Camera permission (if needed)
+//    If macOS asks for camera permission, grant it in:
+//    System Settings → Privacy & Security → Camera
+//
+// Tips
+// - If you have multiple cameras, try --camera 0 or 2.
+// - To switch presets, see configs/ (e.g., m2_8gb_natural.yaml).
+// - For help: support@morphanus.ai
+//
+// Common fixes
+// - “conda: command not found”: Install Miniconda from https://docs.conda.io/en/latest/miniconda.html and restart your terminal.
+// - “Module not found”: Ensure you ran ‘conda activate dot’ and ‘pip install -r requirements-apple-m2.txt’.
+// - “No camera / black preview”: Check camera permissions. Try a different --camera index.
+//
+// Version
+// - This package targets Apple Silicon and is optimized for M2 8GB.
